@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* login.html専用の追加スタイル */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+        .login-container {
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-top: 0;
+            color: #333;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>チャットへようこそ</h1>
+        <p>あなたの名前を入力してください</p>
+        <!-- login.html の <form> タグの中身を書き換え -->
+        <form id="login-form">
+            <input id="username-input" placeholder="ニックネーム" required>
+            <!-- ↓↓↓ パスワード入力欄を追加 ↓↓↓ -->
+            <input id="password-input" type="password" placeholder="パスワード" required>
+            <button type="submit">チャットを始める</button>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password-input');
+
+        loginForm.addEventListener('submit', async (e) => { // async を追加
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (username && password) {
+                try {
+                    // サーバーの /login に問い合わせ
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // 認証成功した場合
+                        sessionStorage.setItem('chatUsername', username);
+                        window.location.href = '/index.html';
+                    } else {
+                        // 認証失敗した場合
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('ログイン処理中にエラーが発生しました:', error);
+                    alert('サーバーとの通信に失敗しました。');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
