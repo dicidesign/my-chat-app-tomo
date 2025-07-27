@@ -1,0 +1,161 @@
+/* style.css をこれでまるごと上書き */
+
+/* --- 全体の設定 --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden; /* ★重要：内側でスクロールさせるので、bodyのスクロールは禁止 */
+}
+
+/* --- ★★★ ここからが新しいレイアウトの核 ★★★ --- */
+.chat-container {
+    display: flex;
+    flex-direction: column; /* 上から下に要素を並べる */
+    height: 100%;
+    background-color: #7b99c7;
+}
+
+/* --- メッセージリストのエリア --- */
+#messages {
+    flex: 1; /* ★重要：残りの高さを全てこの要素が使う */
+    overflow-y: auto; /* ★重要：中身が溢れたら、この要素内だけでスクロールさせる */
+    list-style-type: none;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    /* border: 2px solid red; デバッグ用なのでコメントアウト */
+}
+/* --- ★★★ ここまでが新しいレイアウトの核 ★★★ --- */
+
+
+/* --- 各メッセージ（li要素）の基本スタイル --- */
+#messages li {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+    clear: both; 
+}
+
+/* --- 画像メッセージのスタイル --- */
+/* --- 画像メッセージのスタイル --- */
+#messages li img {
+    height: 150px; /* ★重要：高さを150pxに固定 */
+    width: auto;   /* 幅は高さに合わせて自動調整 */
+    max-width: 100%;
+    border-radius: 10px;
+    display: block; 
+    cursor: pointer; /* ★追加：クリックできることが分かるようにカーソルを変える */
+    object-fit: cover; /* ★重要：比率を保ったまま、要素を埋め尽くすように調整 */
+}
+
+/* --- 相手のメッセージ（左側） --- */
+#messages li.opponent {
+    background: #ffffff;
+    float: left;
+}
+
+/* --- 自分のメッセージ（右側） --- */
+#messages li.me {
+    background: #8de041;
+    float: right;
+}
+
+/* --- 相手の名前ラベル --- */
+.name-label {
+    clear: both;
+    float: left;
+    font-size: 12px;
+    color: #f0f0f0;
+    margin-left: 5px;
+    margin-bottom: 2px;
+}
+
+/* --- 入力フォーム全体 --- */
+#form {
+    background: rgba(245, 245, 245, 0.95);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border-top: 1px solid #ddd;
+    /* position: fixed は不要になったので削除 */
+    /* border: 2px solid blue; デバッグ用なのでコメントアウト */
+}
+
+/* --- 入力欄 --- */
+#input {
+    border: 1px solid #ccc;
+    padding: 10px;
+    flex-grow: 1;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+#input:focus {
+    outline: none;
+}
+
+/* --- 送信ボタン --- */
+#form button {
+    background: #4a80e2;
+    border: none;
+    padding: 10px 15px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* --- 画像アイコンのスタイル --- */
+.image-upload-label {
+    padding: 0 10px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+/* SweetAlert2のモーダルを全画面表示にするためのカスタムCSS */
+.fullscreen-swal {
+    width: 90vw !important; /* 画面幅の90% */
+    height: 90vh !important; /* 画面高さの90% */
+    padding: 0 !important;
+}
+
+.fullscreen-swal .swal2-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 画像全体が見えるように、比率を保ってフィットさせる */
+}
+
+/* --- SweetAlert2のボタンをカスタム --- */
+
+/* モーダル全体のボタン配置を調整 */
+.swal2-actions {
+    position: absolute;
+    top: 10px;
+    right: 50px; /* 閉じるボタンの隣に配置 */
+}
+
+/* ダウンロードボタンの背景を透明に */
+.swal2-confirm {
+    background: transparent !important;
+    color: white !important;
+    font-size: 24px !important; /* アイコンサイズを大きく */
+    padding: 0 10px !important;
+    box-shadow: none !important;
+}
+/* ホバー時の色も調整 */
+.swal2-confirm:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 閉じるボタンの色を白に */
+.swal2-close {
+    color: white !important;
+    font-size: 32px !important;
+}
+.swal2-close:hover {
+    color: #ddd !important;
+}
