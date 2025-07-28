@@ -65,7 +65,10 @@ io.on('connection', (socket) => {
             const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
             const querySnapshot = await getDocs(q);
             const oldMessages = [];
-            querySnapshot.forEach((doc) => oldMessages.unshift(doc.data()));
+             querySnapshot.forEach((doc) => {
+                // ↓↓↓ doc.data() に、id を追加してあげる！ ↓↓↓
+                oldMessages.unshift({ id: doc.id, ...doc.data() });
+            });
             socket.emit('load old messages', oldMessages);
         } catch (e) {
             console.error("過去ログ取得エラー:", e);
