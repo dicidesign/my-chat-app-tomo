@@ -24,10 +24,17 @@ const io = new Server(server, {
 app.use(express.json());
 
 // --- 3. 外部サービスの設定 ---
-const firebaseConfig = { /* ... (トモのキーで変更なし) ... */ };
+const firebaseConfig = { apiKey: "AIzaSyCSXWUV4OnvDco44l14fGqT-IZawlWjdcQ",
+authDomain: "my-chat-app-tomo.firebaseapp.com",
+projectId: "my-chat-app-tomo",
+storageBucket: "my-chat-app-tomo.appspot.com",
+messagingSenderId: "922389757998",
+appId: "1:922389757998:web:4907bcaaeeee7a7d4f9fbf"};
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-cloudinary.config({ /* ... (トモのキーで変更なし) ... */ });
+cloudinary.config({cloud_name:"dmo5bvnlk",
+api_key: "149631492483621",
+api_secret: "LfHS3WuP90Nxpo_AmSf81h6Wuto",});
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
