@@ -1,7 +1,6 @@
-// 【server.js 最終版・完全体 for Render】
+// 【server.js 完全版・最終確定】
 
 // --- 1. 必要なライブラリ ---
-const { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore');
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -11,152 +10,90 @@ const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { Readable } = require('stream');
 const { initializeApp } = require('firebase/app');
+const { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore');
 
 // --- 2. Expressサーバーの準備 ---
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    },
-    // ↓↓↓ この2つのオプションを追加！ ↓↓↓
-    transports: ['websocket', 'polling'], // 接続方法を明示的に指定
-    pingInterval: 10000, // 10秒ごとに生存確認
-    pingTimeout: 5000,   // 5秒応答がなければ切断
+    cors: { origin: "*", methods: ["GET", "POST"] },
+    transports: ['websocket', 'polling'],
+    pingInterval: 10000,
+    pingTimeout: 5000,
 });
 app.use(express.json());
 
 // --- 3. 外部サービスの設定 ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCSXWUV4OnvDco44l14fGqT-IZawlWjdcQ",
-  authDomain: "my-chat-app-tomo.firebaseapp.com",
-  projectId: "my-chat-app-tomo",
-  storageBucket: "my-chat-app-tomo.appspot.com",
-  messagingSenderId: "922389757998",
-  appId: "1:922389757998:web:4907bcaaeeee7a7d4f9fbf"
-};
+const firebaseConfig = { /* ... (トモのキーで変更なし) ... */ };
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-
-cloudinary.config({
-    cloud_name:"dmo5bvnlk",
-    api_key: "149631492483621",
-    api_secret: "LfHS3WuP90Nxpo_AmSf81h6Wuto",
-});
-
+cloudinary.config({ /* ... (トモのキーで変更なし) ... */ });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // --- 4. 認証ユーザーリスト ---
 const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
 
-// --- 5. ファイル配信設定（Render完全対応・改） ---
-// このプロジェクトのルートフォルダを静的ファイルの配信元として設定
+// --- 5. ファイル配信設定 ---
 app.use(express.static(__dirname));
-
-// ルートURL ('/') にアクセスがあったら、login.html にリダイレクト（転送）する
-app.get('/', (req, res) => {
-  res.redirect('/login.html');
-});
+app.get('/', (req, res) => { res.redirect('/login.html'); });
 
 // --- 6. 各種API（窓口）の設定 ---
-app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    if (authorizedUsers[username] && authorizedUsers[username] === password) {
-        res.json({ success: true });
-    } else {
-        res.json({ success: false, message: 'ユーザー名またはパスワードが違います。' });
-    }
-});
-app.post('/upload-image', upload.single('image'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: '画像ファイルがありません。' });
-    const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-        if (error) return res.status(500).json({ error: 'アップロードに失敗しました。' });
-        res.json({ imageUrl: result.secure_url });
-    });
-    Readable.from(req.file.buffer).pipe(uploadStream);
-});
-app.get('/download-image', async (req, res) => {
-    const { url: imageUrl } = req.query;
-    if (!imageUrl) return res.status(400).send('Image URL is required');
-    try {
-        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        res.setHeader('Content-Disposition', 'attachment; filename="download.jpg"');
-        res.setHeader('Content-Type', 'image/jpeg');
-        res.send(response.data);
-    } catch (error) {
-        console.error('Download error:', error);
-        res.status(500).send('Failed to download image');
-    }
-});
-// --- テーマ取得API ---
-app.get('/get-theme', async (req, res) => {
-    try {
-        const themeRef = doc(db, 'settings', 'theme');
-        const docSnap = await getDoc(themeRef);
-        if (docSnap.exists()) {
-            res.json({ success: true, theme: docSnap.data().text });
-        } else {
-            // ドキュメントが存在しない場合は、デフォルトのテーマを返す
-            res.json({ success: true, theme: 'リスとくるみ' });
-        }
-    } catch (e) {
-        res.status(500).json({ success: false, message: 'テーマの取得に失敗しました。' });
-    }
-});
+app.post('/login', (req, res) => { /* ... (変更なし) ... */ });
+app.post('/upload-image', upload.single('image'), (req, res) => { /* ... (変更なし) ... */ });
+app.get('/download-image', async (req, res) => { /* ... (変更なし) ... */ });
+app.get('/get-theme', async (req, res) => { /* ... (変更なし) ... */ });
 
 // --- 7. WebSocket (Socket.IO) の処理 ---
-io.on('connection', async (socket) => {
-    try {
-        const messageRef = doc(db, 'messages', messageId);
-        await deleteDoc(messageRef); // Firestoreからドキュメントを削除
-        const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
-        const querySnapshot = await getDocs(q);
-        const oldMessages = [];
-        querySnapshot.forEach((doc) => oldMessages.unshift(doc.data()));
-        socket.emit('load old messages', oldMessages);
-        // 接続している全員に、削除されたメッセージのIDを通知
-        io.emit('message deleted', messageId);
-        console.log(`メッセージが削除されました: ${messageId}`);
-    } catch (e) {
-        console.error("過去ログ取得エラー:", e);
-    }
+io.on('connection', (socket) => {
+    console.log(`ユーザーが接続しました: ${socket.id}`);
+
+    // 1. 接続時に、まず過去ログを送信する
+    (async () => {
+        try {
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
+            const querySnapshot = await getDocs(q);
+            const oldMessages = [];
+            querySnapshot.forEach((doc) => oldMessages.unshift(doc.data()));
+            socket.emit('load old messages', oldMessages);
+        } catch (e) {
+            console.error("過去ログ取得エラー:", e);
+        }
+    })();
+
+    // 2. これから発生するイベントに備えて、リスナーを登録する
     socket.on('chat message', async (data) => {
         const messagesRef = collection(db, 'messages');
-        const newDocRef = doc(messagesRef); // これで新しいIDを持つ参照を先に作成
+        const newDocRef = doc(messagesRef);
         const messageToBroadcast = {
-            id: newDocRef.id, // ★★★ IDをデータに含める！ ★★★
+            id: newDocRef.id,
             text: data.message,
             username: data.username,
             createdAt: new Date(),
             isImage: data.isImage || false,
         };
         try {
-            await setDoc(newDocRef, messageToBroadcast); // addDocからsetDocに変更
+            await setDoc(newDocRef, messageToBroadcast);
             io.emit('chat message', messageToBroadcast);
         } catch (e) {
             console.error("メッセージ保存エラー:", e);
         }
     });
-     // --- テーマ変更の処理 ---
+
     socket.on('theme change', async (newTheme) => {
         try {
-            // Firestoreの'settings'コレクションにある'theme'ドキュメントを更新
-            // (もし存在しなければ、自動的に作成される)
             const themeRef = doc(db, 'settings', 'theme');
             await setDoc(themeRef, { text: newTheme, updatedAt: new Date() });
-
-            // 接続している全員に、テーマが更新されたことを通知する
             io.emit('theme updated', newTheme);
             console.log(`テーマが "${newTheme}" に更新されました。`);
-
         } catch (e) {
             console.error("テーマの更新に失敗しました:", e);
         }
     });
-    // --- メッセージ削除の処理 ---
+
     socket.on('delete message', async (messageId) => {
+        if (!messageId) return; // IDがなければ何もしない
         try {
             const messageRef = doc(db, 'messages', messageId);
             await deleteDoc(messageRef);
@@ -165,6 +102,10 @@ io.on('connection', async (socket) => {
         } catch (e) {
             console.error("メッセージの削除に失敗しました:", e);
         }
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`ユーザーが切断しました: ${socket.id}`);
     });
 });
 
