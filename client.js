@@ -63,6 +63,7 @@ if (!storedUsername) {
 
     // 2. メッセージ表示用のHTML要素を作成
     const li = document.createElement('li');
+    li.id = `message-${data.id}`;
     const bubble = document.createElement('div');
     const time = document.createElement('span');
 
@@ -113,6 +114,31 @@ if (!storedUsername) {
     // 5. スタイル用のクラスを設定
     bubble.className = 'bubble';
     time.className = 'message-time';
+
+    // --- 5.5 メッセージ削除機能 ---
+    if (!data.isImage && username === currentUsername) {
+        // テキストメッセージ、かつ、自分のメッセージの場合のみ
+        bubble.addEventListener('contextmenu', (e) => {
+            e.preventDefault(); // 右クリックメニューをキャンセル
+
+            Swal.fire({
+                title: 'このメッセージを削除しますか？',
+                text: "この操作は取り消せません。",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'はい、削除します',
+                cancelButtonText: 'やめる'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // サーバーにメッセージ削除を要求
+                    socket.emit('delete message', data.id); // メッセージのIDを送る
+                }
+            });
+        });
+    }
+    // --- ↑↑↑ ここまでが5.5 メッセージ削除機能 ---
 
     // 6. 自分か相手かで、要素を組み立てる順番とクラスを変える
     if (username === currentUsername) {
@@ -223,6 +249,21 @@ if (!storedUsername) {
     socket.on('chat message', (data) => {
         displayMessage(data);
         messages.scrollTop = messages.scrollHeight; // 確実に一番下までスクロール
+    });
+
+     /* サーバーからメッセージ削除の通知を受け取った時の処理
+     */
+
+    socket.on('message deleted', (messageId) => {
+        const messageElement = document.getElementById(`message-${messageId}`);
+        if (messageElement) {
+            // もし名前ラベル（相手のメッセージの場合）があれば、それも一緒に消す
+            const nameLabel = messageElement.previousElementSibling;
+            if (nameLabel && nameLabel.classList.contains('name-label')) {
+                nameLabel.remove();
+            }
+            messageElement.remove(); // メッセージ本体を削除
+        }
     });
 }
 
