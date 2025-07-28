@@ -67,9 +67,11 @@ if (!storedUsername) {
                                 Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' })
                                 .then((result) => {
                                     if (result.isConfirmed) {
-                                        socket.emit('delete message', data.id);
-                                        Swal.close();
-                                    }
+                                    // ↓↓↓ この監視カメラを追加！ ↓↓↓
+                                    console.log(`[クライアント] 画像削除リクエスト送信: ID = ${data.id}`);
+                                    socket.emit('delete message', data.id);
+                                    Swal.close();
+                                }
                                 });
                             });
                         }
@@ -93,8 +95,10 @@ if (!storedUsername) {
                     confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        socket.emit('delete message', data.id);
-                    }
+                    // ↓↓↓ この監視カメラを追加！ ↓↓↓
+                    console.log(`[クライアント] テキスト削除リクエスト送信: ID = ${data.id}`);
+                    socket.emit('delete message', data.id);
+                }
                 });
             };
             bubble.addEventListener('click', showDeleteConfirm);

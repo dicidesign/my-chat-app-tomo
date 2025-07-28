@@ -103,14 +103,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('delete message', async (messageId) => {
+        console.log(`[サーバー] 削除リクエスト受信: ID = ${messageId}`);
         if (!messageId) return;
         try {
             const messageRef = doc(db, 'messages', messageId);
             await deleteDoc(messageRef);
             io.emit('message deleted', messageId);
-            console.log(`メッセージが削除されました: ${messageId}`);
+            console.log(`[サーバー] メッセージ削除成功: ID = ${messageId}`);
         } catch (e) {
-            console.error("メッセージの削除に失敗しました:", e);
+            console.error("[サーバー] メッセージの削除に失敗しました:", e);
         }
     });
 
