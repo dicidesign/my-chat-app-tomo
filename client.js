@@ -207,26 +207,32 @@ if (!storedUsername) {
             Swal.fire({
                 title: '新しいテーマを入力してください',
                 input: 'text',
-                inputValue: chatThemeElement.textContent, // 現在のテーマを初期値として表示
+                inputValue: chatThemeElement.textContent,
                 showCancelButton: true,
                 confirmButtonText: '変更する',
                 cancelButtonText: 'やめる',
                 inputAttributes: {
-            maxlength: 8 // HTMLの属性で8文字までしか入力できなくする
+                    maxlength: 10 // 少し余裕を持たせて10文字くらいに
                 },
-                inputValidator: (value) => {
+                // ↓↓↓ ここからが新しいバリデーションの書き方 ↓↓↓
+                preConfirm: (value) => {
+                    // 「変更する」ボタンが押された瞬間にチェックする
                     if (!value) {
-                        return 'テーマを入力してください！'
+                        Swal.showValidationMessage('テーマを入力してください！');
+                        return false; // これで送信を防ぐ
                     }
                     if (value.length > 8) {
-                        // 念のため、JavaScript側でもチェック
-                        return 'テーマは8文字以内で入力してください。'
+                        Swal.showValidationMessage('テーマは8文字以内で入力してください。');
+                        return false; // これで送信を防ぐ
                     }
-                }
+                    return value; // チェックを通過したら、入力値を返す
+                },
+                allowOutsideClick: () => !Swal.isLoading() // 処理中は外側クリックを無効化
+                // ↑↑↑ ここまでが新しいバリデーションの書き方 ↑↑↑
             }).then((result) => {
-                if (result.isConfirmed) {
+                // preConfirmが成功した場合だけ、この中の処理が実行される
+                if (result.isConfirmed && result.value) {
                     const newTheme = result.value;
-                    // サーバーにテーマの変更を通知する
                     socket.emit('theme change', newTheme);
                 }
             });
