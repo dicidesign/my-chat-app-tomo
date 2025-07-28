@@ -1,0 +1,228 @@
+/* 【style.css 最終版】 */
+
+/* --- 1. 基本設定とログイン画面 --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f0f2f5;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 360px;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+}
+.login-form h1 { margin-top: 0; color: #333; }
+.login-form input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+.login-form button { width: 100%; padding: 12px; margin-top: 20px; border: none; background-color: #007bff; color: white; border-radius: 6px; font-size: 16px; cursor: pointer; }
+
+
+/* --- 2. チャット画面の基本レイアウト --- */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    /* ↓↓↓ height: 100vh; を使う！ ↓↓↓ */
+    height: 100vh; /* vhは「ビューポートの高さ」。これが一番確実 */
+    width: 100vw;  /* 幅も指定しておく */
+    background-color: #7b99c7; /* ← トモが指定したかった青色のはず */
+    overflow: hidden; /* コンテナからはみ出さないように */
+}
+.chat-header {
+    position: relative; /* 子要素を配置する基準点にする */
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    text-align: center;
+    flex-shrink: 0;
+    padding: 15px 20px 0; /* 下のpaddingを0にする */
+}
+.chat-theme {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+.header-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin-top: 15px;
+}
+
+
+#messages {
+    flex: 1; /* 残りの高さをすべて使う */
+    overflow-y: auto;
+    list-style-type: none;
+    margin: 0;
+    padding: 20px 20px 70px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    /* ↓↓↓ この一行を追加 ↓↓↓ */
+    min-height: 0; /* flexアイテムの縮小に関するバグを防ぐおまじない */
+}
+
+
+/* --- 3. メッセージ要素（吹き出し、時刻など） --- */
+#messages li {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    max-width: 80%;
+    /* ↓↓↓ 上下のマージンを調整して、日付との被りを避ける ↓↓↓ */
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+#messages li.me {
+    /* margin-left: auto; を削除して、以下に変更 */
+    align-self: flex-end;
+}
+#messages li.opponent {
+    align-self: flex-start;
+    /* ↓↓↓ この1行を追加 ↓↓↓ */
+    margin-top: 2px;
+}
+
+#messages li.me .message-time {
+    order: -1;
+}
+
+.name-label {
+    font-size: 12px;
+    color: #f0f0f0;
+    margin-left: 5px;
+    margin-bottom: 2px;
+}
+
+.bubble {
+    padding: 10px 15px;
+    border-radius: 12px;
+    word-wrap: break-word;
+    position: relative;
+    word-break: break-all;
+}
+.bubble:has(img) {
+    /* ↓↓↓ この2行を変更 ↓↓↓ */
+    padding: 6px;
+    background-color: white !important; /* transparent から white に変更 */
+    
+    /* ↓↓↓ 枠の角丸も、さっきのメッセージに合わせておく ↓↓↓ */
+    border-radius: 5px; /* 10px から 12px に変更 */
+}
+#messages li.me .bubble { background: #8de041; }
+#messages li.opponent .bubble { background: #ffffff; }
+
+.message-time {
+    font-size: 12px;
+    color: #f0f0f0;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+
+#messages li img {
+    display: block;
+    height: 150px;
+    width: auto;
+    max-width: 250px;
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+
+/* --- 4. 入力フォーム --- */
+#form {
+    /* ↓↓↓ ここからが変更点 ↓↓↓ */
+    position: fixed; /* 画面に固定する */
+    bottom: 0;       /* 画面の一番下に配置 */
+    left: 0;         /* 左端に合わせる */
+    right: 0;        /* 右端に合わせる */
+    z-index: 20;     /* 他の要素より手前に表示 */
+    /* ↑↑↑ ここまでが変更点 ↑↑↑ */
+    
+    background: rgba(245, 245, 245, 0.95);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border-top: 1px solid #ddd;
+}
+#input {
+    border: 1px solid #ccc;
+    padding: 10px;
+    flex-grow: 1;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+#input:focus { outline: none; }
+#form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }
+
+.image-upload-label {
+    padding: 0 10px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+
+/* --- 5. SweetAlert2 モーダルウィンドウのカスタム --- */
+.fullscreen-swal {
+    width: 90vw !important;
+    height: 90vh !important;
+    padding: 0 !important;
+}
+.fullscreen-swal .swal2-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.swal-header-custom {
+    position: absolute;
+    top: 0; right: 0;
+    padding: 0.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    pointer-events: none;
+}
+.swal-header-custom > * { pointer-events: auto; }
+.swal-confirm-custom { background: transparent !important; color: white !important; font-size: 14px !important; box-shadow: none !important; }
+.swal-confirm-custom:hover { text-decoration: underline !important; }
+.swal-close-custom { color: white !important; font-size: 28px !important; }
+
+/* style.css の .date-stamp を修正 */
+
+#date-stamp-container {
+    height: 48px; /* 日付スタンプの高さ分のスペースを確保 */
+    position: relative; /* この中で日付を動かす */
+}
+.date-stamp {
+    position: absolute; /* 親(date-stamp-container)を基準に絶対配置 */
+    left: 0;
+    right: 0;
+    bottom: 8px; /* 区切り線の上に配置されるように調整 */
+
+    /* 前回のスタイルを再現し、サイズを調整 */
+    font-size: 36px; /* 56pxより少し小さく */
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+}
+.date-stamp.is-hiding {
+    opacity: 0;
+}
