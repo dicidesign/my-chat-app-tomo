@@ -45,6 +45,9 @@ app.get('/download-image', async (req, res) => { /* ... (変更なし) ... */ })
 app.get('/get-theme', async (req, res) => { /* ... (変更なし) ... */ });
 
 // --- 7. WebSocket (Socket.IO) の処理 ---
+// server.js のセクション7を、これでまるごと上書き
+
+// --- 7. WebSocket (Socket.IO) の処理 ---
 io.on('connection', (socket) => {
     console.log(`ユーザーが接続しました: ${socket.id}`);
 
@@ -93,7 +96,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('delete message', async (messageId) => {
-        if (!messageId) return; // IDがなければ何もしない
+        if (!messageId) return;
         try {
             const messageRef = doc(db, 'messages', messageId);
             await deleteDoc(messageRef);
