@@ -1,7 +1,7 @@
 // 【server.js 最終版・完全体 for Render】
 
 // --- 1. 必要なライブラリ ---
-const { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, setDoc, getDoc } = require('firebase/firestore');
+const { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore');
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -109,24 +109,31 @@ app.get('/get-theme', async (req, res) => {
 // --- 7. WebSocket (Socket.IO) の処理 ---
 io.on('connection', async (socket) => {
     try {
-        const messagesRef = collection(db, 'messages');
+        const messageRef = doc(db, 'messages', messageId);
+        await deleteDoc(messageRef); // Firestoreからドキュメントを削除
         const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
         const querySnapshot = await getDocs(q);
         const oldMessages = [];
         querySnapshot.forEach((doc) => oldMessages.unshift(doc.data()));
         socket.emit('load old messages', oldMessages);
+        // 接続している全員に、削除されたメッセージのIDを通知
+        io.emit('message deleted', messageId);
+        console.log(`メッセージが削除されました: ${messageId}`);
     } catch (e) {
         console.error("過去ログ取得エラー:", e);
     }
     socket.on('chat message', async (data) => {
+        const messagesRef = collection(db, 'messages');
+        const newDocRef = doc(messagesRef); // これで新しいIDを持つ参照を先に作成
         const messageToBroadcast = {
+            id: newDocRef.id, // ★★★ IDをデータに含める！ ★★★
             text: data.message,
             username: data.username,
             createdAt: new Date(),
             isImage: data.isImage || false,
         };
         try {
-            await addDoc(collection(db, 'messages'), messageToBroadcast);
+            await setDoc(newDocRef, messageToBroadcast); // addDocからsetDocに変更
             io.emit('chat message', messageToBroadcast);
         } catch (e) {
             console.error("メッセージ保存エラー:", e);
@@ -146,6 +153,17 @@ io.on('connection', async (socket) => {
 
         } catch (e) {
             console.error("テーマの更新に失敗しました:", e);
+        }
+    });
+    // --- メッセージ削除の処理 ---
+    socket.on('delete message', async (messageId) => {
+        try {
+            const messageRef = doc(db, 'messages', messageId);
+            await deleteDoc(messageRef);
+            io.emit('message deleted', messageId);
+            console.log(`メッセージが削除されました: ${messageId}`);
+        } catch (e) {
+            console.error("メッセージの削除に失敗しました:", e);
         }
     });
 });

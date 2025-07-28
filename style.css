@@ -288,3 +288,16 @@ html, body {
 .swal-close-button:hover {
     opacity: 1;
 }
+.swal-delete-button {
+    font-size: 22px;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    padding: 0;
+}
+.swal-delete-button:hover {
+    opacity: 1;
+}

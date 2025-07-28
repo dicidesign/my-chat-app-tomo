@@ -77,9 +77,13 @@ if (!storedUsername) {
             Swal.fire({
                 html: `
                     <div class="swal-custom-header">
+                        <!-- ↓↓↓ ゴミ箱アイコンを追加 ↓↓↓ -->
+                        <button type="button" class="swal-delete-button" title="削除">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                         <a href="/download-image?url=${encodeURIComponent(img.src)}" class="swal-download-button" title="ダウンロード">
                             <i class="fas fa-download"></i>
-                            <span>Download</span> <!-- ←←← このspanタグを追加！ -->
+                            <span>Download</span>
                         </a>
                         <button type="button" class="swal2-close swal-close-button" title="閉じる">×</button>
                     </div>
@@ -98,6 +102,24 @@ if (!storedUsername) {
                     modal.querySelector('.swal-close-button').addEventListener('click', () => {
                         Swal.close();
                     });
+                    // ↓↓↓ ゴミ箱ボタンの処理を追加 ↓↓↓
+                    const deleteButton = modal.querySelector('.swal-delete-button');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', () => {
+                            // 削除確認ダイアログを出す
+                            Swal.fire({
+                                title: 'この画像を削除しますか？', icon: 'warning',
+                                showCancelButton: true, confirmButtonColor: '#d33',
+                                confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    socket.emit('delete message', data.id); // サーバーに削除を要求
+                                    Swal.close(); // 元のモーダルも閉じる
+                                }
+                            });
+                        });
+                    }
+                    
                 }
             });
         });
@@ -117,25 +139,25 @@ if (!storedUsername) {
 
     // --- 5.5 メッセージ削除機能 ---
     if (!data.isImage && username === currentUsername) {
-        // テキストメッセージ、かつ、自分のメッセージの場合のみ
-        bubble.addEventListener('contextmenu', (e) => {
-            e.preventDefault(); // 右クリックメニューをキャンセル
-
+        // 削除ダイアログを表示する関数を定義
+        const showDeleteConfirm = () => {
             Swal.fire({
                 title: 'このメッセージを削除しますか？',
-                text: "この操作は取り消せません。",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'はい、削除します',
-                cancelButtonText: 'やめる'
+                // ... (他の設定は変更なし) ...
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // サーバーにメッセージ削除を要求
-                    socket.emit('delete message', data.id); // メッセージのIDを送る
+                    socket.emit('delete message', data.id);
                 }
             });
+        };
+
+        // 左クリックでダイアログを表示
+        bubble.addEventListener('click', showDeleteConfirm);
+        
+        // 右クリック／長押しでもダイアログを表示
+        bubble.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showDeleteConfirm();
         });
     }
     // --- ↑↑↑ ここまでが5.5 メッセージ削除機能 ---
