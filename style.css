@@ -70,15 +70,11 @@ html, body {
 
 
 #messages {
-    flex-grow: 1; /* ★★★ これが一番のキモ！ ★★★ */
+    flex-grow: 1;
     overflow-y: auto;
     list-style-type: none;
-    margin: -30px;
-    /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
-    padding-top: 0px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    margin: 0;
+    padding: 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -156,14 +152,13 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
-
     background: rgba(245, 245, 245, 0.95);
     padding: 10px;
     display: flex;
     align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
-     flex-shrink: 0; /* 高さが縮まないように */
+    flex-shrink: 0;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
