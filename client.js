@@ -124,6 +124,16 @@ if (!storedUsername) {
         setTimeout(() => menu.classList.add('is-active'), 10);
         const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } };
         setTimeout(() => window.addEventListener('click', closeMenu, true), 10);
+        // --- ↓↓↓ ここからが追加部分 ↓↓↓ ---
+        const messagesContainer = document.getElementById('messages');
+        
+        const closeMenuOnScroll = () => {
+            menu.classList.remove('is-active');
+            setTimeout(() => menu.remove(), 100);
+            // 一度スクロールしたら、このイベントリスナーはもう不要なので消す
+            messagesContainer.removeEventListener('scroll', closeMenuOnScroll);
+        };
+
     }
 
     // 6. メッセージや画像の送信イベント
