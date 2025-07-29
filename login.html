@@ -64,33 +64,33 @@
         const usernameInput = document.getElementById('username-input');
         const passwordInput = document.getElementById('password-input');
 
-        loginForm.addEventListener('submit', async (e) => { // async を追加
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = usernameInput.value.trim();
             const password = passwordInput.value.trim();
 
             if (username && password) {
                 try {
-                    // サーバーの /login に問い合わせ
+                    // サーバーの /login APIに問い合わせる
                     const response = await fetch('/login', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username, password }),
                     });
 
+                    // サーバーからの返事をJSONとして解析
                     const result = await response.json();
 
                     if (result.success) {
-                        // 認証成功した場合
+                        // 認証に成功した場合
                         sessionStorage.setItem('chatUsername', username);
-                        window.location.href = '/index.html';
+                        window.location.href = '/index.html'; // チャットページへ移動
                     } else {
-                        // 認証失敗した場合
-                        alert(result.message);
+                        // 認証に失敗した場合
+                        alert(result.message || 'ログインに失敗しました。');
                     }
                 } catch (error) {
+                    // 通信自体に失敗した場合 (サーバーが落ちているなど)
                     console.error('ログイン処理中にエラーが発生しました:', error);
                     alert('サーバーとの通信に失敗しました。');
                 }
