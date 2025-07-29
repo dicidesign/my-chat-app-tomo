@@ -60,6 +60,13 @@ if (!storedUsername) {
                 bubble.addEventListener('contextmenu', showMenu); // 長押し・右クリック
                 bubble.addEventListener('mouseenter', () => { pressTimer = setTimeout(() => showMenu({ preventDefault: () => {} }), 800); });
                 bubble.addEventListener('mouseleave', () => { clearTimeout(pressTimer); });
+
+
+
+
+
+
+
         }
 
         if (username === currentUsername) {
@@ -79,28 +86,41 @@ if (!storedUsername) {
     };
 
     // --- 5. ポップアップメニューを表示するためのヘルパー関数 ---
-    function showPopupMenu(targetElement, messageData, isImage) {
+    function showPopupMenu(targetBubble, messageData) {
         const existingMenu = document.querySelector('.popup-menu');
         if (existingMenu) existingMenu.remove();
 
         const menu = document.createElement('div');
         menu.className = 'popup-menu';
         
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'popup-menu-button';
-        deleteButton.textContent = '削除';
-        deleteButton.onclick = () => {
-            Swal.fire({ title: `この${isImage ? '画像' : 'メッセージ'}を削除しますか？`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' })
-            .then((result) => {
-                if (result.isConfirmed) {
-                    socket.emit('delete message', messageData.id);
-                }
+        // 「コピー」ボタンを作成
+        const copyButton = document.createElement('button');
+        copyButton.className = 'popup-menu-button';
+        copyButton.textContent = 'コピー';
+        copyButton.onclick = () => {
+            navigator.clipboard.writeText(messageData.text).then(() => {
+                console.log('コピーしました！');
             });
             menu.remove();
         };
 
+        // 「削除」ボタンを作成
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            Swal.fire({ title: 'このメッセージを削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' })
+            .then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); } });
+            menu.remove();
+        };
+
+        menu.appendChild(copyButton);
         menu.appendChild(deleteButton);
         document.body.appendChild(menu);
+
+
+
+
 
         const targetRect = targetElement.getBoundingClientRect();
         menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`;
