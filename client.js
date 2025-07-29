@@ -181,32 +181,38 @@ if (!storedUsername) {
     }
 
    // --- 10. 【最終兵器】スマホのキーボード表示によるレイアウト崩れを防ぐ ---
-    const visualViewport = window.visualViewport;
+    const chatContainer = document.querySelector('.chat-container');
 
-    if (visualViewport) {
-        // 最初に読み込まれた時の、キーボードがない状態の高さを記憶しておく
-        const initialHeight = visualViewport.height;
+    const adjustLayoutForKeyboard = () => {
+        // キーボードが表示された後の、実際の表示領域の高さを取得
+        const visualViewportHeight = window.visualViewport.height;
+        // chatContainerの高さを、その実際の高さに強制的に設定
+        chatContainer.style.height = `${visualViewportHeight}px`;
+        // メッセージを一番下までスクロール
+        messages.scrollTop = messages.scrollHeight;
+    };
 
-        const setAppLayout = () => {
-            const currentHeight = visualViewport.height;
-            
-            // ★★★ これが新しいロジック ★★★
-            // 現在の高さが、初期の高さより明らかに小さい場合（＝キーボードが出ている時）だけ、
-            // レイアウトを動的に調整する
-            if (currentHeight < initialHeight - 50) { // 50pxは誤差を許容する閾値
-                document.documentElement.style.setProperty('--app-height', `${currentHeight}px`);
-                const keyboardHeight = window.innerHeight - currentHeight;
-                form.style.bottom = `${keyboardHeight}px`;
-            } else {
-                // キーボードが隠れている時は、CSSで設定したデフォルトのレイアウトに戻す
-                document.documentElement.style.setProperty('--app-height', `100vh`);
-                form.style.bottom = '0px';
-            }
-        };
+    const resetLayout = () => {
+        // キーボードが隠れたら、高さを元の100vhに戻す
+        chatContainer.style.height = '100vh';
+    };
 
-        visualViewport.addEventListener('resize', setAppLayout);
-        input.addEventListener('focus', () => { setTimeout(setAppLayout, 100); });
-        setAppLayout();
+    if (window.visualViewport) {
+        // 1. フォーカスが当たった時（キーボード表示時）
+        input.addEventListener('focus', () => {
+            // 少し遅れて、レイアウト調整を開始し、リサイズ監視をONにする
+            setTimeout(() => {
+                adjustLayoutForKeyboard();
+                window.visualViewport.addEventListener('resize', adjustLayoutForKeyboard);
+            }, 200);
+        });
+
+        // 2. フォーカスが外れた時（キーボード非表示時）
+        input.addEventListener('blur', () => {
+            // リサイズ監視をOFFにしてから、レイアウトを元に戻す
+            window.visualViewport.removeEventListener('resize', adjustLayoutForKeyboard);
+            resetLayout();
+        });
     }
     
 }
