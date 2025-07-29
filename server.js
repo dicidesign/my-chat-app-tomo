@@ -42,8 +42,8 @@ const upload = multer({ storage: storage });
 const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
 
 // --- 5. ファイル配信設定 ---
-app.use(express.static(__dirname));
-app.get('/', (req, res) => { res.redirect('/login.html'); });
+app.use(express.static(__dirname, { index: false }));
+app.get('/', (req, res) => {res.redirect('/login.html');});
 
 // --- 6. 各種API（窓口）の設定 ---
 app.post('/login', (req, res) => { /* ... (変更なし) ... */ });
