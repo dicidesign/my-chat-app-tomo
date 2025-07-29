@@ -21,11 +21,16 @@
     <ul id="messages"></ul>
     
     <form id="form" action="">
-        <label for="image-input" class="image-upload-label">🖼️</label>
-        <input type="file" id="image-input" accept="image/*" style="display: none;">
-        <input id="input" autocomplete="off" placeholder="メッセージを入力" /><button>送信</button>
+    <label for="image-input" class="image-upload-label">🖼️</label>
+    <input type="file" id="image-input" accept="image/*" style="display: none;">
+    
+    <!-- ↓↓↓ textareaをdivで囲む！ ↓↓↓ -->
+    <div class="textarea-wrapper">
+        <textarea id="input" rows="1" placeholder="メッセージを入力"></textarea>
+    </div>
+    
+    <button>送信</button>
     </form>
-　　
 </div>
     <!-- ↑↑↑ このコンテナを追加 ↑↑↑ -->
 

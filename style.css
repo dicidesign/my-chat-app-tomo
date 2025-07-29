@@ -161,41 +161,31 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
-    /* ↓↓↓ ここからが変更点 ↓↓↓ */
-    position: fixed; /* 画面に固定する */
-    bottom: 0;       /* 画面の一番下に配置 */
-    left: 0;         /* 左端に合わせる */
-    right: 0;        /* 右端に合わせる */
-    z-index: 20;     /* 他の要素より手前に表示 */
-    /* ↑↑↑ ここまでが変更点 ↑↑↑ */
-    
     background: rgba(245, 245, 245, 0.95);
     padding: 10px;
     display: flex;
-    align-items: center;
+    align-items: flex-end; /* ★★★ center から flex-end に変更！ ★★★ */
     box-sizing: border-box;
     border-top: 1px solid #ddd;
 }
+.textarea-wrapper {
+    flex: 1; /* 残りの幅をすべて使う */
+    display: flex; /* これもflexにしておく */
+    margin: 0 10px; /* 左右の余白 */
+}
 #input {
+    width: 100%; /* 親(wrapper)の幅いっぱいに広がる */
     border: 1px solid #ccc;
     padding: 10px;
-    flex-grow: 1;
     border-radius: 20px;
-    margin-right: 10px;
     
     font-family: inherit;
     font-size: 16px;
     line-height: 1.4;
     resize: none;
+    overflow-y: hidden; /* JSで制御するまでは、スクロールバーを隠す */
     
-    /* ↓↓↓ これが重要！高さを固定せず、最小限の高さだけを指定する ↓↓↓ */
-    min-height: 22.4px; /* line-height(1.4) * font-size(16) */
-    max-height: 120px; /* JSで指定した最大高さと合わせる */
-    
-    /* overflow-yはJSで制御するので、ここではautoにしておく */
-    overflow-y: auto; 
-    
-    box-sizing: border-box; /* paddingを含めて高さを計算 */
+    box-sizing: border-box;
 }
 #input:focus { outline: none; }
 #form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }
