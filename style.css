@@ -40,7 +40,7 @@ html, body {
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100%; /* 親(body)の高さに合わせる */
+    height: var(--app-height);
     width: 100%;
     background-color: #7b99c7;
 }
