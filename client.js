@@ -220,3 +220,17 @@ if (messagesContainer) {
         }
     });
 }
+
+/**
+ * スマホのキーボード表示によるレイアウト崩れを防ぐための、
+ * 画面の高さ（vh）動的調整機能
+ */
+const setAppHeight = () => {
+    // 実際のウィンドウの内側の高さを取得し、CSSの変数に設定する
+    const doc = document.documentElement;
+    doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+};
+
+// ページ読み込み時と、ウィンドウサイズが変わった時に、高さを再計算する
+window.addEventListener('resize', setAppHeight);
+setAppHeight(); // 最初の読み込み時にも実行

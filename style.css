@@ -1,7 +1,9 @@
 /* 【style.css 最終版】 */
 :root {
     --header-height: 85px; /* ヘッダーの実際の高さを変数として定義 */
+     --app-height: 100%; /* ←←← この1行を追加！ */
 }
+
 /* --- 1. 基本設定とログイン画面 --- */
 html, body {
     height: 100%;
@@ -40,7 +42,7 @@ html, body {
     display: flex;
     flex-direction: column;
     /* ↓↓↓ height: 100vh; を使う！ ↓↓↓ */
-    height: 100%; /* vhは「ビューポートの高さ」。これが一番確実 */
+    height: var(--app-height);
     width: 100%;  /* 幅も指定しておく */
     background-color: #7b99c7; /* ← トモが指定したかった青色のはず */
 }
