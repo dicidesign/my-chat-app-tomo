@@ -182,12 +182,39 @@ if (!storedUsername) {
 
    // --- 10. 【シンプル版】スマホのキーボード対策 ---
     // 入力欄をタップ（フォーカス）した時の処理
-    input.addEventListener('focus', () => {
-        // キーボードが表示されるのを少し待ってから実行
-        setTimeout(() => {
-            // メッセージリストを一番下までスクロールさせる
-            messages.scrollTop = messages.scrollHeight;
-        }, 150); // 0.15秒の遅延
-    });
+    const chatContainer = document.querySelector('.chat-container');
+
+    if (window.visualViewport) {
+        // すべてのレイアウト補正を行う、マスター関数
+        const updateLayout = () => {
+            // ツールバーなどを除いた「実際の表示領域」の高さを取得
+            const visibleHeight = window.visualViewport.height;
+            // chatContainerの高さを、その実際の高さに強制的に設定
+            chatContainer.style.height = `${visibleHeight}px`;
+
+            // フォームを一番下までスクロールさせる
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+
+        // フォーカスが当たった時（キーボード表示開始）
+        input.addEventListener('focus', () => {
+            // 少し遅れて、レイアウト補正を開始し、監視をONにする
+            setTimeout(() => {
+                // resizeとscroll、両方のイベントを監視する
+                window.visualViewport.addEventListener('resize', updateLayout);
+                messages.addEventListener('scroll', updateLayout);
+                updateLayout(); // 最初に一度実行
+            }, 200);
+        });
+
+        // フォーカスが外れた時（キーボード非表示時）
+        input.addEventListener('blur', () => {
+            // 全ての監視をOFFにする
+            window.visualViewport.removeEventListener('resize', updateLayout);
+            messages.removeEventListener('scroll', updateLayout);
+            // レイアウトを元のCSSの状態に戻す
+            chatContainer.style.height = '100vh';
+        });
+    }
     
 }
