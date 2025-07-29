@@ -58,7 +58,7 @@ html, body {
 }
 .chat-theme {
     margin: 0;
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 900;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     cursor: pointer;
@@ -66,7 +66,7 @@ html, body {
 .header-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
-    margin-top: 15px;
+    margin-top: 10px;
     /* ★margin-bottom は不要 */
 }
 
