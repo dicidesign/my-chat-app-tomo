@@ -88,27 +88,23 @@ if (!storedUsername) {
         bubble.className = 'bubble';
         time.className = 'message-time';
 
-        if (!data.isImage && username === currentUsername) {
-            const showDeleteConfirm = () => {
-                Swal.fire({
-                    title: 'このメッセージを削除しますか？', text: "この操作は取り消せません。", icon: 'warning',
-                    showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        if (data.id) { // ← 安全装置
-                            console.log(`[クライアント] テキスト削除リクエスト送信: ID = ${data.id}`);
-                            socket.emit('delete message', data.id);
-                        }
-                    }
-                });
-            };
-            bubble.addEventListener('click', showDeleteConfirm);
-            bubble.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                showDeleteConfirm();
+        // --- ↓↓↓ ★★★ このブロックを、まるごと差し替える！ ★★★ ↓↓↓
+    if (!data.isImage && username === currentUsername) {
+        // 削除ダイアログを表示する関数を定義
+        const showDeleteConfirm = () => {
+            Swal.fire({
+                title: 'このメッセージを削除しますか？',
+                text: "この操作は取り消せません。",
+                // ... (古いコードが続いているはず) ...
             });
-        }
+        };
+        bubble.addEventListener('click', showDeleteConfirm);
+        bubble.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showDeleteConfirm();
+        });
+    }
+    // --- ↑↑↑ ★★★ ここまでを、新しいコードに置き換える ★★★ ---
 
         if (username === currentUsername) {
             li.classList.add('me');
@@ -125,6 +121,62 @@ if (!storedUsername) {
         }
         messages.appendChild(li);
     };
+
+
+    // client.js の displayMessage 関数のすぐ後あたりに追加
+
+    /**
+     * ポップアップメニューを表示するヘルパー関数
+     * @param {HTMLElement} targetBubble - メニューを表示する対象の吹き出し
+     */
+    function showPopupMenu(targetBubble) {
+        // 既存のメニューがあれば消す
+        const existingMenu = document.querySelector('.popup-menu');
+        if (existingMenu) existingMenu.remove();
+
+        // メニュー要素を作成
+        const menu = document.createElement('div');
+        menu.className = 'popup-menu';
+        
+        // 「削除」ボタンを作成
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            // ここでSweetAlert2の確認ダイアログを出す
+            Swal.fire({ /* ... (削除確認ダイアログの設定は変更なし) ... */ })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    const messageId = targetBubble.parentElement.id.replace('message-', '');
+                    socket.emit('delete message', messageId);
+                }
+            });
+            menu.remove(); // ボタンを押したらメニューを消す
+        };
+
+        // TODO: ここに「コピー」などのボタンも追加していける
+
+        menu.appendChild(deleteButton);
+        document.body.appendChild(menu);
+
+        // メニューの位置を計算して設定
+        const bubbleRect = targetBubble.getBoundingClientRect();
+        menu.style.top = `${window.scrollY + bubbleRect.top - menu.offsetHeight - 10}px`;
+        menu.style.left = `${window.scrollX + bubbleRect.left + (bubbleRect.width / 2) - (menu.offsetWidth / 2)}px`;
+
+        // 表示アニメーションを開始
+        setTimeout(() => menu.classList.add('is-active'), 10);
+
+        // メニューの外側をクリックしたら消す
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.classList.remove('is-active');
+                setTimeout(() => menu.remove(), 100);
+                window.removeEventListener('click', closeMenu);
+            }
+        };
+        setTimeout(() => window.addEventListener('click', closeMenu), 10);
+    }
 
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; } });
     imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
