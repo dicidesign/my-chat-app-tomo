@@ -58,7 +58,7 @@ html, body {
 }
 .chat-theme {
     margin: 0;
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     cursor: pointer;
