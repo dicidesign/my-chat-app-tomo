@@ -89,7 +89,7 @@ html, body {
     list-style-type: none;
     margin: 0;
     /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
-    padding-top: 50px;
+    padding-top: 60px;
     padding-bottom: 85px;
     padding-left: 20px;
     padding-right: 20px;
@@ -235,7 +235,7 @@ html, body {
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
-    top: 20px; 
+    top: 10px; 
     z-index: 5;
     
     font-size: 36px;
