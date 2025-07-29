@@ -111,6 +111,7 @@ if (!storedUsername) {
         const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } };
         setTimeout(() => window.addEventListener('click', closeMenu, true), 10);
     }
+}
 
     // --- 6. メッセージや画像の送信イベント ---
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; } });
@@ -145,5 +146,4 @@ if (!storedUsername) {
             });
         });
     }
-}
 }
