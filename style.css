@@ -40,8 +40,8 @@ html, body {
     display: flex;
     flex-direction: column;
     /* ↓↓↓ height: 100vh; を使う！ ↓↓↓ */
-    height: 100vh; /* vhは「ビューポートの高さ」。これが一番確実 */
-    width: 100vw;  /* 幅も指定しておく */
+    height: 100%; /* vhは「ビューポートの高さ」。これが一番確実 */
+    width: 100%;  /* 幅も指定しておく */
     background-color: #7b99c7; /* ← トモが指定したかった青色のはず */
 }
 /* --- ヘッダー --- */
