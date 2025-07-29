@@ -45,15 +45,11 @@ html, body {
 }
 /* --- ヘッダー --- */
 .chat-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 5;
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
     padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
+    flex-shrink: 0; /* 高さが縮まないように */
 }
 .chat-theme {
     margin: 0;
@@ -74,13 +70,13 @@ html, body {
 
 
 #messages {
-    flex: 1;
+    flex-grow: 1; /* ★★★ これが一番のキモ！ ★★★ */
     overflow-y: auto;
     list-style-type: none;
     margin: 0;
     /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
     padding-top: 69px;
-    padding-bottom: 80px;
+    padding-bottom: 20px;
     padding-left: 20px;
     padding-right: 20px;
     box-sizing: border-box;
@@ -160,12 +156,6 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
-    /* ↓↓↓ position: fixed に戻す！ */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
 
     background: rgba(245, 245, 245, 0.95);
     padding: 10px;
@@ -173,6 +163,7 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
+     flex-shrink: 0; /* 高さが縮まないように */
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
