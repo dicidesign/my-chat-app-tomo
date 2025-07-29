@@ -28,28 +28,21 @@ if (!storedUsername) {
         }
         if (isNaN(messageDate.getTime())) { return; }
 
-        // 4-1. 日付スタンプの表示処理
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
         if (messageDateString !== lastMessageDate) {
-            const dateStampContainer = document.getElementById('date-stamp-container');
-            if (dateStampContainer) {
-                dateStampContainer.innerHTML = '';
-                const dateStamp = document.createElement('div');
-                dateStamp.className = 'date-stamp';
-                dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-                dateStampContainer.appendChild(dateStamp);
-            }
+            const dateStamp = document.createElement('div');
+            dateStamp.className = 'date-stamp';
+            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+            messages.appendChild(dateStamp);
             lastMessageDate = messageDateString;
         }
 
-        // 4-2. メッセージ要素の基本を作成
         const username = data.username || '名無しさん';
         const li = document.createElement('li');
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
 
-        // 4-3. 吹き出しの中身を作成 (画像 or テキスト)
         if (data.isImage === true) {
             const img = document.createElement('img');
             img.src = data.text;
@@ -62,12 +55,10 @@ if (!storedUsername) {
             }
         }
 
-        // 4-4. 各パーツにスタイルを設定
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
         time.className = 'message-time';
 
-        // 4-5. 自分か相手かで要素を組み立て
         if (username === currentUsername) {
             li.classList.add('me');
             li.appendChild(time);
@@ -81,8 +72,6 @@ if (!storedUsername) {
             li.appendChild(bubble);
             li.appendChild(time);
         }
-
-        // 4-6. 画面にメッセージを追加
         messages.appendChild(li);
     };
 
@@ -113,6 +102,8 @@ if (!storedUsername) {
         setTimeout(() => menu.classList.add('is-active'), 10);
         const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } };
         setTimeout(() => window.addEventListener('click', closeMenu, true), 10);
+        const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); };
+        messages.addEventListener('scroll', closeMenuOnScroll);
     }
     function showImageModal(messageData) {
         Swal.fire({
@@ -133,14 +124,7 @@ if (!storedUsername) {
     }
 
     // --- 6. メッセージや画像の送信イベント ---
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (input.value) {
-            socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false });
-            input.value = '';
-            adjustTextareaHeight();
-        }
-    });
+    form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; adjustTextareaHeight(); } });
     imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
     async function uploadImage(file) {
         const formData = new FormData();
@@ -199,5 +183,5 @@ if (!storedUsername) {
     // --- 10. スマホのキーボード表示によるレイアウト崩れを防ぐ ---
     const setAppHeight = () => { document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`); };
     window.addEventListener('resize', setAppHeight);
-    setAppHeight();
+    setAppHeight(); // 最初の読み込み時にも実行
 }
