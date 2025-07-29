@@ -184,34 +184,29 @@ if (!storedUsername) {
     const visualViewport = window.visualViewport;
 
     if (visualViewport) {
+        // 最初に読み込まれた時の、キーボードがない状態の高さを記憶しておく
+        const initialHeight = visualViewport.height;
+
         const setAppLayout = () => {
-            // CSS変数を、ツールバーなどを除いた「実際の表示領域の高さ」に設定
-            document.documentElement.style.setProperty('--app-height', `${visualViewport.height}px`);
+            const currentHeight = visualViewport.height;
             
-            // フォームの位置を、キーボードの上端に正確に合わせる
-            // `window.innerHeight` はキーボードを含まない全体の高さ
-            // `visualViewport.height` はキーボードを除いた表示領域の高さ
-            // その差分が、キーボードの高さになる
-            const keyboardHeight = window.innerHeight - visualViewport.height;
-            form.style.bottom = `${keyboardHeight}px`;
-
-            // ★★★ これが新しい追加部分 ★★★
-            // メッセージリストの一番下にも、キーボードの高さ分のpaddingを追加する
-            messages.style.paddingBottom = `calc(85px + ${keyboardHeight}px)`;
-
-            // メッセージリストを一番下までスクロールさせる
-            messages.scrollTop = messages.scrollHeight;
+            // ★★★ これが新しいロジック ★★★
+            // 現在の高さが、初期の高さより明らかに小さい場合（＝キーボードが出ている時）だけ、
+            // レイアウトを動的に調整する
+            if (currentHeight < initialHeight - 50) { // 50pxは誤差を許容する閾値
+                document.documentElement.style.setProperty('--app-height', `${currentHeight}px`);
+                const keyboardHeight = window.innerHeight - currentHeight;
+                form.style.bottom = `${keyboardHeight}px`;
+            } else {
+                // キーボードが隠れている時は、CSSで設定したデフォルトのレイアウトに戻す
+                document.documentElement.style.setProperty('--app-height', `100vh`);
+                form.style.bottom = '0px';
+            }
         };
 
-        // 表示領域のサイズが変わるたびに、レイアウトを再計算
         visualViewport.addEventListener('resize', setAppLayout);
-        
-        // テキストエリアにフォーカスが当たった時も、再計算（保険）
-        input.addEventListener('focus', () => {
-             setTimeout(setAppLayout, 100); // 少し遅延させて実行
-        });
-
-        setAppLayout(); // 最初の読み込み時にも実行
+        input.addEventListener('focus', () => { setTimeout(setAppLayout, 100); });
+        setAppLayout();
     }
     
 }
