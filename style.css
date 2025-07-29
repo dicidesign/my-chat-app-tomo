@@ -182,6 +182,16 @@ html, body {
     flex-grow: 1;
     border-radius: 20px;
     margin-right: 10px;
+    
+    /* ↓↓↓ ここからがtextarea用の追加スタイル ↓↓↓ */
+    font-family: inherit; /* bodyのフォントを継承 */
+    font-size: 16px;      /* フォントサイズを明示的に指定 */
+    line-height: 1.4;     /* 行の高さを指定 */
+    resize: none;         /* ユーザーによるリサイズを禁止 */
+    overflow-y: auto;     /* 高さが最大になったらスクロールバーを出す */
+    
+    /* 高さが変わる時のアニメーション */
+    transition: height 0.1s ease-out;
 }
 #input:focus { outline: none; }
 #form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }

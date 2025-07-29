@@ -141,6 +141,29 @@ if (!storedUsername) {
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; } });
     imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
     async function uploadImage(file) { const formData = new FormData(); formData.append('image', file); input.disabled = true; input.placeholder = '画像をアップロード中...'; try { const response = await fetch('/upload-image', { method: 'POST', body: formData }); if (!response.ok) { const errorResult = await response.json(); throw new Error(errorResult.error || 'サーバーでのアップロードに失敗しました。'); } const result = await response.json(); socket.emit('chat message', { message: result.imageUrl, username: currentUsername, isImage: true }); } catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; } }
+    /**
+     * テキストエリアの高さ自動調整機能
+     */
+    const textarea = document.getElementById('input');
+    // 1行の基本の高さを計算（paddingも考慮）
+    const singleRowHeight = parseFloat(getComputedStyle(textarea).lineHeight);
+    const initialPadding = parseFloat(getComputedStyle(textarea).paddingTop) + parseFloat(getComputedStyle(textarea).paddingBottom);
+    // 4行分の最大高さを計算
+    const maxHeight = (singleRowHeight * 4) + initialPadding;
+
+    const adjustTextareaHeight = () => {
+        textarea.style.height = 'auto'; // 一旦高さをリセット
+        let newHeight = textarea.scrollHeight;
+
+        if (newHeight > maxHeight) {
+            newHeight = maxHeight; // 最大高さを超えないようにする
+        }
+        
+        textarea.style.height = newHeight + 'px';
+    };
+
+    // 文字が入力されるたびに高さを調整
+    textarea.addEventListener('input', adjustTextareaHeight);
 
     // 7. Socket.IOのイベントリスナー群
     socket.on('connect', async () => { try { const response = await fetch('/get-theme'); const result = await response.json(); if (result.success && result.theme) { const chatThemeElement = document.querySelector('.chat-theme'); if (chatThemeElement) { chatThemeElement.textContent = result.theme; } } } catch (e) { console.error("テーマの読み込みに失敗しました:", e); } });
