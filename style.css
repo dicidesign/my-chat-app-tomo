@@ -46,11 +46,11 @@ html, body {
 }
 /* --- ヘッダー --- */
 .chat-header {
-   position: absolute; /* ← relative から absolute に変更 */
-    top: 0;           /* ← 上端に配置 */
-    left: 0;          /* ← 左端に配置 */
-    right: 0;         /* ← 右端に配置 (これで幅100%になる) */
-    z-index: 10;      /* ← 他の要素より手前に表示 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
     background: rgba(0, 0, 0, 0.25);
     color: white;
     text-align: center;
@@ -59,32 +59,29 @@ html, body {
 }
 .chat-theme {
     margin: 0;
-    /* ↓↓↓ テーマのスタイルを調整 ↓↓↓ */
-    font-size: 24px; /* 少し大きく */
-    font-weight: 700;  /* 少し太く (600 -> 700) */
-    /* 影を追加して文字を強調 */
+    font-size: 24px;
+    font-weight: 700;
     text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
-    cursor: pointer; /* クリックできることを示す */
+    cursor: pointer;
 }
 .header-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
-    margin-top: 5px;
-    margin-bottom: 4px;
+    margin-top: 15px;
 }
 
 
 #messages {
-    flex: 1; /* 残りの高さをすべて使う */
+    flex: 1;
     overflow-y: auto;
     list-style-type: none;
     margin: 0;
-    padding: 110px 20px 100px 20px; 
+    /* ↓↓↓ ヘッダーの高さ分だけ、上のpaddingを空ける */
+    padding: 110px 20px 85px 20px; 
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    /* ↓↓↓ この一行を追加 ↓↓↓ */
-    min-height: 0; /* flexアイテムの縮小に関するバグを防ぐおまじない */
+    min-height: 0;
 }
 
 
