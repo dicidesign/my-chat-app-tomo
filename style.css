@@ -54,7 +54,7 @@ html, body {
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
-    padding: 15px 20px 55px 20px; /* ★上下のpaddingを均等にする */
+    padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
 }
 .chat-theme {
     margin: 0;
@@ -66,7 +66,7 @@ html, body {
 .header-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
-    margin-top: 10px;
+    margin-top: 0px;
     /* ★margin-bottom は不要 */
 }
 
@@ -83,7 +83,7 @@ html, body {
     list-style-type: none;
     margin: 0;
     /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
-    padding-top: 70px;
+    padding-top: 76px;
     padding-bottom: 85px;
     padding-left: 20px;
     padding-right: 20px;
