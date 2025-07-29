@@ -29,15 +29,14 @@ if (!storedUsername) {
 
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
          if (messageDateString !== lastMessageDate) {
-            const dateStamp = document.createElement('div');
-            dateStamp.className = 'date-stamp';
-            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-            
-            // ↓↓↓ ヘッダーではなく、messages に直接追加する！ ↓↓↓
-            messages.appendChild(dateStamp);
-            
-            lastMessageDate = messageDateString;
-        }
+        const dateStamp = document.createElement('div');
+        dateStamp.className = 'date-stamp';
+        dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+        // ↓↓↓ ヘッダーではなく、messages に直接追加する！ ↓↓↓
+        messages.appendChild(dateStamp);
+        lastMessageDate = messageDateString;
+    }
+      // --- 日付スタンプの表示処理ここまで ---
 
         const username = data.username || '名無しさん';
         const li = document.createElement('li');
