@@ -28,14 +28,15 @@ if (!storedUsername) {
         if (isNaN(messageDate.getTime())) { return; }
 
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
-         if (messageDateString !== lastMessageDate) {
-        const dateStamp = document.createElement('div');
-        dateStamp.className = 'date-stamp';
-        dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-        // ↓↓↓ ヘッダーではなく、messages に直接追加する！ ↓↓↓
-        messages.appendChild(dateStamp);
-        lastMessageDate = messageDateString;
-    }
+         
+        // client.js の displayMessage 関数の中の日付処理を
+        if (messageDateString !== lastMessageDate) {
+            const dateStamp = document.createElement('div');
+            dateStamp.className = 'date-stamp';
+            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+            messages.appendChild(dateStamp);
+            lastMessageDate = messageDateString;
+        }
       // --- 日付スタンプの表示処理ここまで ---
 
         const username = data.username || '名無しさん';
