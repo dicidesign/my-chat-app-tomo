@@ -62,11 +62,12 @@ html, body {
     font-weight: 900;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     cursor: pointer;
+    color: rgba(255, 255, 255, 0.9);;
 }
 .header-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
-    margin-top: 10px;
+    margin-top: 6px;
     /* ★margin-bottom は不要 */
 }
 
@@ -79,7 +80,7 @@ html, body {
     list-style-type: none;
     margin: 0;
     /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
-    padding-top: 66px;
+    padding-top: 72px;
     padding-bottom: 85px;
     padding-left: 20px;
     padding-right: 20px;
