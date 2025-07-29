@@ -80,7 +80,7 @@ html, body {
     margin: 0;
     /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
     padding-top: 69px;
-    padding-bottom: 85px;
+    padding-bottom: 80px;
     padding-left: 20px;
     padding-right: 20px;
     box-sizing: border-box;
