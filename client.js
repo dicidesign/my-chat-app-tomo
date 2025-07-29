@@ -133,6 +133,7 @@ if (!storedUsername) {
             // 一度スクロールしたら、このイベントリスナーはもう不要なので消す
             messagesContainer.removeEventListener('scroll', closeMenuOnScroll);
         };
+        messagesContainer.addEventListener('scroll', closeMenuOnScroll);
 
     }
 
