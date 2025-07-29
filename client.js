@@ -180,16 +180,10 @@ if (!storedUsername) {
         });
     }
 
-   // --- 10. 【最終兵器】スマホのvh問題を解決する ---
-const setVhVariable = () => {
-    // window.innerHeight から、1vhにあたる値をピクセルで計算
-    let vh = window.innerHeight * 0.01;
-    // CSSのカスタムプロパティ（変数） '--vh' に値を設定
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-};
-
-// ページ読み込み時と、ウィンドウサイズが変わった時に、高さを再計算
-window.addEventListener('resize', setVhVariable);
-setVhVariable(); // 最初の読み込み時にも実行
-    
+    // --- 10. (シンプル版) キーボード表示時にスクロールする ---
+    input.addEventListener('focus', () => {
+        setTimeout(() => {
+            form.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 150);
+    });
 }
