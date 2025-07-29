@@ -1,5 +1,7 @@
 /* 【style.css 最終版】 */
-
+:root {
+    --header-height: 85px; /* ヘッダーの実際の高さを変数として定義 */
+}
 /* --- 1. 基本設定とログイン画面 --- */
 html, body {
     height: 100%;
@@ -55,7 +57,8 @@ html, body {
     color: white;
     text-align: center;
     padding-top: 15px;
-    padding-bottom: 0; /* 下のpaddingはdividerが担当 */
+    padding-bottom: 15px; /* 下のpaddingはdividerが担当 */
+    min-height: calc(var(--header-height) - 30px); 
 }
 .chat-theme {
     margin: 0;
@@ -68,7 +71,6 @@ html, body {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
     margin-top: 15px;
-    margin-bottom: 50px; /* ★★★ 日付が表示される空間を確保 ★★★ */
 }
 .chat-theme {
     margin: 0;
@@ -90,7 +92,7 @@ html, body {
     list-style-type: none;
     margin: 0;
     /* ↓↓↓ ヘッダー全体の高さ分、開始位置を下げる */
-    padding-top: 130px; 
+    padding-top: calc(var(--header-height) + 20px); /* ヘッダーの高さ + 少しの隙間 */
     padding-bottom: 85px;
     padding-left: 20px;
     padding-right: 20px;
@@ -236,13 +238,13 @@ html, body {
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さに合わせて、貼り付く位置を精密に調整 ↓↓↓ */
-    top: 55px; 
+    top: var(--header-height);
     z-index: 5;
     
     /* オリジナルのフォントスタイルを再現 */
     font-size: 36px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.4);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     
     text-align: center;
