@@ -54,8 +54,7 @@ html, body {
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
-    padding: 15px 20px; /* ★上下均等 */
-    min-height: calc(var(--header-height) - 30px); 
+    padding: 15px 20px; /* ★上下のpaddingを均等にする */
 }
 .chat-theme {
     margin: 0;
@@ -68,6 +67,7 @@ html, body {
     height: 1px;
     background: rgba(255, 255, 255, 0.3);
     margin-top: 15px;
+    /* ★margin-bottom は不要 */
 }
 .chat-theme {
     margin: 0;
@@ -88,8 +88,8 @@ html, body {
     overflow-y: auto;
     list-style-type: none;
     margin: 0;
-    /* ↓↓↓ ヘッダー全体の高さ分、開始位置を下げる */
-    padding-top: 85px;
+    /* ↓↓↓ ヘッダーの高さ(約85px) + stickyする日付の高さ(約50px) = 約135px分、開始位置を下げる */
+    padding-top: 135px;
     padding-bottom: 85px;
     padding-left: 20px;
     padding-right: 20px;
@@ -234,14 +234,13 @@ html, body {
 /* --- 日付スタンプ --- */
 .date-stamp {
     position: sticky;
-    /* ↓↓↓ ヘッダーの高さに合わせて、貼り付く位置を精密に調整 ↓↓↓ */
-    top: 10px;
+    /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
+    top: 85px; 
     z-index: 5;
     
-    /* オリジナルのフォントスタイルを再現 */
     font-size: 36px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.15);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     
     text-align: center;
@@ -254,9 +253,7 @@ html, body {
 .date-stamp.is-hiding {
     opacity: 0;
 }
-.date-stamp.is-hiding {
-    opacity: 0;
-}
+
 
 /* --- SweetAlert2 カスタムヘッダー --- */
 .swal-html-container-custom {
