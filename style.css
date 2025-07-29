@@ -219,20 +219,24 @@ html, body {
 /* style.css の .date-stamp を修正 */
 
 /* --- 日付スタンプ --- */
-#date-stamp-container {
-    height: 38px; /* 日付の高さに合わせて調整 */
-    position: relative;
-}
 .date-stamp {
-    position: absolute;
-    left: 0;
-    right: 0;
-    /* ↓↓↓ 日付のスタイルを調整 ↓↓↓ */
-    bottom: 10px; /* 線との間隔を空ける */
-    font-size: 22px; /* テーマより小さく */
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    /* ↓↓↓ position: sticky に戻す！ ↓↓↓ */
+    position: sticky;
+    top: 10px; /* メッセージリストの上から10pxの位置に固定 */
+    z-index: 10;
+    
+    /* フォントスタイルは維持 */
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.15);
+    
+    /* 配置とその他 */
+    text-align: center;
     pointer-events: none;
+    width: fit-content;
+    margin: 10px auto; /* 上下の余白も確保 */
+
+    /* フェードアウトのための準備 */
     transition: opacity 0.3s ease-out;
 }
 .date-stamp.is-hiding {
@@ -331,6 +335,9 @@ html, body {
     font-size: 14px;
     cursor: pointer;
     white-space: nowrap;
+}
+.popup-menu-button:not(:first-child) {
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 .popup-menu-button:hover {
     background-color: rgba(255, 255, 255, 0.1);

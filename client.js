@@ -29,14 +29,11 @@ if (!storedUsername) {
 
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
         if (messageDateString !== lastMessageDate) {
-            const dateStampContainer = document.getElementById('date-stamp-container');
-            if (dateStampContainer) {
-                dateStampContainer.innerHTML = '';
-                const dateStamp = document.createElement('div');
-                dateStamp.className = 'date-stamp';
-                dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-                dateStampContainer.appendChild(dateStamp);
-            }
+            const dateStamp = document.createElement('div');
+            dateStamp.className = 'date-stamp';
+            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+
+            messages.appendChild(dateStamp);
             lastMessageDate = messageDateString;
         }
 
@@ -160,4 +157,27 @@ if (!storedUsername) {
             });
         });
     }
+}
+// --- 日付スタンプのフェードアウト処理 ---
+const messagesContainer = document.getElementById('messages');
+
+if (messagesContainer) { // messagesが存在する場合のみリスナーを設定
+    messagesContainer.addEventListener('scroll', () => {
+        const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
+        if (dateStamps.length < 2) return;
+
+        for (let i = 0; i < dateStamps.length - 1; i++) {
+            const currentStamp = dateStamps[i];
+            const nextStamp = dateStamps[i + 1];
+
+            const currentRect = currentStamp.getBoundingClientRect();
+            const nextRect = nextStamp.getBoundingClientRect();
+
+            if (nextRect.top <= currentRect.top + 5) {
+                currentStamp.classList.add('is-hiding');
+            } else {
+                currentStamp.classList.remove('is-hiding');
+            }
+        }
+    });
 }
