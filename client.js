@@ -1,22 +1,23 @@
 // 【client.js 完全版・最終確定】
 
-// 1. サーバーに接続し、HTML要素を取得
+// --- 1. サーバーに接続し、HTML要素を取得 ---
 const socket = io();
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const messages = document.getElementById('messages');
 const imageInput = document.getElementById('image-input');
 
-// 2. ログイン状態をチェック
+// --- 2. ログイン状態をチェック ---
 const storedUsername = sessionStorage.getItem('chatUsername');
 if (!storedUsername) {
     window.location.href = '/login.html';
 } else {
-    // 3. ログイン済みの場合の全処理
+    // --- 3. ログイン済みの場合の全処理 ---
+
     let currentUsername = storedUsername;
     let lastMessageDate = null;
 
-    // 4. メッセージを1件表示するための総合関数
+    // --- 4. メッセージを1件表示するための総合関数 ---
     const displayMessage = (data) => {
         if (!data || typeof data.text !== 'string' || !data.createdAt) { return; }
         let messageDate;
@@ -27,60 +28,46 @@ if (!storedUsername) {
         }
         if (isNaN(messageDate.getTime())) { return; }
 
+        // 4-1. 日付スタンプの表示処理
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
-         
-        // client.js の displayMessage 関数の中の日付処理を
         if (messageDateString !== lastMessageDate) {
-            const dateStamp = document.createElement('div');
-            dateStamp.className = 'date-stamp';
-            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-            messages.appendChild(dateStamp);
+            const dateStampContainer = document.getElementById('date-stamp-container');
+            if (dateStampContainer) {
+                dateStampContainer.innerHTML = '';
+                const dateStamp = document.createElement('div');
+                dateStamp.className = 'date-stamp';
+                dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+                dateStampContainer.appendChild(dateStamp);
+            }
             lastMessageDate = messageDateString;
         }
-      // --- 日付スタンプの表示処理ここまで ---
 
+        // 4-2. メッセージ要素の基本を作成
         const username = data.username || '名無しさん';
         const li = document.createElement('li');
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
 
+        // 4-3. 吹き出しの中身を作成 (画像 or テキスト)
         if (data.isImage === true) {
             const img = document.createElement('img');
             img.src = data.text;
-            img.addEventListener('click', () => {
-                Swal.fire({
-                    html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(img.src)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`,
-                    imageUrl: img.src, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false,
-                    customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' },
-                    didOpen: (modal) => {
-                        modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close());
-                        const deleteButton = modal.querySelector('.swal-delete-button');
-                        if (deleteButton) {
-                            deleteButton.addEventListener('click', () => {
-                                Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' })
-                                .then((result) => { if (result.isConfirmed) { socket.emit('delete message', data.id); Swal.close(); } });
-                            });
-                        }
-                    }
-                });
-            });
+            img.addEventListener('click', () => showImageModal(data));
             bubble.appendChild(img);
         } else {
             bubble.textContent = data.text;
             if (username === currentUsername) {
-                let pressTimer;
-                const showMenu = (e) => { e.preventDefault(); showPopupMenu(bubble, data); };
-                bubble.addEventListener('contextmenu', showMenu);
-                bubble.addEventListener('mouseenter', () => { pressTimer = setTimeout(() => showMenu({ preventDefault: () => {} }), 800); });
-                bubble.addEventListener('mouseleave', () => { clearTimeout(pressTimer); });
+                bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); });
             }
         }
 
+        // 4-4. 各パーツにスタイルを設定
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
         time.className = 'message-time';
 
+        // 4-5. 自分か相手かで要素を組み立て
         if (username === currentUsername) {
             li.classList.add('me');
             li.appendChild(time);
@@ -94,10 +81,12 @@ if (!storedUsername) {
             li.appendChild(bubble);
             li.appendChild(time);
         }
+
+        // 4-6. 画面にメッセージを追加
         messages.appendChild(li);
     };
 
-    // 5. ポップアップメニューを表示するためのヘルパー関数
+    // --- 5. 各種メニューを表示するためのヘルパー関数群 ---
     function showPopupMenu(targetBubble, messageData) {
         const existingMenu = document.querySelector('.popup-menu');
         if (existingMenu) existingMenu.remove();
@@ -124,62 +113,68 @@ if (!storedUsername) {
         setTimeout(() => menu.classList.add('is-active'), 10);
         const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } };
         setTimeout(() => window.addEventListener('click', closeMenu, true), 10);
-        // --- ↓↓↓ ここからが追加部分 ↓↓↓ ---
-        const messagesContainer = document.getElementById('messages');
-        
-        const closeMenuOnScroll = () => {
-            menu.classList.remove('is-active');
-            setTimeout(() => menu.remove(), 100);
-            // 一度スクロールしたら、このイベントリスナーはもう不要なので消す
-            messagesContainer.removeEventListener('scroll', closeMenuOnScroll);
-        };
-        messagesContainer.addEventListener('scroll', closeMenuOnScroll);
-
+    }
+    function showImageModal(messageData) {
+        Swal.fire({
+            html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`,
+            imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false,
+            customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' },
+            didOpen: (modal) => {
+                modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close());
+                const deleteButton = modal.querySelector('.swal-delete-button');
+                if (deleteButton) {
+                    deleteButton.addEventListener('click', () => {
+                        Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' })
+                        .then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); Swal.close(); } });
+                    });
+                }
+            }
+        });
     }
 
-    // 6. メッセージや画像の送信イベント
-    form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; } });
-    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
-    async function uploadImage(file) { const formData = new FormData(); formData.append('image', file); input.disabled = true; input.placeholder = '画像をアップロード中...'; try { const response = await fetch('/upload-image', { method: 'POST', body: formData }); if (!response.ok) { const errorResult = await response.json(); throw new Error(errorResult.error || 'サーバーでのアップロードに失敗しました。'); } const result = await response.json(); socket.emit('chat message', { message: result.imageUrl, username: currentUsername, isImage: true }); } catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; } }
-    
-    /**
-     * テキストエリアの高さ自動調整機能
-     */
-    const textarea = document.getElementById('input');
-    const maxHeight = 120; // 最大の高さをピクセルで直接指定（約4-5行分）
-
-    const adjustTextareaHeight = () => {
-        textarea.style.height = 'auto'; // 一旦高さをリセットして、本来の高さを計算させる
-        const scrollHeight = textarea.scrollHeight;
-
-        if (scrollHeight > maxHeight) {
-            textarea.style.height = maxHeight + 'px';
-            textarea.style.overflowY = 'auto'; // 最大高さを超えたらスクロールバーを表示
-        } else {
-            textarea.style.height = scrollHeight + 'px';
-            textarea.style.overflowY = 'hidden'; // 最大高さ以下ならスクロールバーを隠す
-        }
-    };
-
-    // 文字が入力されるたびに高さを調整
-    textarea.addEventListener('input', adjustTextareaHeight);
-
-    // Enterキーで送信、Shift+Enterで改行する機能
-    textarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // Enterキーのデフォルトの改行動作をキャンセル
-            form.dispatchEvent(new Event('submit')); // formのsubmitイベントを強制的に発生させる
+    // --- 6. メッセージや画像の送信イベント ---
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (input.value) {
+            socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false });
+            input.value = '';
+            adjustTextareaHeight();
         }
     });
+    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
+    async function uploadImage(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        input.disabled = true;
+        input.placeholder = '画像をアップロード中...';
+        try {
+            const response = await fetch('/upload-image', { method: 'POST', body: formData });
+            if (!response.ok) { const errorResult = await response.json(); throw new Error(errorResult.error || 'サーバーでのアップロードに失敗しました。'); }
+            const result = await response.json();
+            socket.emit('chat message', { message: result.imageUrl, username: currentUsername, isImage: true });
+        } catch (error) {
+            console.error('画像アップロードに失敗しました:', error);
+            alert('画像アップロードに失敗しました。');
+        } finally {
+            input.disabled = false;
+            input.placeholder = 'メッセージを入力';
+            adjustTextareaHeight();
+        }
+    }
+    
+    // --- 7. テキストエリアの高さ自動調整機能 ---
+    const adjustTextareaHeight = () => { const maxHeight = 120; input.style.height = 'auto'; const scrollHeight = input.scrollHeight; if (scrollHeight > maxHeight) { input.style.height = maxHeight + 'px'; input.style.overflowY = 'auto'; } else { input.style.height = scrollHeight + 'px'; input.style.overflowY = 'hidden'; } };
+    input.addEventListener('input', adjustTextareaHeight);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.dispatchEvent(new Event('submit')); } });
 
-    // 7. Socket.IOのイベントリスナー群
+    // --- 8. Socket.IOのイベントリスナー群 ---
     socket.on('connect', async () => { try { const response = await fetch('/get-theme'); const result = await response.json(); if (result.success && result.theme) { const chatThemeElement = document.querySelector('.chat-theme'); if (chatThemeElement) { chatThemeElement.textContent = result.theme; } } } catch (e) { console.error("テーマの読み込みに失敗しました:", e); } });
     socket.on('load old messages', (serverMessages) => { messages.innerHTML = ''; lastMessageDate = null; serverMessages.forEach(msg => displayMessage(msg)); messages.scrollTop = messages.scrollHeight; });
     socket.on('chat message', (data) => { displayMessage(data); messages.scrollTop = messages.scrollHeight; });
     socket.on('message deleted', (messageId) => { const messageElement = document.getElementById(`message-${messageId}`); if (messageElement) { const nameLabel = messageElement.previousElementSibling; if (nameLabel && nameLabel.classList.contains('name-label')) { nameLabel.remove(); } messageElement.remove(); } });
     socket.on('theme updated', (newTheme) => { const chatThemeElement = document.querySelector('.chat-theme'); if (chatThemeElement) { chatThemeElement.textContent = newTheme; } });
     
-    // 8. ヘッダーのテーマ変更機能
+    // --- 9. ヘッダーのテーマ変更機能 ---
     const chatThemeElement = document.querySelector('.chat-theme');
     if (chatThemeElement) {
         chatThemeElement.addEventListener('click', () => {
@@ -200,37 +195,9 @@ if (!storedUsername) {
             });
         });
     }
-}
-// --- 日付スタンプのフェードアウト処理 ---
-const messagesContainer = document.getElementById('messages');
-if (messagesContainer) {
-    messagesContainer.addEventListener('scroll', () => {
-        const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
-        if (dateStamps.length < 2) return;
-        for (let i = 0; i < dateStamps.length - 1; i++) {
-            const currentStamp = dateStamps[i];
-            const nextStamp = dateStamps[i + 1];
-            const currentRect = currentStamp.getBoundingClientRect();
-            const nextRect = nextStamp.getBoundingClientRect();
-            if (nextRect.top <= currentRect.top + 5) {
-                currentStamp.classList.add('is-hiding');
-            } else {
-                currentStamp.classList.remove('is-hiding');
-            }
-        }
-    });
-}
 
-/**
- * スマホのキーボード表示によるレイアウト崩れを防ぐための、
- * 画面の高さ（vh）動的調整機能
- */
-const setAppHeight = () => {
-    // 実際のウィンドウの内側の高さを取得し、CSSの変数に設定する
-    const doc = document.documentElement;
-    doc.style.setProperty('--app-height', `${window.innerHeight}px`);
-};
-
-// ページ読み込み時と、ウィンドウサイズが変わった時に、高さを再計算する
-window.addEventListener('resize', setAppHeight);
-setAppHeight(); // 最初の読み込み時にも実行
+    // --- 10. スマホのキーボード表示によるレイアウト崩れを防ぐ ---
+    const setAppHeight = () => { document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`); };
+    window.addEventListener('resize', setAppHeight);
+    setAppHeight();
+}
