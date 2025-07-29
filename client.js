@@ -180,8 +180,26 @@ if (!storedUsername) {
         });
     }
 
-    // --- 10. スマホのキーボード表示によるレイアウト崩れを防ぐ ---
-    const setAppHeight = () => { document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`); };
-    window.addEventListener('resize', setAppHeight);
+  // --- 10. 【最終兵器】スマホのキーボード表示によるレイアウト崩れを防ぐ ---
+    const visualViewport = window.visualViewport;
+
+    const setAppHeight = () => {
+        // VisualViewport API を使って、ツールバーなどを除いた「実際の表示領域」の高さを取得
+        const appHeight = visualViewport ? visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${appHeight}px`);
+
+        // フォームの位置も、キーボードの上端に正確に合わせる
+        if (visualViewport) {
+            form.style.bottom = `${window.innerHeight - visualViewport.offsetTop - visualViewport.height}px`;
+        }
+    };
+
+    if (visualViewport) {
+        visualViewport.addEventListener('resize', setAppHeight);
+    } else {
+        // 古いブラウザ用のフォールバック
+        window.addEventListener('resize', setAppHeight);
+    }
     setAppHeight(); // 最初の読み込み時にも実行
+    
 }

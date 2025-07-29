@@ -37,14 +37,12 @@ html, body {
 
 /* --- 2. チャット画面の基本レイアウト --- */
 .chat-container {
-    position: relative; /* ←←← この1行を追加！ */
-    display: flex;
     display: flex;
     flex-direction: column;
-    /* ↓↓↓ height: 100vh; を使う！ ↓↓↓ */
-    height: var(--app-height);
-    width: 100%;  /* 幅も指定しておく */
-    background-color: #7b99c7; /* ← トモが指定したかった青色のはず */
+    /* ↓↓↓ JSで制御する変数を使う！ */
+    height: var(--app-height, 100vh); 
+    width: 100%;
+    background-color: #7b99c7;
 }
 /* --- ヘッダー --- */
 .chat-header {
@@ -163,10 +161,17 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
+    /* ↓↓↓ position: fixed に戻す！ */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+
     background: rgba(245, 245, 245, 0.95);
     padding: 10px;
     display: flex;
-    align-items: flex-end; /* ★★★ center から flex-end に変更！ ★★★ */
+    align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
 }
