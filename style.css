@@ -157,7 +157,7 @@ html, body {
 /* --- 4. 入力フォーム --- */
 #form {
     background: rgba(0, 0, 0, 0.4);
-    padding: 10px;
+    padding: 10px,10px,20px,10px;
     display: flex;
     align-items: flex-end;
     box-sizing: border-box;
