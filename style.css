@@ -11,6 +11,7 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     padding: 0;
     overflow: hidden;
+    background-color: #333;
 }
 
 .login-container {
@@ -235,8 +236,8 @@ html, body {
     
     font-size: 30px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.4);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    color: rgba(255, 255, 255, 0.6);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     
     text-align: center;
     pointer-events: none;
@@ -250,141 +251,50 @@ html, body {
 }
 
 
-/* --- SweetAlert2 カスタムヘッダー --- */
-.swal-html-container-custom {
-    position: absolute;
-    top: 5px; /* 上からの位置を少し調整 */
-    right: 5px; /* 右からの位置を少し調整 */
-    left: auto; /* 左は自動に */
-    z-index: 10;
-}
-.swal-custom-header {
-    display: flex;
-    justify-content: flex-end; /* 右寄せ */
-    align-items: center; /* 上下中央揃え */
-    padding: 10px;
-    gap: 20px; /* アイコン間の隙間を少し広げる */
-}
-.swal-download-button {
-    /* ↓↓↓ アイコンと文字を横並びにするためのFlexbox設定 ↓↓↓ */
-    display: inline-flex;
-    align-items: baseline; /* テキストのベースラインで揃える */
-    gap: 8px; /* アイコンと文字の隙間 */
-    
-    font-size: 16px; /* 文字のサイズ */
-    color: white;
-    text-decoration: none;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-.swal-download-button i {
-    font-size: 22px; /* アイコンのサイズ */
-}
-.swal-download-button:hover {
-    opacity: 1;
-}
-.swal-close-button {
-    font-size: 36px !important;
-    font-weight: 300;
-    color: white !important;
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1; /* ×ボタンの上下位置を微調整 */
-}
-.swal-close-button:hover {
-    opacity: 1;
-}
-.swal-delete-button {
-    font-size: 22px;
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-    padding: 0;
-}
-.swal-delete-button:hover {
-    opacity: 1;
-}
-
-/* --- 6. カスタムポップアップメニュー --- */
-.popup-menu {
-    position: absolute;
-    z-index: 30;
-    background-color: #4c4c4c;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    display: flex;
-    padding: 5px;
-
-    /* 最初は隠しておき、アニメーションの準備 */
-    opacity: 0;
-    transform: scale(0.95);
-    visibility: hidden;
-    transition: opacity 0.1s ease-out, transform 0.1s ease-out, visibility 0.1s;
-}
-.popup-menu.is-active {
-    opacity: 1;
-    transform: scale(1);
-    visibility: visible;
-}
-.popup-menu-button {
-    background: none;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-.popup-menu-button:not(:first-child) {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-}
-.popup-menu-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-}
-
 /* --- 7. オリジナル添付メニュー --- */
 .attachment-menu {
-    position: absolute;
+    position: fixed; /* fixed に変更して、常に画面下部に */
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 50;
-    background-color: rgba(0, 0, 0, 0.3); /* 背景を少し暗くするオーバーレイ */
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 下揃えに */
+    padding: 10px;
+    box-sizing: border-box;
     
-    /* 最初は隠しておき、アニメーションの準備 */
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
+    transition: opacity 0.2s, visibility 0.2s;
 }
 .attachment-menu.is-active {
     opacity: 1;
     visibility: visible;
 }
-.attachment-menu-content, .close-menu-button {
-    background-color: #f0f2f5;
-    margin: 10px;
-    border-radius: 12px;
-    transform: translateY(100%); /* 最初は画面の下に隠す */
+
+.attachment-menu-options, .close-menu-button-wrapper {
+    background-color: #333; /* ダークな背景色 */
+    border-radius: 14px;
+    transform: translateY(100px); /* 最初は少し下に隠す */
     transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
-.attachment-menu.is-active .attachment-menu-content,
-.attachment-menu.is-active .close-menu-button {
-    transform: translateY(0); /* is-activeが付いたら、元の位置に戻る */
+.attachment-menu.is-active .attachment-menu-options,
+.attachment-menu.is-active .close-menu-button-wrapper {
+    transform: translateY(0);
 }
-.attachment-menu-content {
+
+.attachment-menu-options {
     display: flex;
     justify-content: space-around;
-    padding: 20px;
+    padding: 20px 10px;
 }
+.close-menu-button-wrapper {
+    margin-top: 8px;
+    background-color: #333;
+}
+
 .menu-button {
     background: none;
     border: none;
@@ -393,26 +303,26 @@ html, body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
-    color: #333;
+    font-size: 12px;
+    color: white;
+    flex: 1; /* ボタンが均等に幅を持つように */
 }
-.menu-button i {
-    font-size: 28px;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+.menu-button:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
+.menu-button img {
+    width: 32px; /* アイコンのサイズ */
+    height: 32px;
+}
+
 .close-menu-button {
-    width: calc(100% - 20px);
+    width: 100%;
+    background: none;
     border: none;
     padding: 15px;
     font-size: 16px;
     font-weight: 600;
-    color: #007bff;
+    color: white;
     cursor: pointer;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

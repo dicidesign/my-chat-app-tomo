@@ -31,20 +31,25 @@
     
     <button>送信</button>
     </form>
-    <!-- ↓↓↓ ここからが新しい添付メニュー ↓↓↓ -->
+     <!-- ↓↓↓ ここからが新しい添付メニュー ↓↓↓ -->
     <div id="attachment-menu" class="attachment-menu">
-        <div class="attachment-menu-content">
+        <div class="attachment-menu-options">
             <button id="take-photo-button" class="menu-button">
-                <i class="fas fa-camera"></i>
-                <span>写真を撮る</span>
+                <img src="images/icon-camera.png" alt="カメラ">
+                <span>CAMERA</span>
             </button>
             <button id="choose-file-button" class="menu-button">
-                <i class="fas fa-folder-open"></i>
-                <span>ファイルを選択</span>
+                <img src="images/icon-file.png" alt="ファイル">
+                <span>FILE</span>
             </button>
-            <!-- TODO: ここに音声録音ボタンも追加できる -->
+            <button id="voice-button" class="menu-button">
+                <img src="images/icon-voice.png" alt="音声">
+                <span>VOICE</span>
+            </button>
         </div>
-        <button id="close-menu-button" class="close-menu-button">キャンセル</button>
+        <div class="close-menu-button-wrapper">
+            <button id="close-menu-button" class="close-menu-button">キャンセル</button>
+        </div>
     </div>
     <!-- ↑↑↑ ここまでが新しい添付メニュー ↑↑↑ -->
 </div>

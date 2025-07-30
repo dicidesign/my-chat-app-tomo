@@ -53,14 +53,37 @@ if (!storedUsername) {
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; adjustTextareaHeight(); } });
     
     // --- 8. 添付メニューの制御 ---
+    const attachmentButton = document.getElementById('attachment-button');
+    const attachmentMenu = document.getElementById('attachment-menu');
+    const takePhotoButton = document.getElementById('take-photo-button');
+    const chooseFileButton = document.getElementById('choose-file-button');
+    const voiceButton = document.getElementById('voice-button');
+    const closeMenuButton = document.getElementById('close-menu-button');
+
     const closeAttachmentMenu = () => attachmentMenu.classList.remove('is-active');
+
     attachmentButton.addEventListener('click', () => attachmentMenu.classList.add('is-active'));
     closeMenuButton.addEventListener('click', closeAttachmentMenu);
-    attachmentMenu.addEventListener('click', (e) => { if (e.target === attachmentMenu) closeAttachmentMenu(); });
-    takePhotoButton.addEventListener('click', () => { imageInput.setAttribute('capture', 'environment'); imageInput.click(); closeAttachmentMenu(); });
-    chooseFileButton.addEventListener('click', () => { imageInput.removeAttribute('capture'); imageInput.click(); closeAttachmentMenu(); });
-    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
-    async function uploadImage(file) { const formData = new FormData(); formData.append('image', file); input.disabled = true; input.placeholder = '画像をアップロード中...'; try { const response = await fetch('/upload-image', { method: 'POST', body: formData }); if (!response.ok) { const errorResult = await response.json(); throw new Error(errorResult.error || 'サーバーでのアップロードに失敗しました。'); } const result = await response.json(); socket.emit('chat message', { message: result.imageUrl, username: currentUsername, isImage: true }); } catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; adjustTextareaHeight(); } }
+    attachmentMenu.addEventListener('click', (e) => {
+        if (e.target === attachmentMenu) closeAttachmentMenu();
+    });
+
+     // 8-2. メニュー内のボタンの処理
+    takePhotoButton.addEventListener('click', () => {
+        imageInput.setAttribute('capture', 'environment');
+        imageInput.click();
+        closeAttachmentMenu();
+    });
+    chooseFileButton.addEventListener('click', () => {
+        imageInput.removeAttribute('capture');
+        imageInput.click();
+        closeAttachmentMenu();
+    });
+    voiceButton.addEventListener('click', () => {
+        // TODO: 音声録音機能をここに追加する
+        alert('音声録音機能は、次のアップデートで追加します！');
+        closeAttachmentMenu();
+    });
 
     // --- 9. テキストエリアの高さ自動調整機能 ---
     const adjustTextareaHeight = () => { const maxHeight = 120; input.style.height = 'auto'; const scrollHeight = input.scrollHeight; if (scrollHeight > maxHeight) { input.style.height = maxHeight + 'px'; input.style.overflowY = 'auto'; } else { input.style.height = scrollHeight + 'px'; input.style.overflowY = 'hidden'; } };
@@ -100,5 +123,34 @@ if (!storedUsername) {
         setTimeout(() => {
             form.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }, 150);
+    });
+}
+
+// --- 13. 日付スタンプのフェードアウト処理 ---
+const messagesContainer = document.getElementById('messages');
+
+if (messagesContainer) {
+    messagesContainer.addEventListener('scroll', () => {
+        // 画面に表示されているすべての日付スタンプを取得
+        const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
+        if (dateStamps.length < 2) return; // スタンプが2つ未満なら処理しない
+
+        for (let i = 0; i < dateStamps.length - 1; i++) {
+            const currentStamp = dateStamps[i];
+            const nextStamp = dateStamps[i + 1];
+
+            // 各スタンプの位置情報を取得
+            const currentRect = currentStamp.getBoundingClientRect();
+            const nextRect = nextStamp.getBoundingClientRect();
+
+            // 次のスタンプが、現在のスタンプの上端を越えたかどうかをチェック
+            if (nextRect.top <= currentRect.top + 5) { // +5は微調整用の閾値
+                // 越えたら、古い方（currentStamp）を透明にする
+                currentStamp.classList.add('is-hiding');
+            } else {
+                // 越えていなければ、透明化を解除する
+                currentStamp.classList.remove('is-hiding');
+            }
+        }
     });
 }
