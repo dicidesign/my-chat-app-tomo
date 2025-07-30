@@ -98,14 +98,28 @@ if (!storedUsername) {
         const reader = new FileReader();
         reader.onload = (event) => {
             Swal.fire({
-                title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%',
-                imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる'
+                // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
+                background: 'transparent',
+                backdrop: 'rgba(0,0,0,0.8)',
+                imageUrl: event.target.result,
+                imageAlt: '画像プレビュー',
+                
+                showCancelButton: true,
+                showConfirmButton: true,
+                
+                confirmButtonText: '<i class="fas fa-paper-plane"></i>', // 送信アイコン
+                cancelButtonText: 'やめる',
+
+                customClass: {
+                    popup: 'image-preview-popup',
+                    confirmButton: 'image-preview-button confirm',
+                    cancelButton: 'image-preview-button cancel'
+                }
+                // --- ↑↑↑ ここまでが新しいデザイン設定 ---
             }).then((result) => {
                 if (result.isConfirmed) {
                     uploadImage(file);
                 }
-                // どの道を選んでも、ファイル選択をリセットする
                 imageInput.value = '';
             });
         };

@@ -327,3 +327,35 @@ html, body {
     cursor: pointer;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* --- 8. 画像プレビュー (SweetAlert2) カスタム --- */
+.image-preview-popup {
+    width: 90% !important;
+    max-width: 400px !important;
+    padding: 0 !important;
+}
+.image-preview-popup .swal2-image {
+    max-height: 70vh; /* 画像が画面からはみ出さないように高さを制限 */
+    border-radius: 12px;
+    margin: 0;
+}
+.image-preview-popup .swal2-actions {
+    margin: 15px 0 0 0 !important;
+    width: 100% !important;
+    justify-content: space-around !important; /* ボタンを両端に配置 */
+}
+.image-preview-button {
+    border-radius: 50px !important; /* 丸いボタン */
+    font-weight: bold !important;
+    padding: 12px 25px !important;
+    border: none !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+.image-preview-button.confirm {
+    background-color: #007bff !important;
+    color: white !important;
+}
+.image-preview-button.cancel {
+    background-color: #6c757d !important;
+    color: white !important;
+}
