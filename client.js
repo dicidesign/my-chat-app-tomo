@@ -179,5 +179,14 @@ if (!storedUsername) {
         });
     }
 
+    // --- 10. 【シンプル版】キーボード表示時にスクロールする ---
+    input.addEventListener('focus', () => {
+        // キーボードが表示されるのを少し待ってから
+        setTimeout(() => {
+            // フォームが完全に見えるように、一番下までスクロール
+            form.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 150);
+    });
+
     
 }
