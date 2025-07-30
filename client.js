@@ -49,7 +49,64 @@ if (!storedUsername) {
     function showPopupMenu(targetBubble, messageData) { const existingMenu = document.querySelector('.popup-menu'); if (existingMenu) existingMenu.remove(); const menu = document.createElement('div'); menu.className = 'popup-menu'; const copyButton = document.createElement('button'); copyButton.className = 'popup-menu-button'; copyButton.textContent = 'コピー'; copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); }; const deleteButton = document.createElement('button'); deleteButton.className = 'popup-menu-button'; deleteButton.textContent = '削除'; deleteButton.onclick = () => { Swal.fire({ title: 'このメッセージを削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); } }); menu.remove(); }; menu.appendChild(copyButton); menu.appendChild(deleteButton); document.body.appendChild(menu); const targetRect = targetBubble.getBoundingClientRect(); menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`; menu.style.left = `${window.scrollX + targetRect.left + (targetRect.width / 2) - (menu.offsetWidth / 2)}px`; setTimeout(() => menu.classList.add('is-active'), 10); const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } }; setTimeout(() => window.addEventListener('click', closeMenu, true), 10); const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); }; messages.addEventListener('scroll', closeMenuOnScroll); }
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); const deleteButton = modal.querySelector('.swal-delete-button'); if (deleteButton) { deleteButton.addEventListener('click', () => { Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); Swal.close(); } }); }); } } }); }
     
-    // ★★★ 新しいセクション ★★★
+    // ---  音声録音モーダルを表示し、録音を開始する関数 ---
+    let mediaRecorder;
+    let audioChunks = [];
+
+    function startRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                Swal.fire({
+                    title: '録音中...',
+                    html: `
+                        <div class="voice-recorder-timer">00:00</div>
+                        <i class="fas fa-microphone-alt voice-recorder-icon is-recording"></i>
+                    `,
+                    showDenyButton: true,
+                    showConfirmButton: true,
+                    confirmButtonText: '<i class="fas fa-paper-plane"></i> 送信',
+                    denyButtonText: '<i class="fas fa-stop-circle"></i> 停止',
+                    customClass: {
+                        popup: 'voice-recorder-popup',
+                        actions: 'voice-recorder-actions'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed || result.isDenied) {
+                        stopRecordingAndUpload();
+                    }
+                    // ストリームを停止してマイクを解放
+                    stream.getTracks().forEach(track => track.stop());
+                });
+
+            }).catch(error => {
+                console.error("マイクへのアクセスに失敗しました:", error);
+                Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error');
+            });
+    }
+
+    // --- 5-4. 録音を停止し、音声ファイルをアップロードする関数 ---
+    function stopRecordingAndUpload() {
+        mediaRecorder.stop();
+
+        mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            // audioChunksをリセットして、次回の録音に備える
+            audioChunks = [];
+
+            // 画像と同じように、uploadImage関数を再利用してアップロード
+            // ファイル名を指定するために、第三引数を追加
+            uploadImage(audioBlob, true, 'voice-message.webm'); 
+        });
+    }
+
     // --- 7. 画像プレビューを表示するためのヘルパー関数 ---
     function showImagePreview(file) {
         const reader = new FileReader();
@@ -80,7 +137,10 @@ if (!storedUsername) {
     attachmentMenu.addEventListener('click', (e) => { if (e.target === attachmentMenu) closeAttachmentMenu(); });
     takePhotoButton.addEventListener('click', () => { imageInput.setAttribute('capture', 'environment'); imageInput.click(); closeAttachmentMenu(); });
     chooseFileButton.addEventListener('click', () => { imageInput.removeAttribute('capture'); imageInput.click(); closeAttachmentMenu(); });
-    voiceButton.addEventListener('click', () => { alert('音声録音機能は、次のアップデートで追加します！'); closeAttachmentMenu(); });
+    voiceButton.addEventListener('click', () => {
+        closeAttachmentMenu();
+        startRecording(); // 新しい録音開始関数を呼び出す
+    });
 
     // 9-1. ファイルが選択された後の処理
     imageInput.addEventListener('change', (e) => {
@@ -92,7 +152,23 @@ if (!storedUsername) {
     attachmentButton.addEventListener('click', () => { fileInputClicked = true; });
     window.addEventListener('focus', () => { if (fileInputClicked) { setTimeout(() => { if (imageInput.files.length > 0) { const file = imageInput.files[0]; showImagePreview(file); } fileInputClicked = false; }, 500); } });
 
-    async function uploadImage(file) { const formData = new FormData(); formData.append('image', file); input.disabled = true; input.placeholder = '画像をアップロード中...'; try { const response = await fetch('/upload-image', { method: 'POST', body: formData }); if (!response.ok) { const errorResult = await response.json(); throw new Error(errorResult.error || 'サーバーでのアップロードに失敗しました。'); } const result = await response.json(); socket.emit('chat message', { message: result.imageUrl, username: currentUsername, isImage: true }); } catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; adjustTextareaHeight(); } }
+    async function uploadImage(file, isVoice = false, fileName = 'image.png') {
+        const formData = new FormData();
+        formData.append('file', file, fileName);  
+        input.disabled = true; input.placeholder = '画像をアップロード中...'; 
+        try {
+            const response = await fetch('/upload-file', { method: 'POST', body: formData });
+            if (!response.ok) { throw new Error('サーバーエラー'); }
+            const result = await response.json();
+            
+            socket.emit('chat message', {
+                message: result.secure_url,
+                username: currentUsername,
+                isImage: !isVoice, // 音声でないなら画像
+                isVoice: isVoice  // 音声ならtrue
+            });
+        }
+        catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; adjustTextareaHeight(); } }
 
     // --- 10. テキストエリアの高さ自動調整機能 ---
     const adjustTextareaHeight = () => { const maxHeight = 120; input.style.height = 'auto'; const scrollHeight = input.scrollHeight; if (scrollHeight > maxHeight) { input.style.height = maxHeight + 'px'; input.style.overflowY = 'auto'; } else { input.style.height = scrollHeight + 'px'; input.style.overflowY = 'hidden'; } };

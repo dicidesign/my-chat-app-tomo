@@ -375,3 +375,25 @@ html, body {
 .image-preview-button i {
     margin-right: 8px;
 }
+
+/* --- 9. 音声録音モーダル --- */
+.voice-recorder-popup .swal2-title {
+    font-size: 1.5em !important;
+}
+.voice-recorder-icon {
+    font-size: 4em;
+    margin: 20px 0;
+    color: #f27474;
+}
+.voice-recorder-icon.is-recording {
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.voice-recorder-timer {
+    font-size: 1.2em;
+    color: #6e6e6e;
+}

@@ -50,7 +50,24 @@ const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト"
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 app.post('/login', (req, res) => { const { username, password } = req.body; if (authorizedUsers[username] && authorizedUsers[username] === password) { res.json({ success: true }); } else { res.json({ success: false, message: 'ユーザー名またはパスワードが違います。' }); } });
 app.get('/get-theme', async (req, res) => { try { const themeRef = doc(db, 'settings', 'theme'); const docSnap = await getDoc(themeRef); if (docSnap.exists()) { res.json({ success: true, theme: docSnap.data().text }); } else { res.json({ success: true, theme: 'リスとくるみ' }); } } catch (e) { res.status(500).json({ success: false, message: 'テーマの取得に失敗しました。' }); } });
-app.post('/upload-image', upload.single('image'), (req, res) => { if (!req.file) return res.status(400).json({ error: '画像ファイルがありません。' }); const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => { if (error) return res.status(500).json({ error: 'アップロードに失敗しました。' }); res.json({ imageUrl: result.secure_url }); }); Readable.from(req.file.buffer).pipe(uploadStream); });
+app.post('/upload-file', upload.single('file'), (req, res) => { // 'image'から'file'に変更
+    if (!req.file) return res.status(400).json({ error: 'ファイルがありません。' });
+
+    // Cloudinaryにアップロードする時のオプション
+    const uploadOptions = {
+        resource_type: "auto", // 画像か動画か音声を自動で判別
+    };
+
+    const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+        if (error) {
+            console.error("Cloudinaryへのアップロードに失敗:", error);
+            return res.status(500).json({ error: 'アップロードに失敗しました。' });
+        }
+        res.json({ secure_url: result.secure_url, resource_type: result.resource_type });
+    });
+    Readable.from(req.file.buffer).pipe(uploadStream);
+});
+
 app.get('/download-image', async (req, res) => { const { url: imageUrl } = req.query; if (!imageUrl) return res.status(400).send('Image URL is required'); try { const response = await axios.get(imageUrl, { responseType: 'arraybuffer' }); res.setHeader('Content-Disposition', 'attachment; filename="download.jpg"'); res.setHeader('Content-Type', 'image/jpeg'); res.send(response.data); } catch (error) { res.status(500).send('Failed to download image'); } });
 
 // --- 7. WebSocket (Socket.IO) の処理 ---
@@ -69,7 +86,7 @@ io.on('connection', (socket) => {
     socket.on('chat message', async (data) => {
         const messagesRef = collection(db, 'messages');
         const newDocRef = doc(messagesRef);
-        const messageToBroadcast = { id: newDocRef.id, text: data.message, username: data.username, createdAt: new Date(), isImage: data.isImage || false };
+        const messageToBroadcast = { id: newDocRef.id, text: data.message, username: data.username, createdAt: new Date(), isImage: data.isImage || false, isVoice: data.isVoice || false };
         try { await setDoc(newDocRef, messageToBroadcast); io.emit('chat message', messageToBroadcast); } catch (e) { console.error("メッセージ保存エラー:", e); }
     });
     socket.on('theme change', async (newTheme) => { try { const themeRef = doc(db, 'settings', 'theme'); await setDoc(themeRef, { text: newTheme, updatedAt: new Date() }); io.emit('theme updated', newTheme); } catch (e) { console.error("テーマの更新に失敗しました:", e); } });
