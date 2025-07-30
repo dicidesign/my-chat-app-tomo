@@ -39,7 +39,7 @@ html, body {
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100svh;
+    height: 100vh;
     width: 100%;
     background-color: #7b99c7;
 }
