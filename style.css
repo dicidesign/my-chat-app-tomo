@@ -331,7 +331,7 @@ html, body {
 }
 
 .image-preview-popup {
-    background: #333 !important;
+    background: #2c2c2e !important; /* ★★★ 背景を、より濃いグレーに ★★★ */
     border-radius: 16px !important;
     width: 90vw !important;
     max-width: 420px !important;
@@ -343,24 +343,31 @@ html, body {
     margin: 0 !important;
 }
 .image-preview-actions {
-    margin: 15px 0 0 0 !important;
+    margin: 10px 0 0 0 !important;
     width: 100% !important;
     display: flex !important;
-    gap: 10px !important; /* ボタン間の隙間 */
-}
-.image-preview-button {
-    flex: 1; /* ボタンの幅を均等に */
+    gap: 0 !important; /* ★★★ ボタン間の隙間をゼロに！ ★★★ */
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 10px !important;
-    font-weight: bold !important;
+    overflow: hidden; /* 角丸をボタンに反映させるため */
+}
+.image-preview-button {
+    flex: 1;
+    border: none !important;
+    border-radius: 0 !important; /* ★★★ ボタン自体の角丸はゼロに ★★★ */
+    font-weight: 400 !important; /* ★★★ 文字を細く ★★★ */
     padding: 12px !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: transparent;
     color: white !important;
     transition: background-color 0.2s !important;
 }
 .image-preview-button:hover {
     background: rgba(255, 255, 255, 0.2) !important;
 }
+/* ↓↓↓ 真ん中の区切り線を追加 ↓↓↓ */
+.image-preview-button.swal2-confirm {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
 .image-preview-button i {
-    margin-right: 8px; /* アイコンと文字の隙間 */
+    margin-right: 8px;
 }
