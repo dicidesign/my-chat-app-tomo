@@ -190,3 +190,31 @@ if (!storedUsername) {
 
     
 }
+// --- 11. 日付スタンプのフェードアウト処理 ---
+const messagesContainer = document.getElementById('messages');
+
+if (messagesContainer) {
+    messagesContainer.addEventListener('scroll', () => {
+        // 画面に表示されているすべての日付スタンプを取得
+        const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
+        if (dateStamps.length < 2) return; // スタンプが2つ未満なら処理しない
+
+        for (let i = 0; i < dateStamps.length - 1; i++) {
+            const currentStamp = dateStamps[i];
+            const nextStamp = dateStamps[i + 1];
+
+            // 各スタンプの位置情報を取得
+            const currentRect = currentStamp.getBoundingClientRect();
+            const nextRect = nextStamp.getBoundingClientRect();
+
+            // 次のスタンプが、現在のスタンプの上端を越えたかどうかをチェック
+            if (nextRect.top <= currentRect.top + 5) { // +5は微調整用の閾値
+                // 越えたら、古い方（currentStamp）を透明にする
+                currentStamp.classList.add('is-hiding');
+            } else {
+                // 越えていなければ、透明化を解除する
+                currentStamp.classList.remove('is-hiding');
+            }
+        }
+    });
+}
