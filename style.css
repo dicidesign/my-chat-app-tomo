@@ -159,6 +159,8 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
+    position: relative;
+    z-index: 10000000;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
