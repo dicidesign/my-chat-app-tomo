@@ -78,7 +78,7 @@ html, body {
     overflow-y: auto; /* ★★★ ここだけがスクロールを許可される ★★★ */
     list-style-type: none;
     margin: 0;
-    padding: 82px 20px 20px 20px;
+    padding: 78px 20px 20px 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
