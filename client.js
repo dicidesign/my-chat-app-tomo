@@ -125,6 +125,41 @@ if (!storedUsername) {
 
     // --- 6. メッセージや画像の送信イベント ---
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; adjustTextareaHeight(); } });
+    // 6-2. 添付メニューの制御
+    const attachmentButton = document.getElementById('attachment-button');
+    const attachmentMenu = document.getElementById('attachment-menu');
+    const takePhotoButton = document.getElementById('take-photo-button');
+    const chooseFileButton = document.getElementById('choose-file-button');
+    const closeMenuButton = document.getElementById('close-menu-button');
+
+    // 添付ボタン(+)を押したら、メニューを表示
+    attachmentButton.addEventListener('click', () => {
+        attachmentMenu.classList.add('is-active');
+    });
+    // キャンセルボタンか、背景の暗い部分を押したら、メニューを隠す
+    const closeMenu = () => {
+        attachmentMenu.classList.remove('is-active');
+    };
+    closeMenuButton.addEventListener('click', closeMenu);
+    attachmentMenu.addEventListener('click', (e) => {
+        if (e.target === attachmentMenu) {
+            closeMenu();
+        }
+    });
+
+    // 6-3. メニュー内のボタンの処理
+    // 「写真を撮る」ボタン
+    takePhotoButton.addEventListener('click', () => {
+        imageInput.setAttribute('capture', 'environment');
+        imageInput.click();
+        closeMenu();
+    });
+    // 「ファイルを選択」ボタン
+    chooseFileButton.addEventListener('click', () => {
+        imageInput.removeAttribute('capture');
+        imageInput.click();
+        closeMenu();
+    });
     imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%', imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); });
     async function uploadImage(file) {
         const formData = new FormData();
