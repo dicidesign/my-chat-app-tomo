@@ -192,7 +192,7 @@ html, body {
 #form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }
 
 .image-upload-label {
-    width: 20px;
+    width: 30px;
     height: auto;
     padding: 0 10px;
     font-size: 24px;
