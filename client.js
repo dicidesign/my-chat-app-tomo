@@ -180,20 +180,5 @@ if (!storedUsername) {
         });
     }
 
-    // client.js の elseブロックの、一番最後に追加
-
-    // --- 10. 【最終兵器・決定版】アドレスバーに影響されない、絶対高さを設定する ---
-    const setAppHeight = () => {
-        // 実際のウィンドウの高さを取得
-        const height = window.innerHeight;
-        // CSSのカスタムプロパティ（変数） '--app-height' に、その高さを設定
-        document.documentElement.style.setProperty('--app-height', `${height}px`);
-    };
-
-    // ページ読み込み時に一度だけ、理想の高さを設定
-    setAppHeight();
-
-    // ★★★ ウィンドウサイズが変わっても、再計算しない！ ★★★
-    // これが、アドレスバーの動きを無視する秘訣。
-    // window.addEventListener('resize', setAppHeight); ← この行は意図的にコメントアウト
+    
 }
