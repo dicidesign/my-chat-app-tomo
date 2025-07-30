@@ -148,8 +148,8 @@ html, body {
 
 #messages li img {
     display: block;
-    height: 150px;
-    width: auto;
+    height: auto;
+    width: 100%;
     max-width: 250px;
     border-radius: 10px;
     cursor: pointer;
@@ -199,6 +199,10 @@ html, body {
     cursor: pointer;
     display: flex;
     align-items: center;
+}
+.image-upload-label img {
+    width: 100%;
+    height: auto;
 }
 
 
