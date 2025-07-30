@@ -98,19 +98,7 @@ if (!storedUsername) {
     // --- 12. 【シンプル版】キーボード表示時にスクロールする ---
     input.addEventListener('focus', () => {
         setTimeout(() => {
-            // ↓↓↓ ここからが新しい精密なスクロールロジック ↓↓↓
-            
-            // 1. フォームの現在の画面上の位置を取得
-            const formRect = form.getBoundingClientRect();
-            
-            // 2. フォームの一番下が、画面の一番下からどれだけはみ出しているかを計算
-            const overflow = formRect.bottom - window.innerHeight;
-
-            // 3. もし、はみ出していたら、その分だけスクロールする
-            if (overflow > 0) {
-                window.scrollBy(0, overflow + 10); // 10pxは追加の余白
-            }
-
-        }, 100); // 0.3秒の遅延は維持
+            form.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 150);
     });
 }
