@@ -42,26 +42,18 @@ html, body {
     height: 100svh;
     width: 100%;
     background-color: #7b99c7;
-    position: relative; /* ★★★ 背景を配置する基準点 ★★★ */
 }
-.header-background {
+/* --- ヘッダー --- */
+.chat-header {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 85px; /* ヘッダーの高さに合わせて調整 */
+    z-index: 10;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 1; /* 一番奥に配置 */
-}
-/* --- ヘッダー --- */
-.chat-header {
-    background: transparent; /* ★★★ 背景は透明にする ★★★ */
     color: white;
     text-align: center;
-    padding: 12px 20px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10; /* 文字は手前に */
+    padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
 }
 .chat-theme {
     margin: 0;
@@ -231,7 +223,10 @@ html, body {
 
 /* --- 日付スタンプ --- */
 .date-stamp {
-
+    position: sticky;
+    /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
+    top: -20px; 
+    z-index: 10;
     
     font-size: 30px;
     font-weight: 900;
