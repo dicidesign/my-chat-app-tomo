@@ -79,7 +79,7 @@ html, body {
     overflow-y: auto; /* ★★★ ここだけがスクロールを許可される ★★★ */
     list-style-type: none;
     margin: 0;
-    padding: 90px 20px 80px 20px;
+    padding: 90px 20px 20px 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -157,16 +157,12 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
     background: rgba(0, 0, 0, 0.4);
     padding: 10px;
     display: flex;
     align-items: flex-end;
     box-sizing: border-box;
+    flex-shrink: 0;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
@@ -230,7 +226,7 @@ html, body {
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
-    top: 0px; 
+    top: -20px; 
     z-index: 10;
     
     font-size: 30px;
