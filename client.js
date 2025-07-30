@@ -37,7 +37,30 @@ if (!storedUsername) {
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
-        if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); } else { bubble.textContent = data.text; if (username === currentUsername) { bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); }); } }
+
+        // 3. 吹き出しの中身を作成 (画像か、音声か、テキストかで分岐)
+        if (data.isVoice === true) {
+            // --- 3A. 音声メッセージの場合 ---
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.src = data.text; // data.text には音声ファイルのURLが入っている
+            audioPlayer.controls = true; // 再生/停止/音量などのコントローラーを表示
+            bubble.appendChild(audioPlayer);
+
+        } else if (data.isImage === true) {
+            // --- 3B. 画像メッセージの場合 ---
+            const img = document.createElement('img');
+            img.src = data.text;
+            img.addEventListener('click', () => showImageModal(data));
+            bubble.appendChild(img);
+
+        } else {
+            // --- 3C. テキストメッセージの場合 ---
+            bubble.textContent = data.text;
+            if (username === currentUsername) {
+                bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); });
+            }
+        }
+
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
         time.className = 'message-time';
@@ -54,41 +77,73 @@ if (!storedUsername) {
     let audioChunks = [];
 
     function startRecording() {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
+        let timerInterval;
 
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    audioChunks.push(event.data);
-                });
+        Swal.fire({
+            title: '音声メッセージ',
+            html: `
+                <div id="voice-timer" class="voice-recorder-timer">00:00</div>
+                <button id="record-button" class="record-button">
+                    <i class="fas fa-microphone-alt"></i>
+                </button>
+            `,
+            showConfirmButton: false,
+            showDenyButton: false,
+            showCancelButton: true,
+            cancelButtonText: 'やめる',
+            customClass: { popup: 'voice-recorder-popup' },
 
-                Swal.fire({
-                    title: '録音中...',
-                    html: `
-                        <div class="voice-recorder-timer">00:00</div>
-                        <i class="fas fa-microphone-alt voice-recorder-icon is-recording"></i>
-                    `,
-                    showDenyButton: true,
-                    showConfirmButton: true,
-                    confirmButtonText: '<i class="fas fa-paper-plane"></i> 送信',
-                    denyButtonText: '<i class="fas fa-stop-circle"></i> 停止',
-                    customClass: {
-                        popup: 'voice-recorder-popup',
-                        actions: 'voice-recorder-actions'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed || result.isDenied) {
-                        stopRecordingAndUpload();
-                    }
-                    // ストリームを停止してマイクを解放
-                    stream.getTracks().forEach(track => track.stop());
-                });
+            // didOpen: モーダルが開いた直後に実行される
+            didOpen: () => {
+                const recordButton = document.getElementById('record-button');
+                const timerElement = document.getElementById('voice-timer');
+                
+                recordButton.onclick = () => {
+                    // 録音開始
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(stream => {
+                            mediaRecorder = new MediaRecorder(stream);
+                            mediaRecorder.start();
+                            audioChunks = []; // チャンクをリセット
+                            
+                            // --- タイマー処理 ---
+                            let seconds = 0;
+                            timerInterval = setInterval(() => {
+                                seconds++;
+                                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                                const sec = (seconds % 60).toString().padStart(2, '0');
+                                timerElement.textContent = `${min}:${sec}`;
+                            }, 1000);
+                            
+                            mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
 
-            }).catch(error => {
-                console.error("マイクへのアクセスに失敗しました:", error);
-                Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error');
-            });
+                            // UIを「録音中」モードに変更
+                            Swal.update({
+                                title: '録音中...',
+                                showConfirmButton: true,
+                                showDenyButton: true,
+                                confirmButtonText: '<i class="fas fa-paper-plane"></i> 送信',
+                                denyButtonText: '<i class="fas fa-stop-circle"></i> 停止',
+                            });
+
+                        }).catch(err => {
+                            console.error("マイクアクセスエラー:", err);
+                            Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error');
+                        });
+                };
+            },
+            // willClose: モーダルが閉じる直前に実行される
+            willClose: () => {
+                clearInterval(timerInterval); // タイマーを確実に停止
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed || result.isDenied) {
+                stopRecordingAndUpload();
+            }
+        });
     }
 
     // --- 5-4. 録音を停止し、音声ファイルをアップロードする関数 ---

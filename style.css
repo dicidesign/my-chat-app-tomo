@@ -380,20 +380,24 @@ html, body {
 .voice-recorder-popup .swal2-title {
     font-size: 1.5em !important;
 }
-.voice-recorder-icon {
-    font-size: 4em;
-    margin: 20px 0;
-    color: #f27474;
-}
-.voice-recorder-icon.is-recording {
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
 .voice-recorder-timer {
     font-size: 1.2em;
     color: #6e6e6e;
+    margin-bottom: 15px;
+    font-family: monospace; /* 数字がきれいに見えるフォント */
+}
+.record-button {
+    background-color: #f27474;
+    color: white;
+    border: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 2.5em;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: transform 0.2s;
+}
+.record-button:hover {
+    transform: scale(1.1);
 }
