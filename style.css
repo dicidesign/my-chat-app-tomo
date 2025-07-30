@@ -40,9 +40,10 @@ html, body {
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100dvh;
+    height: 100svh;
     width: 100%;
     background-color: #7b99c7;
+    position: relative; /* 子要素を配置する基準点 */
 }
 /* --- ヘッダー --- */
 .chat-header {
@@ -51,6 +52,7 @@ html, body {
     text-align: center;
     padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
     flex-shrink: 0; /* 高さが縮まないように */
+    position: relative; /* z-indexを効かせるため */
 }
 .chat-theme {
     margin: 0;
@@ -75,7 +77,7 @@ html, body {
     overflow-y: auto; /* ★★★ ここだけがスクロールを許可される ★★★ */
     list-style-type: none;
     margin: 0;
-    padding: 20px;
+    padding: 20px,20px,80px,20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -153,13 +155,17 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
+    position: fixed; /* ★★★ position: fixed を使う！ ★★★ */
     background: rgba(245, 245, 245, 0.95);
+     bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
     padding: 10px;
     display: flex;
     align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
-    flex-shrink: 0;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
