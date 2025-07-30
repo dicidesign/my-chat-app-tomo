@@ -89,6 +89,22 @@ if (!storedUsername) {
     imageInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
+            // 8-2. 画像プレビューと送信確認を行う関数
+            const showImagePreview = (fileToShow) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    Swal.fire({
+                        // ... (さっきの新しいデザイン設定をここに) ...
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            uploadImage(fileToShow); // ★★★ 正しいfile変数を渡す ★★★
+                        }
+                        imageInput.value = '';
+                    });
+                };
+                reader.readAsDataURL(fileToShow);
+            };
+            
             showImagePreview(file);
         }
     });
@@ -98,28 +114,30 @@ if (!storedUsername) {
         const reader = new FileReader();
         reader.onload = (event) => {
             Swal.fire({
-                // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
-                background: 'transparent',
-                backdrop: 'rgba(0,0,0,0.8)',
+                // --- ↓↓↓ 新しいデザイン設定 ↓↓↓ ---
+                background: '#333', // 背景を濃いグレーに
                 imageUrl: event.target.result,
                 imageAlt: '画像プレビュー',
                 
                 showCancelButton: true,
                 showConfirmButton: true,
                 
-                confirmButtonText: '<i class="fas fa-paper-plane"></i>', // 送信アイコン
-                cancelButtonText: 'やめる',
+                confirmButtonText: '<i class="fas fa-paper-plane"></i> SEND',
+                cancelButtonText: '<i class="fas fa-times"></i> CLOSE',
 
                 customClass: {
                     popup: 'image-preview-popup',
-                    confirmButton: 'image-preview-button confirm',
-                    cancelButton: 'image-preview-button cancel'
+                    image: 'image-preview-image', // 画像用のクラスを追加
+                    actions: 'image-preview-actions',
+                    confirmButton: 'image-preview-button',
+                    cancelButton: 'image-preview-button'
                 }
-                // --- ↑↑↑ ここまでが新しいデザイン設定 ---
+                // --- ↑↑↑ 新しいデザイン設定ここまで ---
             }).then((result) => {
                 if (result.isConfirmed) {
                     uploadImage(file);
                 }
+                // どの道を選んでも、ファイル選択をリセットする
                 imageInput.value = '';
             });
         };

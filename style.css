@@ -192,6 +192,8 @@ html, body {
 #form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }
 
 .image-upload-label {
+    width: 20px;
+    height: auto;
     padding: 0 10px;
     font-size: 24px;
     cursor: pointer;
@@ -328,34 +330,37 @@ html, body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* --- 8. 画像プレビュー (SweetAlert2) カスタム --- */
 .image-preview-popup {
-    width: 90% !important;
-    max-width: 400px !important;
-    padding: 0 !important;
+    background: #333 !important;
+    border-radius: 16px !important;
+    width: 90vw !important;
+    max-width: 420px !important;
+    padding: 15px !important;
 }
-.image-preview-popup .swal2-image {
-    max-height: 70vh; /* 画像が画面からはみ出さないように高さを制限 */
-    border-radius: 12px;
-    margin: 0;
+.image-preview-image {
+    max-height: 70vh;
+    border-radius: 12px !important;
+    margin: 0 !important;
 }
-.image-preview-popup .swal2-actions {
+.image-preview-actions {
     margin: 15px 0 0 0 !important;
     width: 100% !important;
-    justify-content: space-around !important; /* ボタンを両端に配置 */
+    display: flex !important;
+    gap: 10px !important; /* ボタン間の隙間 */
 }
 .image-preview-button {
-    border-radius: 50px !important; /* 丸いボタン */
+    flex: 1; /* ボタンの幅を均等に */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 10px !important;
     font-weight: bold !important;
-    padding: 12px 25px !important;
-    border: none !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
-}
-.image-preview-button.confirm {
-    background-color: #007bff !important;
+    padding: 12px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
     color: white !important;
+    transition: background-color 0.2s !important;
 }
-.image-preview-button.cancel {
-    background-color: #6c757d !important;
-    color: white !important;
+.image-preview-button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+.image-preview-button i {
+    margin-right: 8px; /* アイコンと文字の隙間 */
 }
