@@ -85,6 +85,52 @@ if (!storedUsername) {
         closeAttachmentMenu();
     });
 
+    // 8-3. ファイルが選択された後の処理
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            showImagePreview(file);
+        }
+    });
+
+    // 8-4. 画像プレビューと送信確認を行う関数
+    function showImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            Swal.fire({
+                title: 'この画像を送信しますか？', imageUrl: event.target.result, imageWidth: '90%',
+                imageAlt: '画像プレビュー', showCancelButton: true, confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33', confirmButtonText: '送信する', cancelButtonText: 'やめる'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    uploadImage(file);
+                }
+                // どの道を選んでも、ファイル選択をリセットする
+                imageInput.value = '';
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+     // 8-5. 【カメラ対策】ページがアクティブになった時にファイル選択をチェック
+    let fileInputClicked = false;
+    imageInput.addEventListener('click', () => {
+        fileInputClicked = true;
+    });
+
+    window.addEventListener('focus', () => {
+        // カメラアプリから戻ってきた時などに、このイベントが発火する
+        if (fileInputClicked) {
+            setTimeout(() => {
+                if (imageInput.files.length > 0) {
+                    const file = imageInput.files[0];
+                    showImagePreview(file);
+                }
+                fileInputClicked = false; // チェックが完了したのでフラグを戻す
+            }, 500); // 少し遅延させて、ファイルが認識されるのを待つ
+        }
+    });
+
+
     // --- 9. テキストエリアの高さ自動調整機能 ---
     const adjustTextareaHeight = () => { const maxHeight = 120; input.style.height = 'auto'; const scrollHeight = input.scrollHeight; if (scrollHeight > maxHeight) { input.style.height = maxHeight + 'px'; input.style.overflowY = 'auto'; } else { input.style.height = scrollHeight + 'px'; input.style.overflowY = 'hidden'; } };
     input.addEventListener('input', adjustTextareaHeight);
