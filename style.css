@@ -153,14 +153,12 @@ html, body {
 
 /* --- 4. 入力フォーム --- */
 #form {
-    background: rgba(245, 245, 245, 0.95);
+    background: rgba(0, 0, 0, 0.4);
     padding: 10px;
     display: flex;
     align-items: flex-end;
     box-sizing: border-box;
     border-top: 1px solid #ddd;
-    position: relative;
-    z-index: 10000000;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
@@ -171,7 +169,7 @@ html, body {
     width: 100%; /* 親(wrapper)の幅いっぱいに広がる */
     border: 1px solid #ccc;
     padding: 10px;
-    border-radius: 20px;
+    border-radius: 5px;
     
     font-family: inherit;
     font-size: 16px;
