@@ -1,6 +1,6 @@
-// 【server.js 最終確定版・改2】
+// 【server.js 最終完成版・完全復元】
 
-// --- 1. 必要なライブラリを全て読み込む ---
+// --- 1. 必要なライブラリを全て読み込む (正しい順番で) ---
 const http = require('http');
 const path = require('path');
 const express = require('express');
@@ -9,129 +9,58 @@ const axios = require('axios');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { Readable } = require('stream');
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore');
+const { initializeApp } = require('firebase/app'); // ★★★ まずAppを読み込む
+const { getFirestore, collection, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore'); // ★★★ その後にFirestoreを読み込む
 
 // --- 2. ExpressアプリとHTTPサーバー、Socket.IOサーバーを初期化 ---
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*", methods: ["GET", "POST"] },
-    transports: ['websocket', 'polling'],
-    pingInterval: 10000,
-    pingTimeout: 5000,
-});
+const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] }, transports: ['websocket', 'polling'], pingInterval: 10000, pingTimeout: 5000 });
 
 // --- 3. 外部サービスの設定 ---
-const firebaseConfig = { apiKey: "AIzaSyCSXWUV4OnvDco44l14fGqT-IZawlWjdcQ",
-authDomain: "my-chat-app-tomo.firebaseapp.com",
-projectId: "my-chat-app-tomo",
-storageBucket: "my-chat-app-tomo.appspot.com",
-messagingSenderId: "922389757998",
-appId: "1:922389757998:web:4907bcaaeeee7a7d4f9fbf"};
+const firebaseConfig = { apiKey: "AIzaSyCSXWUV4OnvDco44l14fGqT-IZawlWjdcQ", authDomain: "my-chat-app-tomo.firebaseapp.com", projectId: "my-chat-app-tomo", storageBucket: "my-chat-app-tomo.appspot.com", messagingSenderId: "922389757998", appId: "1:922389757998:web:4907bcaaeeee7a7d4f9fbf"};
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
-cloudinary.config({cloud_name:"dmo5bvnlk",
-api_key: "149631492483621",
-api_secret: "LfHS3WuP90Nxpo_AmSf81h6Wuto",});
+cloudinary.config({cloud_name:"dmo5bvnlk", api_key: "149631492483621", api_secret: "LfHS3WuP90Nxpo_AmSf81h6Wuto"});
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // --- 4. ミドルウェアの設定 ---
-// JSON形式のリクエストを解析できるようにする
 app.use(express.json());
-// 静的ファイル（HTML, CSS, client.js）を配信する設定
-app.use(express.static(path.join(__dirname), { index: false }));
+app.use(express.static(path.join(__dirname)));
 
 // --- 5. 認証ユーザーリスト ---
-const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
+const authorizedUsers = { "トモ": "pass12जब", "ディシ": "ai456", "ゲスト": "guest789" };
 
 // --- 6. HTTPルーティング（APIの窓口） ---
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 app.post('/login', (req, res) => { const { username, password } = req.body; if (authorizedUsers[username] && authorizedUsers[username] === password) { res.json({ success: true }); } else { res.json({ success: false, message: 'ユーザー名またはパスワードが違います。' }); } });
 app.get('/get-theme', async (req, res) => { try { const themeRef = doc(db, 'settings', 'theme'); const docSnap = await getDoc(themeRef); if (docSnap.exists()) { res.json({ success: true, theme: docSnap.data().text }); } else { res.json({ success: true, theme: 'リスとくるみ' }); } } catch (e) { res.status(500).json({ success: false, message: 'テーマの取得に失敗しました。' }); } });
-app.post('/upload-file', upload.single('file'), (req, res) => { // 'image'から'file'に変更
-    if (!req.file) return res.status(400).json({ error: 'ファイルがありません。' });
-
-    // Cloudinaryにアップロードする時のオプション
-    const uploadOptions = {
-        resource_type: "auto", // 画像か動画か音声を自動で判別
-    };
-
-    const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-        if (error) {
-            console.error("Cloudinaryへのアップロードに失敗:", error);
-            return res.status(500).json({ error: 'アップロードに失敗しました。' });
-        }
-        res.json({ secure_url: result.secure_url, resource_type: result.resource_type });
-    });
-    Readable.from(req.file.buffer).pipe(uploadStream);
-});
-
-app.get('/download-image', async (req, res) => { const { url: imageUrl } = req.query; if (!imageUrl) return res.status(400).send('Image URL is required'); try { const response = await axios.get(imageUrl, { responseType: 'arraybuffer' }); res.setHeader('Content-Disposition', 'attachment; filename="download.jpg"'); res.setHeader('Content-Type', 'image/jpeg'); res.send(response.data); } catch (error) { res.status(500).send('Failed to download image'); } });
+app.post('/upload-file', upload.single('file'), (req, res) => { if (!req.file) return res.status(400).json({ error: 'ファイルがありません。' }); const uploadOptions = { resource_type: "auto" }; const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => { if (error) { console.error("Cloudinaryへのアップロードに失敗:", error); return res.status(500).json({ error: 'アップロードに失敗しました。' }); } res.json({ secure_url: result.secure_url, resource_type: result.resource_type }); }); Readable.from(req.file.buffer).pipe(uploadStream); });
+app.get('/download-image', async (req, res) => { const { url: imageUrl } = req.query; if (!imageUrl) return res.status(400).send('Image URL is required'); try { const response = await axios.get(imageUrl, { responseType: 'arraybuffer' }); res.setHeader('Content-Disposition', 'attachment; filename="download.jpg"'); res.setHeader('Content-Type', 'image/jpeg'); res.send(response.data); } catch (error) { console.error('Download error:', error); res.status(500).send('Failed to download image'); } });
 
 // --- 7. WebSocket (Socket.IO) の処理 ---
 io.on('connection', (socket) => {
-    // 1. 接続時に、まず過去ログを送信する
     (async () => {
         try {
             const messagesRef = collection(db, 'messages');
             const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
             const querySnapshot = await getDocs(q);
             const oldMessages = [];
-            querySnapshot.forEach((doc) => {
-                oldMessages.unshift({ id: doc.id, ...doc.data() });
-            });
+            querySnapshot.forEach((doc) => { oldMessages.unshift({ id: doc.id, ...doc.data() }); });
             socket.emit('load old messages', oldMessages);
-        } catch (e) {
-            console.error("過去ログ取得エラー:", e);
-        }
+        } catch (e) { console.error("過去ログ取得エラー:", e); }
     })();
 
-    // 2. これから発生するイベントに備えて、リスナーを登録する
     socket.on('chat message', async (data) => {
         const messagesRef = collection(db, 'messages');
         const newDocRef = doc(messagesRef);
-        const messageToBroadcast = {
-            id: newDocRef.id,
-            text: data.message,
-            username: data.username,
-            createdAt: new Date(),
-            isImage: data.isImage || false,
-            isVoice: data.isVoice || false,
-        };
-        try {
-            await setDoc(newDocRef, messageToBroadcast);
-            io.emit('chat message', messageToBroadcast);
-        } catch (e) {
-            console.error("メッセージ保存エラー:", e);
-        }
+        const messageToBroadcast = { id: newDocRef.id, text: data.message, username: data.username, createdAt: new Date(), isImage: data.isImage || false, isVoice: data.isVoice || false };
+        try { await setDoc(newDocRef, messageToBroadcast); io.emit('chat message', messageToBroadcast); } catch (e) { console.error("メッセージ保存エラー:", e); }
     });
-
-    socket.on('theme change', async (newTheme) => {
-        try {
-            const themeRef = doc(db, 'settings', 'theme');
-            await setDoc(themeRef, { text: newTheme, updatedAt: new Date() });
-            io.emit('theme updated', newTheme);
-        } catch (e) {
-            console.error("テーマの更新に失敗しました:", e);
-        }
-    });
-
-    socket.on('delete message', async (messageId) => {
-        if (!messageId) return;
-        try {
-            const messageRef = doc(db, 'messages', messageId);
-            await deleteDoc(messageRef);
-            io.emit('message deleted', messageId);
-        } catch (e) {
-            console.error("メッセージの削除に失敗しました:", e);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log(`ユーザーが切断しました: ${socket.id}`);
-    });
+    socket.on('theme change', async (newTheme) => { try { const themeRef = doc(db, 'settings', 'theme'); await setDoc(themeRef, { text: newTheme, updatedAt: new Date() }); io.emit('theme updated', newTheme); } catch (e) { console.error("テーマの更新に失敗しました:", e); } });
+    socket.on('delete message', async (messageId) => { if (!messageId) return; try { const messageRef = doc(db, 'messages', messageId); await deleteDoc(messageRef); io.emit('message deleted', messageId); } catch (e) { console.error("メッセージの削除に失敗しました:", e); } });
+    socket.on('disconnect', () => { console.log(`ユーザーが切断しました: ${socket.id}`); });
 });
 
 // --- 8. サーバーを起動 ---

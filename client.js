@@ -42,23 +42,34 @@ if (!storedUsername) {
         const bubble = document.createElement('div');
         const time = document.createElement('span');
         
-        if (data.isVoice === true) {
+         if (data.isVoice === true) {
             const audioPlayer = document.createElement('audio');
             audioPlayer.src = data.text;
             audioPlayer.controls = true;
             bubble.appendChild(audioPlayer);
+
             if (username === currentUsername) {
-                bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data, true); });
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    // ↓↓↓ 「false」を、正しい「true」に修正！ ↓↓↓
+                    showPopupMenu(bubble, data, true); 
+                });
             }
+
         } else if (data.isImage === true) {
             const img = document.createElement('img');
             img.src = data.text;
             img.addEventListener('click', () => showImageModal(data));
             bubble.appendChild(img);
+
         } else {
             bubble.textContent = data.text;
             if (username === currentUsername) {
-                bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data, false); });
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    // ↓↓↓ こちらは、正しい「false」のまま！ ↓↓↓
+                    showPopupMenu(bubble, data, false);
+                });
             }
         }
         
