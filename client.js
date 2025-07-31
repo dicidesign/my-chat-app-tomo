@@ -131,25 +131,32 @@ if (!storedUsername) {
             title: 'Audio check',
             showConfirmButton: true,
             showDenyButton: true,
-            showCloseButton: true, // ★★★ CLOSEボタンを表示 ★★★
+            showCancelButton: false, // 標準のCancelボタンは使わない
+
             confirmButtonText: '<i class="fas fa-play"></i> PLAY',
             denyButtonText: '<i class="fas fa-stop"></i> STOP',
             
-            // ★★★ htmlオプションで送信ボタンを自作 ★★★
-            html: `
-                <button id="send-audio-button" class="send-button-custom">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+            // ★★★ フッターに、自作の送信ボタンとCLOSEボタンを追加 ★★★
+            footer: `
+                <div class="audio-check-footer">
+                    <button id="send-audio-button" class="swal2-confirm swal2-styled send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button id="close-audio-check-button" class="swal2-cancel swal2-styled close-button-custom">
+                        <i class="fas fa-times"></i> CLOSE
+                    </button>
+                </div>
             `,
-
+            
             customClass: {
-                popup: 'voice-recorder-popup audio-check-popup', // ★★★ 専用クラスを追加 ★★★
-                title: 'swal2-title',
-                actions: 'swal2-actions',
+                popup: 'voice-recorder-popup audio-check-popup',
+                title: 'swal2-title-custom',
+                actions: 'swal2-actions-custom',
+                footer: 'swal2-footer-custom', // フッター用のクラス
                 confirmButton: 'play-button',
-                denyButton: 'stop-button',
-                closeButton: 'swal2-styled'
+                denyButton: 'stop-button'
             },
+            
             didOpen: (modal) => {
                 const playBtn = modal.querySelector('.play-button');
                 const stopBtn = modal.querySelector('.stop-button');
@@ -158,17 +165,21 @@ if (!storedUsername) {
                     uploadImage(audioBlob, true, 'voice-message.webm');
                     Swal.close();
                 };
-                
+                modal.querySelector('#close-audio-check-button').onclick = () => {
+                    Swal.close();
+                };
+
                 audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); };
                 audio.onpause = () => { playBtn.classList.remove('is-active'); };
                 audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); };
             },
             preConfirm: () => { audio.currentTime = 0; audio.play(); return false; },
             preDeny: () => { audio.pause(); return false; },
+
         }).then((result) => {
             audio.pause();
             audio.src = '';
-            closeAttachmentMenu(); // ★★★ メニューを閉じる ★★★
+            closeAttachmentMenu();
         });
     }
 

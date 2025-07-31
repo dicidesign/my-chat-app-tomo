@@ -377,92 +377,51 @@ html, body {
 }
 
 /* --- 9. 音声録音モーダル --- */
-.voice-recorder-popup {
-    background: #333 !important;
-    border-radius: 14px !important;
-    color: white !important;
-    width: 90vw !important;
-    max-width: 380px !important;
-    padding: 0 !important;
-}
+/* 共通のポップアップスタイル */
+.voice-recorder-popup { background: #333 !important; border-radius: 14px !important; color: white !important; width: 90vw !important; max-width: 380px !important; padding: 0 !important; }
 
-/* REC画面：タイトルは使わない */
+/* REC画面 */
 .voice-recorder-popup .swal2-title { display: none !important; }
-
-/* REC画面：アイコンとタイマー */
 .voice-recorder-icon-wrapper { width: 120px; height: 120px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 30px auto 20px; }
 .voice-recorder-icon { width: 48px; height: 48px; }
 .voice-recorder-icon.is-recording { animation: pulse-mic 1.5s infinite; }
 @keyframes pulse-mic { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 .voice-recorder-timer { font-size: 1.5em; color: white; font-family: monospace; margin-bottom: 30px; }
+.voice-recorder-popup .swal2-actions { border-top: 1px solid rgba(255, 255, 255, 0.1); width: 100% !important; margin: 0 !important; padding: 0 !important; display: flex !important; gap: 0 !important; }
+.voice-recorder-popup .swal2-styled { flex: 1; background: none !important; border-radius: 0 !important; margin: 0 !important; box-shadow: none !important; font-weight: 300 !important; font-size: 1em !important; padding: 25px 0 !important; }
+.voice-recorder-popup .swal2-styled:not(:last-child):not(.swal2-cancel) { border-right: 1px solid rgba(255, 255, 255, 0.1); }
+.voice-recorder-popup .swal2-styled.is-active, .voice-recorder-popup .swal2-styled:active { background: rgba(255, 255, 255, 0.1) !important; }
+.voice-recorder-popup .rec-button.is-active { background: rgba(231, 76, 60, 0.2) !important; color: #e74c3c !important; }
 
-/* REC画面 & Audio Check画面 共通のボタンコンテナ */
-.voice-recorder-popup .swal2-actions {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    gap: 0 !important;
-}
-
-/* REC画面 & Audio Check画面 共通のボタン */
-.voice-recorder-popup .swal2-styled {
-    flex: 1;
-    background: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    font-weight: 300 !important;
-    font-size: 1em !important;
-    padding: 25px 0 !important; /* ★★★ ボタンの高さを確保 ★★★ */
-}
-.voice-recorder-popup .swal2-styled:not(:last-child):not(.swal2-cancel) {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-.voice-recorder-popup .swal2-styled.is-active,
-.voice-recorder-popup .swal2-styled:active {
-    background: rgba(255, 255, 255, 0.1) !important;
-}
-.voice-recorder-popup .rec-button.is-active {
-    background: rgba(231, 76, 60, 0.2) !important;
-    color: #e74c3c !important;
-}
-
-/* --- ここからが Audio Check 画面の特別なスタイル --- */
+/* --- Audio Check画面の特別なスタイル --- */
 .audio-check-popup .swal2-title {
-    display: block !important; /* Audio Checkではタイトルを表示 */
+    display: block !important;
     font-weight: 400 !important;
     padding: 20px !important;
     margin: 0 !important;
     font-size: 1.2em !important;
 }
-.audio-check-popup .swal2-html-container {
-    display: none !important; /* htmlコンテナは使わない */
+.audio-check-popup .swal2-actions-custom {
+    padding: 0 !important;
 }
-.audio-check-popup .swal2-actions {
-    position: relative; /* 送信ボタンを配置する基準 */
+.audio-check-popup .swal2-styled:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
-.audio-check-popup .send-button-custom {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 33.33%; /* 3つのボタンで均等に */
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8em;
-    cursor: pointer;
-}
-.audio-check-popup .send-button-custom:hover {
-    background: rgba(255, 255, 255, 0.1);
+.audio-check-popup .send-button {
+    flex: 1 !important; /* PLAY/STOPと同じ幅に */
+    font-size: 1.8em !important;
 }
 
-.audio-check-popup .swal2-close-button {
-    display: block !important;
-    width: 100%;
-    position: relative;
+/* ★★★ フッターのスタイル ★★★ */
+.audio-check-popup .swal2-footer-custom {
+    padding: 0 !important;
+    margin: 0 !important;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.audio-check-popup .audio-check-footer {
+    display: flex;
+    justify-content: space-between;
+}
+.audio-check-popup .audio-check-footer .swal2-styled {
+    padding: 15px 0 !important;
 }
