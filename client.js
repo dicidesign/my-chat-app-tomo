@@ -82,12 +82,24 @@ if (!storedUsername) {
         deleteButton.textContent = '削除';
         deleteButton.onclick = () => {
             Swal.fire({
+                // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
                 title: 'このメッセージを削除しますか？',
                 icon: 'warning',
+                iconColor: '#f8bb86',
+                
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'はい、削除します',
-                cancelButtonText: 'やめる'
+                confirmButtonText: '削除',
+                cancelButtonText: 'やめる',
+
+                background: '#333', // 背景をダークグレーに
+                customClass: {
+                    popup: 'delete-confirm-popup',
+                    title: 'delete-confirm-title',
+                    htmlContainer: 'delete-confirm-text',
+                    confirmButton: 'delete-confirm-button confirm',
+                    cancelButton: 'delete-confirm-button cancel'
+                }
+                // --- ↑↑↑ ここまでが新しいデザイン設定 ---
             }).then((result) => {
                 if (result.isConfirmed) {
                     socket.emit('delete message', messageData.id);

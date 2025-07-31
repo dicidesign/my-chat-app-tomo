@@ -503,3 +503,33 @@ html, body {
 .popup-menu-button:not(:first-child) {
     border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* --- 12. 削除確認 (SweetAlert2) カスタム --- */
+.delete-confirm-popup {
+    background: #333 !important;
+    border-radius: 14px !important;
+}
+.delete-confirm-title {
+    color: white !important;
+}
+.delete-confirm-text {
+    color: #ccc !important;
+}
+.delete-confirm-popup .swal2-icon.swal2-warning {
+    border-color: #f8bb86 !important;
+    color: #f8bb86 !important;
+}
+.delete-confirm-button {
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    padding: 10px 20px !important;
+    margin: 0 5px !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.delete-confirm-button.confirm {
+    background-color: #d33 !important;
+}
+.delete-confirm-button.cancel {
+    background-color: #6e7881 !important;
+}
