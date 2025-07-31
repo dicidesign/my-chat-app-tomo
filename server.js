@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // --- 5. 認証ユーザーリスト ---
-const authorizedUsers = { "トモ": "pass12जब", "ディシ": "ai456", "ゲスト": "guest789" };
+const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
 
 // --- 6. HTTPルーティング（APIの窓口） ---
 app.get('/', (req, res) => { res.redirect('/login.html'); });
