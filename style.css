@@ -520,6 +520,7 @@ html, body {
 .delete-confirm-popup .swal2-icon.swal2-warning {
     border-color: #fff !important;
     color: #fff !important;
+    width: 40px !important;
 }
 .delete-confirm-button {
     border-radius: 4px !important;
@@ -531,7 +532,9 @@ html, body {
 }
 .delete-confirm-button.confirm {
     background-color:transparent !important;
+    border: 1px solid #fff !important;
 }
 .delete-confirm-button.cancel {
     background-color: transparent !important;
+    border: 1px solid #fff !important;
 }
