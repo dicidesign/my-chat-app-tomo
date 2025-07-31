@@ -394,34 +394,52 @@ html, body {
 .voice-recorder-popup .rec-button.is-active { background: rgba(231, 76, 60, 0.2) !important; color: #e74c3c !important; }
 
 /* --- Audio Check画面の特別なスタイル --- */
-.audio-check-popup .swal2-title {
-    display: block !important;
-    font-weight: 400 !important;
-    padding: 20px !important;
+.audio-check-popup .swal2-html-container {
     margin: 0 !important;
-    font-size: 1.2em !important;
-}
-.audio-check-popup .swal2-actions-custom {
     padding: 0 !important;
 }
-.audio-check-popup .swal2-styled:not(:last-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+.audio-check-container {
+    display: flex;
+    flex-direction: column;
+    color: white;
 }
-.audio-check-popup .send-button {
-    flex: 1 !important; /* PLAY/STOPと同じ幅に */
-    font-size: 1.8em !important;
+.audio-check-title {
+    font-weight: 400;
+    padding: 20px;
+    font-size: 1.2em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-/* ★★★ フッターのスタイル ★★★ */
-.audio-check-popup .swal2-footer-custom {
-    padding: 0 !important;
-    margin: 0 !important;
+.audio-check-buttons-main {
+    display: flex;
+    padding: 10px 0; /* 少しだけ上下に余白 */
+}
+.audio-check-buttons-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.audio-check-popup .audio-check-footer {
-    display: flex;
-    justify-content: space-between;
+.audio-check-button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: white;
+    font-weight: 300;
+    font-size: 1em;
+    padding: 20px 0; /* ★★★ 真ん中の段のボタンの高さを確保 ★★★ */
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
-.audio-check-popup .audio-check-footer .swal2-styled {
-    padding: 15px 0 !important;
+.audio-check-button:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.audio-check-button:hover,
+.audio-check-button.is-active {
+    background: rgba(255, 255, 255, 0.1);
+}
+.audio-check-button.send {
+    font-size: 1.8em;
+}
+.audio-check-button.close {
+    padding: 15px 0; /* CLOSEボタンは少し高さを低く */
+}
+.audio-check-button i {
+    margin-right: 8px;
 }

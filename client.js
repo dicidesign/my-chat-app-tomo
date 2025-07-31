@@ -128,54 +128,43 @@ if (!storedUsername) {
     function showAudioCheckModal(audioBlob, audioUrl) {
         const audio = new Audio(audioUrl);
         Swal.fire({
-            title: 'Audio check',
-            showConfirmButton: true,
-            showDenyButton: true,
-            showCancelButton: false, // 標準のCancelボタンは使わない
-
-            confirmButtonText: '<i class="fas fa-play"></i> PLAY',
-            denyButtonText: '<i class="fas fa-stop"></i> STOP',
-            
-            // ★★★ フッターに、自作の送信ボタンとCLOSEボタンを追加 ★★★
-            footer: `
-                <div class="audio-check-footer">
-                    <button id="send-audio-button" class="swal2-confirm swal2-styled send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                    <button id="close-audio-check-button" class="swal2-cancel swal2-styled close-button-custom">
-                        <i class="fas fa-times"></i> CLOSE
-                    </button>
+            // ★★★ htmlオプションで、全てのUIを自作する！ ★★★
+            html: `
+                <div class="audio-check-container">
+                    <div class="audio-check-title">Audio check</div>
+                    <div class="audio-check-buttons-main">
+                        <button id="play-audio-btn" class="audio-check-button"><i class="fas fa-play"></i> PLAY</button>
+                        <button id="stop-audio-btn" class="audio-check-button"><i class="fas fa-stop"></i> STOP</button>
+                        <button id="send-audio-btn" class="audio-check-button send"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="audio-check-buttons-footer">
+                        <button id="close-audio-check-btn" class="audio-check-button close"><i class="fas fa-times"></i> CLOSE</button>
+                    </div>
                 </div>
             `,
-            
+            showConfirmButton: false, // 標準のボタンは一切使わない
+            showDenyButton: false,
+            showCancelButton: false,
+            background: '#333',
             customClass: {
                 popup: 'voice-recorder-popup audio-check-popup',
-                title: 'swal2-title-custom',
-                actions: 'swal2-actions-custom',
-                footer: 'swal2-footer-custom', // フッター用のクラス
-                confirmButton: 'play-button',
-                denyButton: 'stop-button'
             },
             
             didOpen: (modal) => {
-                const playBtn = modal.querySelector('.play-button');
-                const stopBtn = modal.querySelector('.stop-button');
-                
-                modal.querySelector('#send-audio-button').onclick = () => {
-                    uploadImage(audioBlob, true, 'voice-message.webm');
-                    Swal.close();
-                };
-                modal.querySelector('#close-audio-check-button').onclick = () => {
-                    Swal.close();
-                };
+                const playBtn = modal.querySelector('#play-audio-btn');
+                const stopBtn = modal.querySelector('#stop-audio-btn');
+                const sendBtn = modal.querySelector('#send-audio-btn');
+                const closeBtn = modal.querySelector('#close-audio-check-btn');
+
+                playBtn.onclick = () => { audio.currentTime = 0; audio.play(); };
+                stopBtn.onclick = () => { audio.pause(); };
+                sendBtn.onclick = () => { uploadImage(audioBlob, true, 'voice-message.webm'); Swal.close(); };
+                closeBtn.onclick = () => Swal.close();
 
                 audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); };
                 audio.onpause = () => { playBtn.classList.remove('is-active'); };
                 audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); };
             },
-            preConfirm: () => { audio.currentTime = 0; audio.play(); return false; },
-            preDeny: () => { audio.pause(); return false; },
-
         }).then((result) => {
             audio.pause();
             audio.src = '';
