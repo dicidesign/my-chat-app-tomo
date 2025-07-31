@@ -49,7 +49,7 @@ if (!storedUsername) {
                 // 自分の音声メッセージの場合だけ、削除機能を追加
                 bubble.addEventListener('contextmenu', (e) => {
                     e.preventDefault(); // 右クリックメニューをキャンセル
-                    showPopupMenu(bubble, data, true); // ★★★ isVoiceフラグを立てる
+                    showPopupMenu(bubble, data, false); 
                 });
             }
 
@@ -103,7 +103,7 @@ if (!storedUsername) {
 
         menu.appendChild(deleteButton);
         document.body.appendChild(menu);
-        
+
     const targetRect = targetBubble.getBoundingClientRect(); menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`; menu.style.left = `${window.scrollX + targetRect.left + (targetRect.width / 2) - (menu.offsetWidth / 2)}px`; setTimeout(() => menu.classList.add('is-active'), 10); const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } }; setTimeout(() => window.addEventListener('click', closeMenu, true), 10); const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); }; messages.addEventListener('scroll', closeMenuOnScroll); }
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); const deleteButton = modal.querySelector('.swal-delete-button'); if (deleteButton) { deleteButton.addEventListener('click', () => { Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); Swal.close(); } }); }); } } }); }
     
