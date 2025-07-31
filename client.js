@@ -38,18 +38,16 @@ if (!storedUsername) {
         const bubble = document.createElement('div');
         const time = document.createElement('span');
         if (data.isVoice === true) {
-            // --- 3A. 音声メッセージの場合 ---
             const audioPlayer = document.createElement('audio');
             audioPlayer.src = data.text;
             audioPlayer.controls = true;
             bubble.appendChild(audioPlayer);
 
-            // --- ↓↓↓ このifブロックを、ここに追加する！ ↓↓↓ ---
             if (username === currentUsername) {
-                // 自分の音声メッセージの場合だけ、削除機能を追加
                 bubble.addEventListener('contextmenu', (e) => {
-                    e.preventDefault(); // 右クリックメニューをキャンセル
-                    showPopupMenu(bubble, data, false); 
+                    e.preventDefault();
+                    // ↓↓↓ 第3引数に「true」（音声だよ）を渡す！ ↓↓↓
+                    showPopupMenu(bubble, data, true); 
                 });
             }
 
