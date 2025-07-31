@@ -411,7 +411,7 @@ html, body {
 }
 .audio-check-buttons-main {
     display: flex;
-    padding: 10px 0; /* 少しだけ上下に余白 */
+    height: 40px;
 }
 .audio-check-buttons-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
