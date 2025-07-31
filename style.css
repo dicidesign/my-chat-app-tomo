@@ -415,6 +415,7 @@ html, body {
 }
 .audio-check-buttons-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 0;
 }
 .audio-check-button {
     flex: 1;
