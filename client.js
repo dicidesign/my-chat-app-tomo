@@ -87,6 +87,7 @@ if (!storedUsername) {
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
             clearInterval(timerInterval);
+            closeAttachmentMenu();
         });
     }
 
@@ -128,23 +129,46 @@ if (!storedUsername) {
         const audio = new Audio(audioUrl);
         Swal.fire({
             title: 'Audio check',
-            html: `<button id="send-audio-button" class="swal2-confirm swal2-styled send-button"><i class="fas fa-paper-plane"></i></button>`,
-            showConfirmButton: true, showDenyButton: true, showCloseButton: true,
+            showConfirmButton: true,
+            showDenyButton: true,
+            showCloseButton: true, // ★★★ CLOSEボタンを表示 ★★★
             confirmButtonText: '<i class="fas fa-play"></i> PLAY',
             denyButtonText: '<i class="fas fa-stop"></i> STOP',
-            customClass: { popup: 'voice-recorder-popup', title: 'swal2-title-custom', confirmButton: 'play-button', denyButton: 'stop-button' },
+            
+            // ★★★ htmlオプションで送信ボタンを自作 ★★★
+            html: `
+                <button id="send-audio-button" class="send-button-custom">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            `,
+
+            customClass: {
+                popup: 'voice-recorder-popup audio-check-popup', // ★★★ 専用クラスを追加 ★★★
+                title: 'swal2-title',
+                actions: 'swal2-actions',
+                confirmButton: 'play-button',
+                denyButton: 'stop-button',
+                closeButton: 'swal2-styled'
+            },
             didOpen: (modal) => {
                 const playBtn = modal.querySelector('.play-button');
                 const stopBtn = modal.querySelector('.stop-button');
-                modal.querySelector('#send-audio-button').onclick = () => { uploadImage(audioBlob, true, 'voice-message.webm'); Swal.close(); };
+                
+                modal.querySelector('#send-audio-button').onclick = () => {
+                    uploadImage(audioBlob, true, 'voice-message.webm');
+                    Swal.close();
+                };
+                
                 audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); };
-                audio.onpause = () => { playBtn.classList.remove('is-active'); stopBtn.classList.add('is-active'); };
+                audio.onpause = () => { playBtn.classList.remove('is-active'); };
                 audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); };
             },
             preConfirm: () => { audio.currentTime = 0; audio.play(); return false; },
-            preDeny: () => { audio.pause(); audio.currentTime = 0; return false; },
+            preDeny: () => { audio.pause(); return false; },
         }).then((result) => {
             audio.pause();
+            audio.src = '';
+            closeAttachmentMenu(); // ★★★ メニューを閉じる ★★★
         });
     }
 

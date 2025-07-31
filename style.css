@@ -385,46 +385,18 @@ html, body {
     max-width: 380px !important;
     padding: 0 !important;
 }
-.voice-recorder-popup .swal2-title {
-    color: white !important;
-    font-weight: 300 !important; /* フォントを細く */
-    padding: 20px !important; /* 上下の余白 */
-    margin: 0 !important;
-    font-size: 1.2em !important;
-}
-.voice-recorder-popup .swal2-html-container {
-    margin: 0 !important;
-    overflow: visible !important; /* 送信ボタンを配置するため */
-}
-.voice-recorder-icon-wrapper {
-    width: 120px;
-    height: 120px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto 30px;
-}
-.voice-recorder-icon {
-    width: 48px;
-    height: 48px;
-}
-.voice-recorder-icon.is-recording {
-    animation: pulse-mic 1.5s infinite;
-}
-@keyframes pulse-mic {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-.voice-recorder-timer {
-    font-size: 1.5em;
-    color: white;
-    font-family: monospace;
-    margin-top: 20px;
-    margin-bottom: 30px;
-}
+
+/* REC画面：タイトルは使わない */
+.voice-recorder-popup .swal2-title { display: none !important; }
+
+/* REC画面：アイコンとタイマー */
+.voice-recorder-icon-wrapper { width: 120px; height: 120px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 30px auto 20px; }
+.voice-recorder-icon { width: 48px; height: 48px; }
+.voice-recorder-icon.is-recording { animation: pulse-mic 1.5s infinite; }
+@keyframes pulse-mic { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.voice-recorder-timer { font-size: 1.5em; color: white; font-family: monospace; margin-bottom: 30px; }
+
+/* REC画面 & Audio Check画面 共通のボタンコンテナ */
 .voice-recorder-popup .swal2-actions {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     width: 100% !important;
@@ -433,6 +405,8 @@ html, body {
     display: flex !important;
     gap: 0 !important;
 }
+
+/* REC画面 & Audio Check画面 共通のボタン */
 .voice-recorder-popup .swal2-styled {
     flex: 1;
     background: none !important;
@@ -441,7 +415,7 @@ html, body {
     box-shadow: none !important;
     font-weight: 300 !important;
     font-size: 1em !important;
-    padding: 15px 0 !important;
+    padding: 25px 0 !important; /* ★★★ ボタンの高さを確保 ★★★ */
 }
 .voice-recorder-popup .swal2-styled:not(:last-child):not(.swal2-cancel) {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -455,22 +429,40 @@ html, body {
     color: #e74c3c !important;
 }
 
-/* --- Audio Check画面の特別なスタイル --- */
-.voice-recorder-popup .swal2-title-custom {
-    padding: 20px 0 !important;
+/* --- ここからが Audio Check 画面の特別なスタイル --- */
+.audio-check-popup .swal2-title {
+    display: block !important; /* Audio Checkではタイトルを表示 */
+    font-weight: 400 !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    font-size: 1.2em !important;
 }
-.voice-recorder-popup .voice-recorder-actions-check {
-    padding-bottom: 50px !important; /* CLOSEボタン分の高さを確保 */
-    position: relative;
+.audio-check-popup .swal2-html-container {
+    display: none !important; /* htmlコンテナは使わない */
 }
-.voice-recorder-popup .send-button {
+.audio-check-popup .swal2-actions {
+    position: relative; /* 送信ボタンを配置する基準 */
+}
+.audio-check-popup .send-button-custom {
     position: absolute;
     right: 0;
-    top: -55px; /* titleの高さに合わせて微調整 */
-    border: none !important;
-}
-.voice-recorder-popup .close-button-custom {
-    position: absolute !important;
+    top: 0;
     bottom: 0;
+    width: 33.33%; /* 3つのボタンで均等に */
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8em;
+    cursor: pointer;
+}
+.audio-check-popup .send-button-custom:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.audio-check-popup .swal2-close-button {
+    display: block !important;
     width: 100%;
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
