@@ -40,27 +40,54 @@ app.post('/upload-file', upload.single('file'), (req, res) => { if (!req.file) r
 app.get('/download-image', async (req, res) => { const { url: imageUrl } = req.query; if (!imageUrl) return res.status(400).send('Image URL is required'); try { const response = await axios.get(imageUrl, { responseType: 'arraybuffer' }); res.setHeader('Content-Disposition', 'attachment; filename="download.jpg"'); res.setHeader('Content-Type', 'image/jpeg'); res.send(response.data); } catch (error) { console.error('Download error:', error); res.status(500).send('Failed to download image'); } });
 
 // --- 7. WebSocket (Socket.IO) の処理 ---
-io.on('connection', (socket) => {
-    (async () => {
-        try {
-            const messagesRef = collection(db, 'messages');
-            const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
-            const querySnapshot = await getDocs(q);
-            const oldMessages = [];
-            querySnapshot.forEach((doc) => { oldMessages.unshift({ id: doc.id, ...doc.data() }); });
-            socket.emit('load old messages', oldMessages);
-        } catch (e) { console.error("過去ログ取得エラー:", e); }
-    })();
+// --- 7. WebSocket (Socket.IO) の処理 ---
+io.on('connection', async (socket) => { // ★★★ asyncをここに戻す！ ★★★
+    console.log(`ユーザーが接続しました: ${socket.id}`);
 
+    // 1. 接続時に、まず過去ログを送信する
+    try {
+        const messagesRef = collection(db, 'messages');
+        const q = query(messagesRef, orderBy('createdAt', 'desc'), limit(50));
+        const querySnapshot = await getDocs(q);
+        const oldMessages = [];
+        querySnapshot.forEach((doc) => {
+            oldMessages.unshift({ id: doc.id, ...doc.data() });
+        });
+        socket.emit('load old messages', oldMessages);
+    } catch (e) {
+        console.error("過去ログ取得エラー:", e);
+    }
+
+    // 2. これから発生するイベントに備えて、リスナーを登録する
     socket.on('chat message', async (data) => {
         const messagesRef = collection(db, 'messages');
         const newDocRef = doc(messagesRef);
-        const messageToBroadcast = { id: newDocRef.id, text: data.message, username: data.username, createdAt: new Date(), isImage: data.isImage || false, isVoice: data.isVoice || false };
-        try { await setDoc(newDocRef, messageToBroadcast); io.emit('chat message', messageToBroadcast); } catch (e) { console.error("メッセージ保存エラー:", e); }
+        const messageToBroadcast = {
+            id: newDocRef.id,
+            text: data.message,
+            username: data.username,
+            createdAt: new Date(),
+            isImage: data.isImage || false,
+            isVoice: data.isImage ? false : (data.isVoice || false) // 画像ならisVoiceはfalse
+        };
+        try {
+            await setDoc(newDocRef, messageToBroadcast);
+            io.emit('chat message', messageToBroadcast);
+        } catch (e) {
+            console.error("メッセージ保存エラー:", e);
+        }
     });
-    socket.on('theme change', async (newTheme) => { try { const themeRef = doc(db, 'settings', 'theme'); await setDoc(themeRef, { text: newTheme, updatedAt: new Date() }); io.emit('theme updated', newTheme); } catch (e) { console.error("テーマの更新に失敗しました:", e); } });
-    
-    // ★★★ 正しい場所に、正しい形で再配置 ★★★
+
+    socket.on('theme change', async (newTheme) => {
+        try {
+            const themeRef = doc(db, 'settings', 'theme');
+            await setDoc(themeRef, { text: newTheme, updatedAt: new Date() });
+            io.emit('theme updated', newTheme);
+        } catch (e) {
+            console.error("テーマの更新に失敗しました:", e);
+        }
+    });
+
     socket.on('delete message', async (messageId) => {
         if (!messageId) return;
         try {
@@ -72,7 +99,9 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('disconnect', () => { console.log(`ユーザーが切断しました: ${socket.id}`); });
+    socket.on('disconnect', () => {
+        console.log(`ユーザーが切断しました: ${socket.id}`);
+    });
 });
 
 // --- 8. サーバーを起動 ---
