@@ -447,7 +447,8 @@ html, body {
 
 /* --- 10. 音声メッセージのスタイル調整 --- */
 .bubble audio {
-    width: 200px;
+    display: block;
+    width: 200ppx;
     height: auto;
 
     max-width: 250px !important; /* ただし、最大幅は画像と同じに */
