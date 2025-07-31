@@ -16,7 +16,6 @@ const voiceButton = document.getElementById('voice-button');
 const closeMenuButton = document.getElementById('close-menu-button');
 const chatThemeElement = document.querySelector('.chat-theme');
 
-
 // --- 3. ログイン状態をチェック ---
 const storedUsername = sessionStorage.getItem('chatUsername');
 if (!storedUsername) {
