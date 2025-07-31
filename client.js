@@ -37,8 +37,23 @@ if (!storedUsername) {
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
-        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); }
-        else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
+        if (data.isVoice === true) {
+            // --- 3A. 音声メッセージの場合 ---
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.src = data.text;
+            audioPlayer.controls = true;
+            bubble.appendChild(audioPlayer);
+
+            // --- ↓↓↓ このifブロックを、ここに追加する！ ↓↓↓ ---
+            if (username === currentUsername) {
+                // 自分の音声メッセージの場合だけ、削除機能を追加
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // 右クリックメニューをキャンセル
+                    showPopupMenu(bubble, data, true); // ★★★ isVoiceフラグを立てる
+                });
+            }
+
+        } else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
         else { bubble.textContent = data.text; if (username === currentUsername) { bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); }); } }
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
@@ -48,7 +63,48 @@ if (!storedUsername) {
     };
 
     // --- 6. 各種メニューを表示するためのヘルパー関数群 ---
-    function showPopupMenu(targetBubble, messageData) { const existingMenu = document.querySelector('.popup-menu'); if (existingMenu) existingMenu.remove(); const menu = document.createElement('div'); menu.className = 'popup-menu'; const copyButton = document.createElement('button'); copyButton.className = 'popup-menu-button'; copyButton.textContent = 'コピー'; copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); }; const deleteButton = document.createElement('button'); deleteButton.className = 'popup-menu-button'; deleteButton.textContent = '削除'; deleteButton.onclick = () => { Swal.fire({ title: 'このメッセージを削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); } }); menu.remove(); }; menu.appendChild(copyButton); menu.appendChild(deleteButton); document.body.appendChild(menu); const targetRect = targetBubble.getBoundingClientRect(); menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`; menu.style.left = `${window.scrollX + targetRect.left + (targetRect.width / 2) - (menu.offsetWidth / 2)}px`; setTimeout(() => menu.classList.add('is-active'), 10); const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } }; setTimeout(() => window.addEventListener('click', closeMenu, true), 10); const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); }; messages.addEventListener('scroll', closeMenuOnScroll); }
+    function showPopupMenu(targetBubble, messageData, isVoice = false) {
+        const existingMenu = document.querySelector('.popup-menu');
+        if (existingMenu) existingMenu.remove();
+
+        const menu = document.createElement('div');
+        menu.className = 'popup-menu';
+        
+        // --- ↓↓↓ ここからが新しい条件分岐 ↓↓↓ ---
+        if (!isVoice) {
+            // テキストメッセージの場合だけ、「コピー」ボタンを作成
+            const copyButton = document.createElement('button');
+            copyButton.className = 'popup-menu-button';
+            copyButton.textContent = 'コピー';
+            copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); };
+            menu.appendChild(copyButton);
+        }
+        // --- ↑↑↑ ここまでが新しい条件分岐 ---
+
+        // 「削除」ボタンは、どちらの場合でも作成
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            Swal.fire({
+                title: `この${isVoice ? '音声' : 'メッセージ'}を削除しますか？`, // 確認メッセージも変える
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'はい、削除します',
+                cancelButtonText: 'やめる'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('delete message', messageData.id);
+                }
+            });
+            menu.remove();
+        };
+
+        menu.appendChild(deleteButton);
+        document.body.appendChild(menu);
+        
+    const targetRect = targetBubble.getBoundingClientRect(); menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`; menu.style.left = `${window.scrollX + targetRect.left + (targetRect.width / 2) - (menu.offsetWidth / 2)}px`; setTimeout(() => menu.classList.add('is-active'), 10); const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } }; setTimeout(() => window.addEventListener('click', closeMenu, true), 10); const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); }; messages.addEventListener('scroll', closeMenuOnScroll); }
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); const deleteButton = modal.querySelector('.swal-delete-button'); if (deleteButton) { deleteButton.addEventListener('click', () => { Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); Swal.close(); } }); }); } } }); }
     
     // 6-1. 音声録音機能の全体を制御する
