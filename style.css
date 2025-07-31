@@ -432,7 +432,9 @@ html, body {
 .voice-recorder-popup .swal2-styled:not(:last-child) {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
-
+.voice-recorder-popup .swal2-styled.is-active {
+    background: rgba(255, 255, 255, 0.2) !important; /* アクティブな時の色 */
+}
 
 
 

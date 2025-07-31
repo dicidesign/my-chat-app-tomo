@@ -1,4 +1,4 @@
-// 【client.js 完全版・最終確定】
+// 【client.js 完全版・最終確定・省略一切なし】
 
 // --- 1. サーバーに接続 ---
 const socket = io();
@@ -37,30 +37,9 @@ if (!storedUsername) {
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
-
-        // 3. 吹き出しの中身を作成 (画像か、音声か、テキストかで分岐)
-        if (data.isVoice === true) {
-            // --- 3A. 音声メッセージの場合 ---
-            const audioPlayer = document.createElement('audio');
-            audioPlayer.src = data.text; // data.text には音声ファイルのURLが入っている
-            audioPlayer.controls = true; // 再生/停止/音量などのコントローラーを表示
-            bubble.appendChild(audioPlayer);
-
-        } else if (data.isImage === true) {
-            // --- 3B. 画像メッセージの場合 ---
-            const img = document.createElement('img');
-            img.src = data.text;
-            img.addEventListener('click', () => showImageModal(data));
-            bubble.appendChild(img);
-
-        } else {
-            // --- 3C. テキストメッセージの場合 ---
-            bubble.textContent = data.text;
-            if (username === currentUsername) {
-                bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); });
-            }
-        }
-
+        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); }
+        else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
+        else { bubble.textContent = data.text; if (username === currentUsername) { bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data); }); } }
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
         time.className = 'message-time';
@@ -72,143 +51,95 @@ if (!storedUsername) {
     function showPopupMenu(targetBubble, messageData) { const existingMenu = document.querySelector('.popup-menu'); if (existingMenu) existingMenu.remove(); const menu = document.createElement('div'); menu.className = 'popup-menu'; const copyButton = document.createElement('button'); copyButton.className = 'popup-menu-button'; copyButton.textContent = 'コピー'; copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); }; const deleteButton = document.createElement('button'); deleteButton.className = 'popup-menu-button'; deleteButton.textContent = '削除'; deleteButton.onclick = () => { Swal.fire({ title: 'このメッセージを削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); } }); menu.remove(); }; menu.appendChild(copyButton); menu.appendChild(deleteButton); document.body.appendChild(menu); const targetRect = targetBubble.getBoundingClientRect(); menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`; menu.style.left = `${window.scrollX + targetRect.left + (targetRect.width / 2) - (menu.offsetWidth / 2)}px`; setTimeout(() => menu.classList.add('is-active'), 10); const closeMenu = (e) => { if (!menu.contains(e.target)) { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); window.removeEventListener('click', closeMenu, true); } }; setTimeout(() => window.addEventListener('click', closeMenu, true), 10); const closeMenuOnScroll = () => { menu.classList.remove('is-active'); setTimeout(() => menu.remove(), 100); messages.removeEventListener('scroll', closeMenuOnScroll); }; messages.addEventListener('scroll', closeMenuOnScroll); }
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><button type="button" class="swal-delete-button" title="削除"><i class="fas fa-trash-alt"></i></button><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); const deleteButton = modal.querySelector('.swal-delete-button'); if (deleteButton) { deleteButton.addEventListener('click', () => { Swal.fire({ title: 'この画像を削除しますか？', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'はい、削除します', cancelButtonText: 'やめる' }).then((result) => { if (result.isConfirmed) { socket.emit('delete message', messageData.id); Swal.close(); } }); }); } } }); }
     
-    // ---  音声録音モーダルを表示し、録音を開始する関数 ---
+    // 6-1. 音声録音機能の全体を制御する
     let mediaRecorder;
     let audioChunks = [];
     let timerInterval;
 
     function handleVoiceButtonClick() {
-        let timerInterval;
-
         Swal.fire({
-            html: `
-                <div class="voice-recorder-icon-wrapper">
-                    <!-- ↓↓↓ 画像アイコンに変更！ ↓↓↓ -->
-                    <img src="images/icon-voice.png" alt="音声録音" class="voice-recorder-icon">
-                </div>
-                <div class="voice-recorder-timer">00:00</div>
-            `,
-            showConfirmButton: true,
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'REC',
-            denyButtonText: 'STOP',
-            cancelButtonText: 'CLOSE',
-            customClass: { popup: 'voice-recorder-popup', confirmButton: 'rec-button', denyButton: 'stop-button' },
-            // ↓↓↓ ここからが、ボタンの挙動を制御する魔法 ↓↓↓
-            showLoaderOnConfirm: true, // RECボタンを押した時にローディング
-            
-            preConfirm: () => {
-                            // この関数は、RECボタンが押された時に実行される
-                            // ここでは、非同期処理（マイクアクセス）を行う
-                            return navigator.mediaDevices.getUserMedia({ audio: true })
-                                .then(stream => {
-                                    startAudioRecording(stream); // 成功したら録音開始
-                                    return true; // SweetAlert2に成功を伝える
-                                }).catch(err => {
-                                    Swal.showValidationMessage('マイクへのアクセスが許可されていません。');
-                                    return false; // 失敗を伝える
-                                });
-                        },
-                        allowOutsideClick: () => !Swal.isLoading()
-                        // ↑↑↑ ここまでが新しい挙動の制御 ↑↑↑
+            html: `<div class="voice-recorder-icon-wrapper"><img src="images/icon-voice.png" alt="音声録音" class="voice-recorder-icon"></div><div class="voice-recorder-timer">00:00</div>`,
+            showConfirmButton: true, showDenyButton: true, showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-circle"></i> REC',
+            denyButtonText: '<i class="fas fa-stop"></i> STOP',
+            cancelButtonText: '<i class="fas fa-times"></i> CLOSE',
+            customClass: { popup: 'voice-recorder-popup', confirmButton: 'rec-button', denyButton: 'stop-button', cancelButton: 'close-button' },
+            didOpen: (modal) => {
+                const recBtn = modal.querySelector('.rec-button');
+                const stopBtn = modal.querySelector('.stop-button');
+                stopBtn.disabled = true;
 
-            
+                recBtn.addEventListener('click', () => {
+                    recBtn.classList.add('is-active');
+                    stopBtn.classList.remove('is-active');
+                    startAudioRecording(modal);
+                });
+                stopBtn.addEventListener('click', () => {
+                    stopBtn.classList.add('is-active');
+                    recBtn.classList.remove('is-active');
+                    stopAudioRecording();
+                });
+            },
+            preConfirm: () => { return false; },
+            preDeny: () => { return false; },
         }).then((result) => {
             if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
             clearInterval(timerInterval);
         });
-        Swal.getDenyButton().disabled = true;
     }
 
-    // 録音開始/停止のロジック (グローバルにアクセスできるように)
-    function startAudioRecording(stream) { // window.から変更
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        audioChunks = [];
-        mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
-        
-        // UIを「録音中」モードに変更
-        Swal.getConfirmButton().style.display = 'none'; // RECボタンを隠す
-        Swal.getDenyButton().disabled = false;     // STOPボタンを押せるように
-        document.querySelector('.voice-recorder-icon').classList.add('is-recording');
-        
-        let seconds = 0;
-        const timerElement = document.querySelector('.voice-recorder-timer');
-        timerInterval = setInterval(() => {
-            seconds++;
-            const min = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const sec = (seconds % 60).toString().padStart(2, '0');
-            timerElement.textContent = `${min}:${sec}`;
-        }, 1000);
-    };
+    function startAudioRecording(modal) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            audioChunks = [];
+            mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
+            
+            modal.querySelector('.rec-button').disabled = true;
+            modal.querySelector('.stop-button').disabled = false;
+            modal.querySelector('.voice-recorder-icon').classList.add('is-recording');
+            
+            let seconds = 0;
+            const timerElement = modal.querySelector('.voice-recorder-timer');
+            timerInterval = setInterval(() => {
+                seconds++;
+                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const sec = (seconds % 60).toString().padStart(2, '0');
+                if(timerElement) timerElement.textContent = `${min}:${sec}`;
+            }, 1000);
+        }).catch(err => Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error'));
+    }
 
-    window.stopAudioRecording = () => {
+    function stopAudioRecording() {
+        if (!mediaRecorder || mediaRecorder.state !== 'recording') return;
         mediaRecorder.stop();
         clearInterval(timerInterval);
-        document.querySelector('.voice-recorder-icon').classList.remove('is-recording');
 
         mediaRecorder.addEventListener("stop", () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             const audioUrl = URL.createObjectURL(audioBlob);
             showAudioCheckModal(audioBlob, audioUrl);
-        });
-    };
+        }, { once: true });
+    }
 
     function showAudioCheckModal(audioBlob, audioUrl) {
         const audio = new Audio(audioUrl);
-        
-        // 録音の第二段階：音声確認画面を表示
         Swal.fire({
             title: 'Audio check',
-            showConfirmButton: true,
-            showDenyButton: true,
-            showCancelButton: true,
+            showConfirmButton: true, showDenyButton: true, showCancelButton: true,
             confirmButtonText: '<i class="fas fa-play"></i> PLAY',
             denyButtonText: '<i class="fas fa-stop"></i> STOP',
-            cancelButtonText: '<i class="fas fa-paper-plane"></i>',
+            cancelButtonText: '<i class="fas fa-paper-plane"></i> SEND',
             customClass: { popup: 'voice-recorder-popup', confirmButton: 'play-button', denyButton: 'stop-button', cancelButton: 'send-button' },
-            didOpen: () => {
-                // 送信ボタンを差し替える
-                const cancelButton = Swal.getCancelButton();
-                cancelButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
-                cancelButton.onclick = () => {
-                    uploadImage(audioBlob, true, 'voice-message.webm');
-                    Swal.close();
-                };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                audio.play();
-                showAudioCheckModal(audioBlob, audioUrl); // 再生が終わったら、また同じモーダルを表示
-            } else if (result.isDenied) {
-                audio.pause();
-                audio.currentTime = 0;
-                showAudioCheckModal(audioBlob, audioUrl);
-            }
+            preConfirm: () => { audio.currentTime = 0; audio.play(); return false; },
+            preDeny: () => { audio.pause(); audio.currentTime = 0; return false; },
+            preCancel: () => { uploadImage(audioBlob, true, 'voice-message.webm'); return true; }
         });
     }
 
-    // --- 5-4. 録音を停止し、音声ファイルをアップロードする関数 ---
-    function stopRecordingAndUpload() {
-        mediaRecorder.stop();
-
-        mediaRecorder.addEventListener("stop", () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            
-            // audioChunksをリセットして、次回の録音に備える
-            audioChunks = [];
-
-            // 画像と同じように、uploadImage関数を再利用してアップロード
-            // ファイル名を指定するために、第三引数を追加
-            uploadImage(audioBlob, true, 'voice-message.webm'); 
-        });
-    }
-
-    // --- 7. 画像プレビューを表示するためのヘルパー関数 ---
+    // 6-2. 画像プレビューを表示するためのヘルパー関数
     function showImagePreview(file) {
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -227,11 +158,11 @@ if (!storedUsername) {
         };
         reader.readAsDataURL(file);
     }
-
-    // --- 8. メッセージや画像の送信イベント ---
+    
+    // --- 7. メッセージや画像の送信イベント ---
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; adjustTextareaHeight(); } });
     
-    // --- 9. 添付メニューの制御 ---
+    // --- 8. 添付メニューの制御 ---
     const closeAttachmentMenu = () => attachmentMenu.classList.remove('is-active');
     attachmentButton.addEventListener('click', () => attachmentMenu.classList.add('is-active'));
     closeMenuButton.addEventListener('click', closeAttachmentMenu);
@@ -240,47 +171,24 @@ if (!storedUsername) {
     chooseFileButton.addEventListener('click', () => { imageInput.removeAttribute('capture'); imageInput.click(); closeAttachmentMenu(); });
     voiceButton.addEventListener('click', handleVoiceButtonClick);
 
-
-    // 9-1. ファイルが選択された後の処理
-    imageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) { showImagePreview(file); }
-    });
-    // 9-2. 【カメラ対策】
+    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { showImagePreview(file); } });
     let fileInputClicked = false;
     attachmentButton.addEventListener('click', () => { fileInputClicked = true; });
     window.addEventListener('focus', () => { if (fileInputClicked) { setTimeout(() => { if (imageInput.files.length > 0) { const file = imageInput.files[0]; showImagePreview(file); } fileInputClicked = false; }, 500); } });
+    async function uploadImage(file, isVoice = false, fileName = 'image.png') { const formData = new FormData(); formData.append('file', file, fileName); input.disabled = true; input.placeholder = 'ファイルをアップロード中...'; try { const response = await fetch('/upload-file', { method: 'POST', body: formData }); if (!response.ok) { throw new Error('サーバーエラー'); } const result = await response.json(); socket.emit('chat message', { message: result.secure_url, username: currentUsername, isImage: !isVoice, isVoice: isVoice }); } catch (error) { console.error('ファイルアップロードに失敗しました:', error); alert('アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; adjustTextareaHeight(); } }
 
-    async function uploadImage(file, isVoice = false, fileName = 'image.png') {
-        const formData = new FormData();
-        formData.append('file', file, fileName);  
-        input.disabled = true; input.placeholder = '画像をアップロード中...'; 
-        try {
-            const response = await fetch('/upload-file', { method: 'POST', body: formData });
-            if (!response.ok) { throw new Error('サーバーエラー'); }
-            const result = await response.json();
-            
-            socket.emit('chat message', {
-                message: result.secure_url,
-                username: currentUsername,
-                isImage: !isVoice, // 音声でないなら画像
-                isVoice: isVoice  // 音声ならtrue
-            });
-        }
-        catch (error) { console.error('画像アップロードに失敗しました:', error); alert('画像アップロードに失敗しました。'); } finally { input.disabled = false; input.placeholder = 'メッセージを入力'; adjustTextareaHeight(); } }
-
-    // --- 10. テキストエリアの高さ自動調整機能 ---
+    // --- 9. テキストエリアの高さ自動調整機能 ---
     const adjustTextareaHeight = () => { const maxHeight = 120; input.style.height = 'auto'; const scrollHeight = input.scrollHeight; if (scrollHeight > maxHeight) { input.style.height = maxHeight + 'px'; input.style.overflowY = 'auto'; } else { input.style.height = scrollHeight + 'px'; input.style.overflowY = 'hidden'; } };
     input.addEventListener('input', adjustTextareaHeight);
 
-    // --- 11. Socket.IOのイベントリスナー群 ---
+    // --- 10. Socket.IOのイベントリスナー群 ---
     socket.on('connect', async () => { try { const response = await fetch('/get-theme'); const result = await response.json(); if (result.success && result.theme) { const chatThemeElement = document.querySelector('.chat-theme'); if (chatThemeElement) { chatThemeElement.textContent = result.theme; } } } catch (e) { console.error("テーマの読み込みに失敗しました:", e); } });
     socket.on('load old messages', (serverMessages) => { messages.innerHTML = ''; lastMessageDate = null; serverMessages.forEach(msg => displayMessage(msg)); messages.scrollTop = messages.scrollHeight; });
     socket.on('chat message', (data) => { displayMessage(data); messages.scrollTop = messages.scrollHeight; });
     socket.on('message deleted', (messageId) => { const messageElement = document.getElementById(`message-${messageId}`); if (messageElement) { const nameLabel = messageElement.previousElementSibling; if (nameLabel && nameLabel.classList.contains('name-label')) { nameLabel.remove(); } messageElement.remove(); } });
     socket.on('theme updated', (newTheme) => { const chatThemeElement = document.querySelector('.chat-theme'); if (chatThemeElement) { chatThemeElement.textContent = newTheme; } });
     
-    // --- 12. ヘッダーのテーマ変更機能 ---
+    // --- 11. ヘッダーのテーマ変更機能 ---
     const chatThemeElement = document.querySelector('.chat-theme');
     if (chatThemeElement) {
         chatThemeElement.addEventListener('click', () => {
@@ -302,11 +210,11 @@ if (!storedUsername) {
         });
     }
 
-    // --- 13. 【シンプル版】キーボード表示時にスクロールする ---
+    // --- 12. 【シンプル版】キーボード表示時にスクロールする ---
     input.addEventListener('focus', () => { setTimeout(() => { form.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150); });
 }
 
-// --- 14. 日付スタンプのフェードアウト処理 ---
+// --- 13. 日付スタンプのフェードアウト処理 ---
 const messagesContainer = document.getElementById('messages');
 if (messagesContainer) {
     messagesContainer.addEventListener('scroll', () => {
