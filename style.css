@@ -194,7 +194,7 @@ html, body {
 .image-upload-label {
     width: 30px;
     height: auto;
-    padding: 0 10px;
+    padding: 0 10px 4px;
     font-size: 24px;
     cursor: pointer;
     display: flex;
@@ -377,27 +377,57 @@ html, body {
 }
 
 /* --- 9. 音声録音モーダル --- */
+.voice-recorder-popup {
+    background: #333 !important;
+    border-radius: 14px !important;
+    color: white !important;
+    width: 90vw !important;
+    max-width: 380px !important;
+}
 .voice-recorder-popup .swal2-title {
-    font-size: 1.5em !important;
+    color: white !important;
 }
 .voice-recorder-timer {
-    font-size: 1.2em;
-    color: #6e6e6e;
-    margin-bottom: 15px;
-    font-family: monospace; /* 数字がきれいに見えるフォント */
-}
-.record-button {
-    background-color: #f27474;
+    font-size: 1.5em;
     color: white;
-    border: none;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    font-size: 2.5em;
-    cursor: pointer;
-    margin: 10px 0;
-    transition: transform 0.2s;
+    font-family: monospace;
+    margin-bottom: 20px;
 }
-.record-button:hover {
-    transform: scale(1.1);
+.voice-recorder-icon-wrapper {
+    width: 120px;
+    height: 120px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto 30px;
+}
+.voice-recorder-icon {
+    font-size: 3em;
+    color: white;
+}
+.voice-recorder-icon.is-recording {
+    animation: pulse-mic 1.5s infinite;
+}
+@keyframes pulse-mic {
+    0% { color: #f27474; transform: scale(1); }
+    50% { color: #ff3c3c; transform: scale(1.1); }
+    100% { color: #f27474; transform: scale(1); }
+}
+.voice-recorder-popup .swal2-actions {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100% !important;
+    margin: 0 !important;
+    padding-top: 10px;
+}
+.voice-recorder-popup .swal2-styled {
+    flex: 1;
+    background: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+.voice-recorder-popup .swal2-styled:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
