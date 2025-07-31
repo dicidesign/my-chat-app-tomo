@@ -150,7 +150,7 @@ html, body {
     display: block;
     height: auto;
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
     border-radius: 10px;
     cursor: pointer;
     object-fit: cover;
