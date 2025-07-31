@@ -383,16 +383,18 @@ html, body {
     color: white !important;
     width: 90vw !important;
     max-width: 380px !important;
-    padding-top: 30px !important;
+    padding: 0 !important;
 }
 .voice-recorder-popup .swal2-title {
     color: white !important;
+    font-weight: 300 !important; /* フォントを細く */
+    padding: 20px !important; /* 上下の余白 */
+    margin: 0 !important;
+    font-size: 1.2em !important;
 }
-.voice-recorder-timer {
-    font-size: 1.5em;
-    color: white;
-    font-family: monospace;
-    margin-bottom: 20px;
+.voice-recorder-popup .swal2-html-container {
+    margin: 0 !important;
+    overflow: visible !important; /* 送信ボタンを配置するため */
 }
 .voice-recorder-icon-wrapper {
     width: 120px;
@@ -405,61 +407,7 @@ html, body {
     margin: 20px auto 30px;
 }
 .voice-recorder-icon {
-    font-size: 3em;
-    color: white;
-}
-.voice-recorder-icon.is-recording {
-    animation: pulse-mic 1.5s infinite;
-}
-@keyframes pulse-mic {
-    0% { color: #f27474; transform: scale(1); }
-    50% { color: #ff3c3c; transform: scale(1.1); }
-    100% { color: #f27474; transform: scale(1); }
-}
-.voice-recorder-popup .swal2-actions {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100% !important;
-    margin: 0 !important;
-    padding-top: 10px;
-}
-.voice-recorder-popup .swal2-styled {
-    flex: 1;
-    background: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-}
-.voice-recorder-popup .swal2-styled:not(:last-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-.voice-recorder-popup .swal2-styled.is-active {
-    background: rgba(255, 255, 255, 0.2) !important; /* アクティブな時の色 */
-}
-
-
-
-
-.voice-recorder-popup {
-    background: #333 !important;
-    border-radius: 14px !important;
-    color: white !important;
-    width: 90vw !important;
-    max-width: 380px !important;
-    padding-top: 30px !important;
-}
-.voice-recorder-icon-wrapper {
-    width: 120px;
-    height: 120px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto 30px;
-}
-.voice-recorder-icon {
-    /* font-size, color などを削除 (imgタグになったため) */
-    width: 48px;  /* 画像のサイズを指定 */
+    width: 48px;
     height: 48px;
 }
 .voice-recorder-icon.is-recording {
@@ -474,14 +422,16 @@ html, body {
     font-size: 1.5em;
     color: white;
     font-family: monospace;
-    margin-top: 20px; /* マイクアイコンとの間に隙間を */
+    margin-top: 20px;
     margin-bottom: 30px;
 }
 .voice-recorder-popup .swal2-actions {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     width: 100% !important;
     margin: 0 !important;
-    padding-top: 10px;
+    padding: 0 !important;
+    display: flex !important;
+    gap: 0 !important;
 }
 .voice-recorder-popup .swal2-styled {
     flex: 1;
@@ -489,9 +439,38 @@ html, body {
     border-radius: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
-    font-weight: 300 !important; /* ★★★ フォントを細く！ ★★★ */
+    font-weight: 300 !important;
     font-size: 1em !important;
+    padding: 15px 0 !important;
 }
-.voice-recorder-popup .swal2-styled:not(:last-child) {
+.voice-recorder-popup .swal2-styled:not(:last-child):not(.swal2-cancel) {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.voice-recorder-popup .swal2-styled.is-active,
+.voice-recorder-popup .swal2-styled:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+.voice-recorder-popup .rec-button.is-active {
+    background: rgba(231, 76, 60, 0.2) !important;
+    color: #e74c3c !important;
+}
+
+/* --- Audio Check画面の特別なスタイル --- */
+.voice-recorder-popup .swal2-title-custom {
+    padding: 20px 0 !important;
+}
+.voice-recorder-popup .voice-recorder-actions-check {
+    padding-bottom: 50px !important; /* CLOSEボタン分の高さを確保 */
+    position: relative;
+}
+.voice-recorder-popup .send-button {
+    position: absolute;
+    right: 0;
+    top: -55px; /* titleの高さに合わせて微調整 */
+    border: none !important;
+}
+.voice-recorder-popup .close-button-custom {
+    position: absolute !important;
+    bottom: 0;
+    width: 100%;
 }

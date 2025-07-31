@@ -128,14 +128,23 @@ if (!storedUsername) {
         const audio = new Audio(audioUrl);
         Swal.fire({
             title: 'Audio check',
-            showConfirmButton: true, showDenyButton: true, showCancelButton: true,
+            html: `<button id="send-audio-button" class="swal2-confirm swal2-styled send-button"><i class="fas fa-paper-plane"></i></button>`,
+            showConfirmButton: true, showDenyButton: true, showCloseButton: true,
             confirmButtonText: '<i class="fas fa-play"></i> PLAY',
             denyButtonText: '<i class="fas fa-stop"></i> STOP',
-            cancelButtonText: '<i class="fas fa-paper-plane"></i> SEND',
-            customClass: { popup: 'voice-recorder-popup', confirmButton: 'play-button', denyButton: 'stop-button', cancelButton: 'send-button' },
+            customClass: { popup: 'voice-recorder-popup', title: 'swal2-title-custom', confirmButton: 'play-button', denyButton: 'stop-button' },
+            didOpen: (modal) => {
+                const playBtn = modal.querySelector('.play-button');
+                const stopBtn = modal.querySelector('.stop-button');
+                modal.querySelector('#send-audio-button').onclick = () => { uploadImage(audioBlob, true, 'voice-message.webm'); Swal.close(); };
+                audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); };
+                audio.onpause = () => { playBtn.classList.remove('is-active'); stopBtn.classList.add('is-active'); };
+                audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); };
+            },
             preConfirm: () => { audio.currentTime = 0; audio.play(); return false; },
             preDeny: () => { audio.pause(); audio.currentTime = 0; return false; },
-            preCancel: () => { uploadImage(audioBlob, true, 'voice-message.webm'); return true; }
+        }).then((result) => {
+            audio.pause();
         });
     }
 
