@@ -1,4 +1,4 @@
-// 【server.js 最終完成版・完全再設計】
+// 【server.js 完全版・最終確定】
 
 // --- 1. 必要なライブラリ ---
 const express = require('express');
