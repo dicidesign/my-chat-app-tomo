@@ -383,6 +383,7 @@ html, body {
     color: white !important;
     width: 90vw !important;
     max-width: 380px !important;
+    padding-top: 30px !important;
 }
 .voice-recorder-popup .swal2-title {
     color: white !important;
@@ -427,6 +428,67 @@ html, body {
     border-radius: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
+}
+.voice-recorder-popup .swal2-styled:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+
+
+
+.voice-recorder-popup {
+    background: #333 !important;
+    border-radius: 14px !important;
+    color: white !important;
+    width: 90vw !important;
+    max-width: 380px !important;
+    padding-top: 30px !important;
+}
+.voice-recorder-icon-wrapper {
+    width: 120px;
+    height: 120px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto 30px;
+}
+.voice-recorder-icon {
+    /* font-size, color などを削除 (imgタグになったため) */
+    width: 48px;  /* 画像のサイズを指定 */
+    height: 48px;
+}
+.voice-recorder-icon.is-recording {
+    animation: pulse-mic 1.5s infinite;
+}
+@keyframes pulse-mic {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.voice-recorder-timer {
+    font-size: 1.5em;
+    color: white;
+    font-family: monospace;
+    margin-top: 20px; /* マイクアイコンとの間に隙間を */
+    margin-bottom: 30px;
+}
+.voice-recorder-popup .swal2-actions {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100% !important;
+    margin: 0 !important;
+    padding-top: 10px;
+}
+.voice-recorder-popup .swal2-styled {
+    flex: 1;
+    background: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    font-weight: 300 !important; /* ★★★ フォントを細く！ ★★★ */
+    font-size: 1em !important;
 }
 .voice-recorder-popup .swal2-styled:not(:last-child) {
     border-right: 1px solid rgba(255, 255, 255, 0.1);

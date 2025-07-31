@@ -78,25 +78,42 @@ if (!storedUsername) {
     let timerInterval;
 
     function handleVoiceButtonClick() {
-        // 録音の第一段階：録音開始画面を表示
+        let timerInterval;
+
         Swal.fire({
-            title: '音声メッセージ',
             html: `
-                <div class="voice-recorder-timer">00:00</div>
                 <div class="voice-recorder-icon-wrapper">
-                    <i class="fas fa-microphone-alt voice-recorder-icon"></i>
+                    <!-- ↓↓↓ 画像アイコンに変更！ ↓↓↓ -->
+                    <img src="images/icon-voice.png" alt="音声録音" class="voice-recorder-icon">
                 </div>
+                <div class="voice-recorder-timer">00:00</div>
             `,
             showConfirmButton: true,
             showDenyButton: true,
             showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-circle"></i> REC',
-            denyButtonText: '<i class="fas fa-stop"></i> STOP',
-            cancelButtonText: '<i class="fas fa-times"></i> CLOSE',
+            confirmButtonText: 'REC',
+            denyButtonText: 'STOP',
+            cancelButtonText: 'CLOSE',
             customClass: { popup: 'voice-recorder-popup', confirmButton: 'rec-button', denyButton: 'stop-button' },
-            didOpen: () => {
-                Swal.getDenyButton().disabled = true; // 最初はSTOPボタンは押せない
-            }
+            // ↓↓↓ ここからが、ボタンの挙動を制御する魔法 ↓↓↓
+            showLoaderOnConfirm: true, // RECボタンを押した時にローディング
+            
+            preConfirm: () => {
+                            // この関数は、RECボタンが押された時に実行される
+                            // ここでは、非同期処理（マイクアクセス）を行う
+                            return navigator.mediaDevices.getUserMedia({ audio: true })
+                                .then(stream => {
+                                    startAudioRecording(stream); // 成功したら録音開始
+                                    return true; // SweetAlert2に成功を伝える
+                                }).catch(err => {
+                                    Swal.showValidationMessage('マイクへのアクセスが許可されていません。');
+                                    return false; // 失敗を伝える
+                                });
+                        },
+                        allowOutsideClick: () => !Swal.isLoading()
+                        // ↑↑↑ ここまでが新しい挙動の制御 ↑↑↑
+
+            
         }).then((result) => {
             if (mediaRecorder && mediaRecorder.state === "recording") {
                 mediaRecorder.stop();
@@ -104,29 +121,29 @@ if (!storedUsername) {
             }
             clearInterval(timerInterval);
         });
+        Swal.getDenyButton().disabled = true;
     }
 
     // 録音開始/停止のロジック (グローバルにアクセスできるように)
-    window.startAudioRecording = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
-            audioChunks = [];
-            mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
-            
-            Swal.getConfirmButton().disabled = true;
-            Swal.getDenyButton().disabled = false;
-            document.querySelector('.voice-recorder-icon').classList.add('is-recording');
-            
-            let seconds = 0;
-            const timerElement = document.querySelector('.voice-recorder-timer');
-            timerInterval = setInterval(() => {
-                seconds++;
-                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const sec = (seconds % 60).toString().padStart(2, '0');
-                timerElement.textContent = `${min}:${sec}`;
-            }, 1000);
-        }).catch(err => Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error'));
+    function startAudioRecording(stream) { // window.から変更
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        audioChunks = [];
+        mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
+        
+        // UIを「録音中」モードに変更
+        Swal.getConfirmButton().style.display = 'none'; // RECボタンを隠す
+        Swal.getDenyButton().disabled = false;     // STOPボタンを押せるように
+        document.querySelector('.voice-recorder-icon').classList.add('is-recording');
+        
+        let seconds = 0;
+        const timerElement = document.querySelector('.voice-recorder-timer');
+        timerInterval = setInterval(() => {
+            seconds++;
+            const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const sec = (seconds % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${min}:${sec}`;
+        }, 1000);
     };
 
     window.stopAudioRecording = () => {
