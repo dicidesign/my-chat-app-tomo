@@ -40,13 +40,86 @@ if (!storedUsername) {
         const time = document.createElement('span');
         if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); }
         else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
-        else { bubble.textContent = data.text; }
+        else {
+            // --- テキストメッセージの場合 ---
+            bubble.textContent = data.text;
+            if (username === currentUsername) {
+                // 自分のテキストメッセージにだけ、長押し(contextmenu)イベントを設定
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
+                    showPopupMenu(bubble, data);
+                });
+            }
+        }
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
         bubble.className = 'bubble';
         time.className = 'message-time';
         if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
         messages.appendChild(li);
     };
+    // --- メッセージ削除用のポップアップメニュー ---
+    function showPopupMenu(targetBubble, messageData) {
+        // もし既に他のメニューが開いていたら、それを消す
+        const existingMenu = document.querySelector('.popup-menu');
+        if (existingMenu) existingMenu.remove();
+
+        // 1. メニューのHTML要素をゼロから作成
+        const menu = document.createElement('div');
+        menu.className = 'popup-menu';
+        
+        // 2. 「コピー」ボタンを作成し、機能を設定
+        const copyButton = document.createElement('button');
+        copyButton.className = 'popup-menu-button';
+        copyButton.textContent = 'コピー';
+        copyButton.onclick = () => {
+            navigator.clipboard.writeText(messageData.text);
+            menu.remove(); // 押したらメニューを消す
+        };
+
+        // 3. 「削除」ボタンを作成し、機能を設定
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            Swal.fire({
+                title: 'このメッセージを削除しますか？',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'はい、削除します',
+                cancelButtonText: 'やめる'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('delete message', messageData.id);
+                }
+            });
+            menu.remove(); // 押したらメニューを消す
+        };
+
+        // 4. 作成したボタンをメニューに追加
+        menu.appendChild(copyButton);
+        menu.appendChild(deleteButton);
+
+        // 5. ページにメニューを追加
+        document.body.appendChild(menu);
+
+        // 6. メニューの位置を、長押しされたメッセージの横に計算して設定
+        const bubbleRect = targetBubble.getBoundingClientRect();
+        menu.style.top = `${window.scrollY + bubbleRect.top + (bubbleRect.height / 2) - (menu.offsetHeight / 2)}px`;
+        menu.style.left = `${window.scrollX + bubbleRect.left - menu.offsetWidth - 10}px`; // 吹き出しの左に10pxの隙間
+
+        // 7. 表示アニメーションを開始
+        setTimeout(() => menu.classList.add('is-active'), 10);
+
+        // 8. メニューの外側をクリックしたら、メニューを消す
+        const closeMenuOnClickOutside = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.remove();
+                window.removeEventListener('click', closeMenuOnClickOutside, true);
+            }
+        };
+        setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
+    }
 
     // --- 6. 各種メニューを表示するためのヘルパー関数群 ---
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); } }); }
@@ -124,6 +197,16 @@ if (!storedUsername) {
     socket.on('load old messages', (serverMessages) => { messages.innerHTML = ''; lastMessageDate = null; serverMessages.forEach(msg => displayMessage(msg)); messages.scrollTop = messages.scrollHeight; });
     socket.on('chat message', (data) => { displayMessage(data); messages.scrollTop = messages.scrollHeight; });
     socket.on('theme updated', (newTheme) => { if (chatThemeElement) { chatThemeElement.textContent = newTheme; } });
+    socket.on('message deleted', (messageId) => {
+        const messageElement = document.getElementById(`message-${messageId}`);
+        if (messageElement) {
+            const nameLabel = messageElement.previousElementSibling;
+            if (nameLabel && nameLabel.classList.contains('name-label')) {
+                nameLabel.remove();
+            }
+            messageElement.remove();
+        }
+    });
     
     // --- 9. ヘッダーのテーマ変更機能 ---
     if (chatThemeElement) {

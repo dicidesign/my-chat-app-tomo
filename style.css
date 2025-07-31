@@ -459,3 +459,47 @@ html, body {
     height: 40px; /* 高さを指定して、Chromeでの表示を安定させる */
     overflow: hidden;
 }
+
+
+/* --- 11. カスタムポップアップメニュー --- */
+.popup-menu {
+    position: absolute; /* ページ上のどこにでも配置できるように */
+    z-index: 100;
+    background-color: #4c4c4c;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    padding: 5px;
+
+    /* 最初は隠しておき、アニメーションの準備 */
+    opacity: 0;
+    transform: scale(0.9) translateY(5px);
+    visibility: hidden;
+    transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+.popup-menu.is-active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    visibility: visible;
+}
+
+.popup-menu-button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.popup-menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.popup-menu-button:not(:first-child) {
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}

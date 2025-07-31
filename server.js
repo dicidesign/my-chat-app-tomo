@@ -57,6 +57,16 @@ io.on('connection', async (socket) => {
         try { await setDoc(newDocRef, messageToBroadcast); io.emit('chat message', messageToBroadcast); } catch (e) { console.error("メッセージ保存エラー:", e); }
     });
     socket.on('theme change', async (newTheme) => { try { const themeRef = doc(db, 'settings', 'theme'); await setDoc(themeRef, { text: newTheme, updatedAt: new Date() }); io.emit('theme updated', newTheme); } catch (e) { console.error("テーマの更新に失敗しました:", e); } });
+    socket.on('delete message', async (messageId) => {
+        if (!messageId) return;
+        try {
+            const messageRef = doc(db, 'messages', messageId);
+            await deleteDoc(messageRef);
+            io.emit('message deleted', messageId); // 全員に削除を通知
+        } catch (e) {
+            console.error("メッセージの削除に失敗しました:", e);
+        }
+    });
     socket.on('disconnect', () => { console.log(`ユーザーが切断しました: ${socket.id}`); });
 });
 
