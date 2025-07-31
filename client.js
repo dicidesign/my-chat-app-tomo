@@ -32,7 +32,6 @@ if (!storedUsername) {
         let messageDate;
         if (typeof data.createdAt === 'object' && data.createdAt.seconds) { messageDate = new Date(data.createdAt.seconds * 1000); } else { messageDate = new Date(data.createdAt); }
         if (isNaN(messageDate.getTime())) { return; }
-
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
         if (messageDateString !== lastMessageDate) { const dateStamp = document.createElement('div'); dateStamp.className = 'date-stamp'; dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`; messages.appendChild(dateStamp); lastMessageDate = messageDateString; }
         
@@ -42,33 +41,27 @@ if (!storedUsername) {
         const bubble = document.createElement('div');
         const time = document.createElement('span');
         
-         if (data.isVoice === true) {
+        if (data.isVoice === true) {
             const audioPlayer = document.createElement('audio');
             audioPlayer.src = data.text;
             audioPlayer.controls = true;
             bubble.appendChild(audioPlayer);
-
-            if (username === currentUsername) {
-                bubble.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    // ↓↓↓ 「false」を、正しい「true」に修正！ ↓↓↓
-                    showPopupMenu(bubble, data, true); 
-                });
-            }
-
+            // ★★★ 一旦、音声の削除機能はコメントアウト ★★★
+            // if (username === currentUsername) {
+            //     bubble.addEventListener('contextmenu', (e) => { e.preventDefault(); showPopupMenu(bubble, data, true); });
+            // }
         } else if (data.isImage === true) {
             const img = document.createElement('img');
             img.src = data.text;
             img.addEventListener('click', () => showImageModal(data));
             bubble.appendChild(img);
-
         } else {
+            // ★★★ テキストメッセージの削除機能 ★★★
             bubble.textContent = data.text;
             if (username === currentUsername) {
                 bubble.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    // ↓↓↓ こちらは、正しい「false」のまま！ ↓↓↓
-                    showPopupMenu(bubble, data, false);
+                    showPopupMenu(bubble, data, false); // isVoice は false
                 });
             }
         }
