@@ -83,7 +83,7 @@ if (!storedUsername) {
         deleteButton.onclick = () => {
             Swal.fire({
                 // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
-                title: 'このメッセージを削除しますか？',
+                title: 'メッセージを削除しますか？',
                 icon: 'warning',
                 iconColor: '#f8bb86',
                 
