@@ -1,18 +1,18 @@
-// 【server.js 最終完成版・完全復元】
+// 【server.js 完全版・最終確定】
 
-// --- 1. 必要なライブラリを全て読み込む (正しい順番で) ---
+// --- 1. 必要なライブラリ ---
+const express = require('express');
 const http = require('http');
 const path = require('path');
-const express = require('express');
 const { Server } = require("socket.io");
 const axios = require('axios');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { Readable } = require('stream');
-const { initializeApp } = require('firebase/app'); // ★★★ まずAppを読み込む
-const { getFirestore, collection, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore'); // ★★★ その後にFirestoreを読み込む
+const { initializeApp } = require('firebase/app');
+const { getFirestore, collection, getDocs, query, orderBy, limit, doc, setDoc, getDoc, deleteDoc } = require('firebase/firestore');
 
-// --- 2. ExpressアプリとHTTPサーバー、Socket.IOサーバーを初期化 ---
+// --- 2. Expressアプリとサーバー、Socket.IOを初期化 ---
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] }, transports: ['websocket', 'polling'], pingInterval: 10000, pingTimeout: 5000 });
@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname)));
 // --- 5. 認証ユーザーリスト ---
 const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
 
-// --- 6. HTTPルーティング（APIの窓口） ---
+// --- 6. HTTPルーティング ---
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 app.post('/login', (req, res) => { const { username, password } = req.body; if (authorizedUsers[username] && authorizedUsers[username] === password) { res.json({ success: true }); } else { res.json({ success: false, message: 'ユーザー名またはパスワードが違います。' }); } });
 app.get('/get-theme', async (req, res) => { try { const themeRef = doc(db, 'settings', 'theme'); const docSnap = await getDoc(themeRef); if (docSnap.exists()) { res.json({ success: true, theme: docSnap.data().text }); } else { res.json({ success: true, theme: 'リスとくるみ' }); } } catch (e) { res.status(500).json({ success: false, message: 'テーマの取得に失敗しました。' }); } });
@@ -59,7 +59,19 @@ io.on('connection', (socket) => {
         try { await setDoc(newDocRef, messageToBroadcast); io.emit('chat message', messageToBroadcast); } catch (e) { console.error("メッセージ保存エラー:", e); }
     });
     socket.on('theme change', async (newTheme) => { try { const themeRef = doc(db, 'settings', 'theme'); await setDoc(themeRef, { text: newTheme, updatedAt: new Date() }); io.emit('theme updated', newTheme); } catch (e) { console.error("テーマの更新に失敗しました:", e); } });
-    socket.on('delete message', async (messageId) => { if (!messageId) return; try { const messageRef = doc(db, 'messages', messageId); await deleteDoc(messageRef); io.emit('message deleted', messageId); } catch (e) { console.error("メッセージの削除に失敗しました:", e); } });
+    
+    // ★★★ 正しい場所に、正しい形で再配置 ★★★
+    socket.on('delete message', async (messageId) => {
+        if (!messageId) return;
+        try {
+            const messageRef = doc(db, 'messages', messageId);
+            await deleteDoc(messageRef);
+            io.emit('message deleted', messageId);
+        } catch (e) {
+            console.error("メッセージの削除に失敗しました:", e);
+        }
+    });
+
     socket.on('disconnect', () => { console.log(`ユーザーが切断しました: ${socket.id}`); });
 });
 
