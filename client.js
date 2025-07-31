@@ -55,7 +55,52 @@ if (!storedUsername) {
     function handleVoiceButtonClick() { Swal.fire({ html: `<div class="voice-recorder-icon-wrapper"><img src="images/icon-voice.png" alt="音声録音" class="voice-recorder-icon"></div><div class="voice-recorder-timer">00:00</div>`, showConfirmButton: true, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-circle"></i> REC', denyButtonText: '<i class="fas fa-stop"></i> STOP', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'voice-recorder-popup', confirmButton: 'rec-button', denyButton: 'stop-button', cancelButton: 'close-button' }, didOpen: (modal) => { const recBtn = modal.querySelector('.rec-button'); const stopBtn = modal.querySelector('.stop-button'); stopBtn.disabled = true; recBtn.addEventListener('click', () => { recBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); startAudioRecording(modal); }); stopBtn.addEventListener('click', () => { stopBtn.classList.add('is-active'); recBtn.classList.remove('is-active'); stopAudioRecording(); }); }, preConfirm: () => false, preDeny: () => false }).then(() => { if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stream.getTracks().forEach(track => track.stop()); } clearInterval(timerInterval); closeAttachmentMenu(); }); }
     function startAudioRecording(modal) { navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => { mediaRecorder = new MediaRecorder(stream); mediaRecorder.start(); audioChunks = []; mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data)); modal.querySelector('.rec-button').disabled = true; modal.querySelector('.stop-button').disabled = false; modal.querySelector('.voice-recorder-icon').classList.add('is-recording'); let seconds = 0; const timerElement = modal.querySelector('.voice-recorder-timer'); timerInterval = setInterval(() => { seconds++; const min = Math.floor(seconds / 60).toString().padStart(2, '0'); const sec = (seconds % 60).toString().padStart(2, '0'); if(timerElement) timerElement.textContent = `${min}:${sec}`; }, 1000); }).catch(err => Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error')); }
     function stopAudioRecording() { if (!mediaRecorder || mediaRecorder.state !== 'recording') return; mediaRecorder.stop(); clearInterval(timerInterval); mediaRecorder.addEventListener("stop", () => { const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); const audioUrl = URL.createObjectURL(audioBlob); showAudioCheckModal(audioBlob, audioUrl); }, { once: true }); }
-    function showAudioCheckModal(audioBlob, audioUrl) { const audio = new Audio(audioUrl); Swal.fire({ title: 'Audio check', html: `<div class="audio-check-container"><div class="audio-check-buttons-main"><button id="play-audio-btn" class="audio-check-button"><i class="fas fa-play"></i> PLAY</button><button id="stop-audio-btn" class="audio-check-button"><i class="fas fa-stop"></i> STOP</button><button id="send-audio-btn" class="audio-check-button send"><i class="fas fa-paper-plane"></i></button></div><div class="audio-check-buttons-footer"><button id="close-audio-check-btn" class="audio-check-button close"><i class="fas fa-times"></i> CLOSE</button></div></div>`, showConfirmButton: false, showDenyButton: false, showCancelButton: false, background: '#333', customClass: { popup: 'voice-recorder-popup audio-check-popup' }, didOpen: (modal) => { const playBtn = modal.querySelector('#play-audio-btn'); const stopBtn = modal.querySelector('#stop-audio-btn'); const sendBtn = modal.querySelector('#send-audio-btn'); const closeBtn = modal.querySelector('#close-audio-check-btn'); playBtn.onclick = () => { audio.currentTime = 0; audio.play(); }; stopBtn.onclick = () => { audio.pause(); }; sendBtn.onclick = () => { uploadImage(audioBlob, true, 'voice-message.webm'); Swal.close(); }; closeBtn.onclick = () => Swal.close(); audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); }; audio.onpause = () => { playBtn.classList.remove('is-active'); }; audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); }; } }).then(() => { audio.pause(); audio.src = ''; closeAttachmentMenu(); }); }
+    function showAudioCheckModal(audioBlob, audioUrl) {
+        const audio = new Audio(audioUrl);
+        Swal.fire({
+            // ★★★ htmlオプションで、全てのUIを自作する！ ★★★
+            html: `
+                <div class="audio-check-container">
+                    <div class="audio-check-title">Audio check</div>
+                    <div class="audio-check-buttons-main">
+                        <button id="play-audio-btn" class="audio-check-button"><i class="fas fa-play"></i> PLAY</button>
+                        <button id="stop-audio-btn" class="audio-check-button"><i class="fas fa-stop"></i> STOP</button>
+                        <button id="send-audio-btn" class="audio-check-button send"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                    <div class="audio-check-buttons-footer">
+                        <button id="close-audio-check-btn" class="audio-check-button close"><i class="fas fa-times"></i> CLOSE</button>
+                    </div>
+                </div>
+            `,
+            showConfirmButton: false, // 標準のボタンは一切使わない
+            showDenyButton: false,
+            showCancelButton: false,
+            background: '#333',
+            customClass: {
+                popup: 'voice-recorder-popup audio-check-popup',
+            },
+            
+            didOpen: (modal) => {
+                const playBtn = modal.querySelector('#play-audio-btn');
+                const stopBtn = modal.querySelector('#stop-audio-btn');
+                const sendBtn = modal.querySelector('#send-audio-btn');
+                const closeBtn = modal.querySelector('#close-audio-check-btn');
+
+                playBtn.onclick = () => { audio.currentTime = 0; audio.play(); };
+                stopBtn.onclick = () => { audio.pause(); };
+                sendBtn.onclick = () => { uploadImage(audioBlob, true, 'voice-message.webm'); Swal.close(); };
+                closeBtn.onclick = () => Swal.close();
+
+                audio.onplay = () => { playBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); };
+                audio.onpause = () => { playBtn.classList.remove('is-active'); };
+                audio.onended = () => { playBtn.classList.remove('is-active'); stopBtn.classList.remove('is-active'); };
+            },
+        }).then((result) => {
+            audio.pause();
+            audio.src = '';
+            closeAttachmentMenu();
+        });
+    }
 
     // --- 7. イベントリスナーとアップロード処理 ---
     form.addEventListener('submit', (e) => { e.preventDefault(); if (input.value) { socket.emit('chat message', { message: input.value, username: currentUsername, isImage: false }); input.value = ''; adjustTextareaHeight(); } });
