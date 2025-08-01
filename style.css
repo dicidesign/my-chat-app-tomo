@@ -208,8 +208,8 @@ html, body {
 
 /* --- 5. SweetAlert2 モーダルウィンドウのカスタム --- */
 .fullscreen-swal {
-    width: 90vw !important;
-    height: 90vh !important;
+    width: 100vw !important;
+    height: 100vh !important;
     padding: 0 !important;
     background: transparent !important;
     /* ↓↓↓ ヘッダーを配置する基準点にする！ ↓↓↓ */
@@ -225,7 +225,7 @@ html, body {
     max-width: 100%; /* 親の幅を超えないように */
     max-height: 100%; /* 親の高さを超えないように */
     object-fit: contain;
-    margin: 0 !important;
+    margin: 60px 0!important;
 }
 
 /* ★★★ ここからが、新しいヘッダーのデザイン ★★★ */
