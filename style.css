@@ -640,7 +640,7 @@ html, body {
 
 /* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
 .chat-container.is-dreamy .glass-overlay {
-    opacity: 0.5; /* 透明度40%で表示 */
+    opacity: 0.4; /* 透明度40%で表示 */
 }
 
 /* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
