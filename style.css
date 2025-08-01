@@ -514,24 +514,16 @@ html, body {
 
     opacity: 0;
     visibility: hidden;
+    /* ↓↓↓ アニメーションの基準を、上下方向に変更！ ↓↓↓ */
+    transform: translateY(10px);
     transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
-}
-
-/* ★★★ ここからが、CSSによるレイアウトの魔法 ★★★ */
-.popup-menu.on-left {
-    /* 左側のメッセージ用：右に10pxずらして表示 */
-    transform: translateX(10px);
-}
-.popup-menu.on-right {
-    /* 右側のメッセージ用：左に10pxずらして表示 */
-    transform: translateX(calc(-100% - 10px));
 }
 
 .popup-menu.is-active {
     opacity: 1;
     visibility: visible;
-    /* is-activeになったら、元の位置に戻る（アニメーション） */
-    transform: translateX(0);
+    /* ↓↓↓ is-activeになったら、元の位置に戻る（フワッと浮き上がる） ↓↓↓ */
+    transform: translateY(0);
 }
 
 .popup-menu-button {

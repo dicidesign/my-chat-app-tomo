@@ -118,18 +118,10 @@ if (!storedUsername) {
         // 3. メッセージ吹き出しの座標を取得
         const bubbleRect = targetBubble.getBoundingClientRect();
         
-        // 1. 吹き出しが画面の右半分にあるか、左半分にあるかを判断
-        if (bubbleRect.left > window.innerWidth / 2) {
-            // 右半分にある場合 (自分のメッセージ)
-            menu.classList.add('on-right');
-            menu.style.top = `${window.scrollY + bubbleRect.top}px`;
-            menu.style.right = `${window.innerWidth - bubbleRect.left}px`;
-        } else {
-            // 左半分にある場合 (相手のメッセージ)
-            menu.classList.add('on-left');
-            menu.style.top = `${window.scrollY + bubbleRect.top}px`;
-            menu.style.left = `${window.scrollX + bubbleRect.right}px`;
-        }
+        // メニューを、吹き出しの上端から、少しだけ上に表示
+        menu.style.top = `${window.scrollY + bubbleRect.top - menu.offsetHeight - 10}px`;
+        // メニューを、吹き出しの水平方向の中央に配置
+        menu.style.left = `${window.scrollX + bubbleRect.left + (bubbleRect.width / 2) - (menu.offsetWidth / 2)}px`;
 
         // --- ↑↑↑ 位置計算ロジックここまで ---
 
