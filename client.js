@@ -114,30 +114,22 @@ if (!storedUsername) {
         // 1. まず、メニューを目に見えない状態でページに追加する
         menu.style.visibility = 'hidden';
         document.body.appendChild(menu);
-
-        // 2. これで、メニューの「本来の幅と高さ」を取得できる
-        const menuWidth = menu.offsetWidth;
-        const menuHeight = menu.offsetHeight;
         
         // 3. メッセージ吹き出しの座標を取得
         const bubbleRect = targetBubble.getBoundingClientRect();
         
-        // 4. 最適な位置を計算
-        let top = window.scrollY + bubbleRect.top + (bubbleRect.height / 2) - (menuHeight / 2);
-        let left;
-
-        if (targetBubble.closest('li.me')) {
-            // 自分のメッセージ（右側）なら、メニューを吹き出しの左に表示
-            left = window.scrollX + bubbleRect.left - menuWidth - 10;
+        // 1. 吹き出しが画面の右半分にあるか、左半分にあるかを判断
+        if (bubbleRect.left > window.innerWidth / 2) {
+            // 右半分にある場合 (自分のメッセージ)
+            menu.classList.add('on-right');
+            menu.style.top = `${window.scrollY + bubbleRect.top}px`;
+            menu.style.right = `${window.innerWidth - bubbleRect.left}px`;
         } else {
-            // 相手のメッセージ（左側）なら、メニューを吹き出しの右に表示
-            left = window.scrollX + bubbleRect.right + 10;
+            // 左半分にある場合 (相手のメッセージ)
+            menu.classList.add('on-left');
+            menu.style.top = `${window.scrollY + bubbleRect.top}px`;
+            menu.style.left = `${window.scrollX + bubbleRect.right}px`;
         }
-
-        // 5. 計算した位置を設定し、メニューを見えるようにする
-        menu.style.top = `${top}px`;
-        menu.style.left = `${left}px`;
-        menu.style.visibility = 'visible';
 
         // --- ↑↑↑ 位置計算ロジックここまで ---
 
