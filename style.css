@@ -519,12 +519,7 @@ html, body {
     width: 30px !important;
     height: 30px !important;
 }
-.delete-confirm-popup .swal2-icon.swal2-warning {
-    border-color: #fff !important;
-    color: #fff !important;
-    width: 60px !important;
-    height: 60px !important;
-}
+
 .delete-confirm-button {
     border-radius: 4px !important;
     font-weight: bold !important;

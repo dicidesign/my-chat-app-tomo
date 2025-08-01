@@ -84,8 +84,6 @@ if (!storedUsername) {
             Swal.fire({
                 // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
                 title: 'メッセージを削除しますか？',
-                icon: 'warning',
-                iconColor: '#f8bb86',
                 
                 showCancelButton: true,
                 confirmButtonText: '削除',
