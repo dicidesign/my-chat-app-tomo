@@ -95,7 +95,6 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    backdrop-filter: blur(20px);
 }
 
 
@@ -613,4 +612,38 @@ html, body {
     background-color: transparent !important;
     border: 1px solid #fff !important;
     margin-left: 20px !important;
+}
+
+/* --- 16. グラスモーフィズム背景 --- */
+
+/* 磨りガラスのレイヤー */
+.glass-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* キャンバス(0)とメッセージ(2以上)の間 */
+
+    /* 磨りガラスの画像を指定 */
+    background-image: url('images/glass.png');
+    background-size: cover; /* 常に画面いっぱいに表示 */
+    
+    /* ★★★ 最初は透明（非表示）にしておく ★★★ */
+    opacity: 0;
+    /* じんわり変化するためのアニメーション設定 */
+    transition: opacity 2s ease-in-out;
+}
+
+/* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
+.chat-container.is-dreamy .glass-overlay {
+    opacity: 0.4; /* 透明度40%で表示 */
+}
+
+/* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
+.chat-container.is-dreamy #background-canvas {
+    /* フィルターを使って、キャンバス全体にぼかしをかける */
+    filter: blur(15px);
+    /* じんわり変化するためのアニメーション設定 */
+    transition: filter 2s ease-in-out;
 }
