@@ -150,21 +150,18 @@ if (!storedUsername) {
         const menu = document.createElement('div');
         menu.className = 'popup-menu';
         
-        // --- ↓↓↓ ここからが、新しい条件分岐 ↓↓↓ ---
         if (!isVoice) {
-            // 音声メッセージではない（＝テキストメッセージの）場合だけ、「コピー」ボタンを作成
             const copyButton = document.createElement('button');
             copyButton.className = 'popup-menu-button';
-            copyButton.textContent = 'コピー';
+            copyButton.innerHTML = `<i class="fas fa-copy"></i> コピー`; // アイコン追加
             copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); };
             menu.appendChild(copyButton);
         }
-        // --- ↑↑↑ ここまでが、新しい条件分岐 ---
 
-        // 「削除」ボタンは、どちらの場合でも作成
         const deleteButton = document.createElement('button');
         deleteButton.className = 'popup-menu-button';
-        deleteButton.textContent = '削除';
+        // ↓↓↓ ゴミ箱アイコンを追加！ ↓↓↓
+        deleteButton.innerHTML = `<i class="fas fa-trash-alt"></i> 削除`; 
         deleteButton.onclick = () => {
             Swal.fire({
                 title: `この${isVoice ? '音声' : 'メッセージ'}を削除しますか？`,
@@ -190,18 +187,27 @@ if (!storedUsername) {
         menu.appendChild(deleteButton);
         document.body.appendChild(menu);
 
-        // --- ↓↓↓ これ以降の、メニューの位置計算や表示アニメーションは、一切変更なし ↓↓↓ ---
         const targetRect = targetBubble.getBoundingClientRect();
         menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`;
         menu.style.left = `${window.scrollX + targetRect.left - menu.offsetWidth - 10}px`;
+
         setTimeout(() => menu.classList.add('is-active'), 10);
-        const closeMenuOnClickOutside = (e) => {
-            if (!menu.contains(e.target)) {
+
+        // --- ↓↓↓ ここからが、スクロールで消す機能 ↓↓↓ ---
+        const closeMenu = (e) => {
+            // メニューの外側をクリックしたか、スクロールが発生したかをチェック
+            if (e.type === 'scroll' || !menu.contains(e.target)) {
                 menu.remove();
-                window.removeEventListener('click', closeMenuOnClickOutside, true);
+                // イベントリスナーを、必ず両方とも解除する
+                window.removeEventListener('click', closeMenu, true);
+                messages.removeEventListener('scroll', closeMenu);
             }
         };
-        setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
+        setTimeout(() => {
+            window.addEventListener('click', closeMenu, true);
+            messages.addEventListener('scroll', closeMenu);
+        }, 10);
+        // --- ↑↑↑ ここまでが、スクロールで消す機能 ---
     }
     function showImagePreview(file) { const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ background: '#2c2c2e', imageUrl: event.target.result, imageAlt: '画像プレビュー', showCancelButton: true, showConfirmButton: true, confirmButtonText: '<i class="fas fa-paper-plane"></i> SEND', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'image-preview-popup', image: 'image-preview-image', actions: 'image-preview-actions', confirmButton: 'image-preview-button', cancelButton: 'image-preview-button' } }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); }
     let mediaRecorder; let audioChunks = []; let timerInterval;
