@@ -61,7 +61,7 @@ html, body {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 5;
+     z-index: 3; /* ★★★ z-index を 3 に ★★★ */
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
@@ -95,7 +95,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    z-index: 4;
+     z-index: 2; /* ★★★ z-index を 2 に ★★★ */
 }
 
 
@@ -178,7 +178,7 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
-    z-index: 4;
+     z-index: 3; /* ★★★ z-index を 3 に ★★★ */
     position: relative;
 }
 .textarea-wrapper {
@@ -626,7 +626,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 3; /* キャンバス(0)とメッセージ(2以上)の間 */
+    z-index: 1; /* キャンバス(0)とメッセージ(2以上)の間 */
 
     /* 磨りガラスの画像を指定 */
     background-image: url('images/glass.png');
