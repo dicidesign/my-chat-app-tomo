@@ -120,6 +120,13 @@ html, body {
     /* ↓↓↓ 上下のマージンを調整して、日付との被りを避ける ↓↓↓ */
     margin-top: 5px;
     margin-bottom: 5px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+#messages li.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 #messages li.me {
     /* margin-left: auto; を削除して、以下に変更 */

@@ -65,6 +65,7 @@ if (!storedUsername) {
         time.className = 'message-time';
         if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
         messages.appendChild(li);
+        setTimeout(() => li.classList.add('is-visible'), 10);
     };
     // --- メッセージ削除用のポップアップメニュー ---
     function showPopupMenu(targetBubble, messageData, isVoice = false) {
@@ -352,7 +353,7 @@ if (canvas) {
         const colors = [
             'rgba(65, 160, 205, 0.75)',
             'rgba(186, 68, 86, 0.8)',
-            'rgba(91, 178, 91, 0.77)'
+            'rgba(199, 214, 58, 0.77)'
         ];
         return {
             x: Math.random() * canvas.width,
@@ -362,8 +363,8 @@ if (canvas) {
             color: colors[Math.floor(Math.random() * colors.length)]
         };
     };
-
-    for (let i = 0; i < 8; i++) {
+///////////////--------カラーボールの数--------////////////////////
+    for (let i = 0; i < 12; i++) {
         circles.push(createCircle());
     }
 
