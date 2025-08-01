@@ -390,17 +390,9 @@ if (canvas) {
 window.addEventListener('load', () => {
     const chatContainer = document.querySelector('.chat-container');
     if (chatContainer) {
-        // 4秒後に、全てのアニメーションを一斉に開始する
+        // ★★★ 7秒後（わざと遅らせて）に、アニメーションを開始 ★★★
         setTimeout(() => {
-            // 背景のぼかしと、磨りガラスのフェードインを開始
             chatContainer.classList.add('is-dreamy');
-
-            // ★★★ メッセージリストにも、同じタイミングでクラスを追加 ★★★
-            const messagesList = document.getElementById('messages');
-            if (messagesList) {
-                messagesList.classList.add('is-visible');
-            }
-
-        }, 4000); // 4秒のディレイ
+        }, 7000); // 7秒のディレイ
     }
 });
