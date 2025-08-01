@@ -38,8 +38,17 @@ if (!storedUsername) {
         li.id = `message-${data.id}`;
         const bubble = document.createElement('div');
         const time = document.createElement('span');
-        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); }
-        else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
+        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); 
+             if (username === currentUsername) {
+                // 自分の音声メッセージの場合だけ、長押し(contextmenu)イベントを設定
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
+                    
+                    // 第3引数に「true」（音声だよ）を渡して、ポップアップメニューを呼び出す
+                    showPopupMenu(bubble, data, true); 
+                });
+            }
+        } else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
         else {
             // --- テキストメッセージの場合 ---
             bubble.textContent = data.text;
@@ -134,84 +143,65 @@ if (!storedUsername) {
     
 
     // --- 6. 各種メニューを表示するためのヘルパー関数群 ---
-    function showImageModal(messageData) {
-        let headerHtml = `
-            <div class="swal-custom-header">
-                <button id="modal-delete-button" class="swal-header-button" title="削除">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-                <a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-header-button" title="ダウンロード">
-                    <i class="fas fa-download"></i>
-                </a>
-                <button id="modal-close-button" class="swal-header-button" title="閉じる">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+    function showPopupMenu(targetBubble, messageData, isVoice = false) {
+        const existingMenu = document.querySelector('.popup-menu');
+        if (existingMenu) existingMenu.remove();
 
-        // もし、自分のメッセージでなければ、削除ボタンは表示しない
-        if (messageData.username !== currentUsername) {
-            headerHtml = `
-                <div class="swal-custom-header">
-                    <a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-header-button" title="ダウンロード">
-                        <i class="fas fa-download"></i>
-                    </a>
-                    <button id="modal-close-button" class="swal-header-button" title="閉じる">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
+        const menu = document.createElement('div');
+        menu.className = 'popup-menu';
+        
+        // --- ↓↓↓ ここからが、新しい条件分岐 ↓↓↓ ---
+        if (!isVoice) {
+            // 音声メッセージではない（＝テキストメッセージの）場合だけ、「コピー」ボタンを作成
+            const copyButton = document.createElement('button');
+            copyButton.className = 'popup-menu-button';
+            copyButton.textContent = 'コピー';
+            copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); };
+            menu.appendChild(copyButton);
         }
+        // --- ↑↑↑ ここまでが、新しい条件分岐 ---
 
-        Swal.fire({
-            html: headerHtml,
-            imageUrl: messageData.text,
-            imageAlt: '拡大画像',
-            padding: 0,
-            background: 'transparent',
-            backdrop: `rgba(0,0,0,0.8)`,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'fullscreen-swal',
-                htmlContainer: 'swal-html-container-custom'
-            },
-            didOpen: (modal) => {
-                // 閉じるボタンの処理
-                modal.querySelector('#modal-close-button').addEventListener('click', () => {
-                    Swal.close();
-                });
-
-                // 削除ボタンがあれば、処理を設定
-                const deleteButton = modal.querySelector('#modal-delete-button');
-                if (deleteButton) {
-                    deleteButton.addEventListener('click', () => {
-                        // 先にモーダルを閉じてから、確認ダイアログを出す
-                        Swal.close();
-                        
-                        setTimeout(() => {
-                            Swal.fire({
-                                title: 'この画像を削除しますか？',
-                                showCancelButton: true,
-                                confirmButtonText: '削除',
-                                cancelButtonText: 'やめる',
-                                background: '#333',
-                                customClass: {
-                                    popup: 'delete-confirm-popup',
-                                    title: 'delete-confirm-title',
-                                    htmlContainer: 'delete-confirm-text',
-                                    confirmButton: 'delete-confirm-button confirm',
-                                    cancelButton: 'delete-confirm-button cancel'
-                                }
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    socket.emit('delete message', messageData.id);
-                                }
-                            });
-                        }, 200); // 少し遅延させて、モーダルが閉じるアニメーションと被らないように
-                    });
+        // 「削除」ボタンは、どちらの場合でも作成
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            Swal.fire({
+                title: `この${isVoice ? '音声' : 'メッセージ'}を削除しますか？`,
+                showCancelButton: true,
+                confirmButtonText: '削除',
+                cancelButtonText: 'やめる',
+                background: '#333',
+                customClass: {
+                    popup: 'delete-confirm-popup',
+                    title: 'delete-confirm-title',
+                    htmlContainer: 'delete-confirm-text',
+                    confirmButton: 'delete-confirm-button confirm',
+                    cancelButton: 'delete-confirm-button cancel'
                 }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('delete message', messageData.id);
+                }
+            });
+            menu.remove();
+        };
+
+        menu.appendChild(deleteButton);
+        document.body.appendChild(menu);
+
+        // --- ↓↓↓ これ以降の、メニューの位置計算や表示アニメーションは、一切変更なし ↓↓↓ ---
+        const targetRect = targetBubble.getBoundingClientRect();
+        menu.style.top = `${window.scrollY + targetRect.top - menu.offsetHeight - 10}px`;
+        menu.style.left = `${window.scrollX + targetRect.left - menu.offsetWidth - 10}px`;
+        setTimeout(() => menu.classList.add('is-active'), 10);
+        const closeMenuOnClickOutside = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.remove();
+                window.removeEventListener('click', closeMenuOnClickOutside, true);
             }
-        });
+        };
+        setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
     }
     function showImagePreview(file) { const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ background: '#2c2c2e', imageUrl: event.target.result, imageAlt: '画像プレビュー', showCancelButton: true, showConfirmButton: true, confirmButtonText: '<i class="fas fa-paper-plane"></i> SEND', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'image-preview-popup', image: 'image-preview-image', actions: 'image-preview-actions', confirmButton: 'image-preview-button', cancelButton: 'image-preview-button' } }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); }
     let mediaRecorder; let audioChunks = []; let timerInterval;
