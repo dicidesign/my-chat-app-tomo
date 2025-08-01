@@ -232,8 +232,8 @@ html, body {
 .swal-html-container-custom {
     position: absolute;
     /* ↓↓↓ topとrightを、直接指定する！ ↓↓↓ */
-    top: 20px;
-    right: 20px;
+    top: -10px;
+    right: -10px;
     left: auto; /* 左は自動に */
     bottom: auto; /* 下も自動に */
     z-index: 10;
