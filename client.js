@@ -124,8 +124,24 @@ if (!storedUsername) {
 
         // 6. メニューの位置を、長押しされたメッセージの横に計算して設定
         const bubbleRect = targetBubble.getBoundingClientRect();
-        menu.style.top = `${window.scrollY + bubbleRect.top + (bubbleRect.height / 2) - (menu.offsetHeight / 2)}px`;
-        menu.style.left = `${window.scrollX + bubbleRect.left - menu.offsetWidth - 10}px`; // 吹き出しの左に10pxの隙間
+        const menuWidth = menu.offsetWidth;
+        const menuHeight = menu.offsetHeight;
+
+        let top = window.scrollY + bubbleRect.top + (bubbleRect.height / 2) - (menuHeight / 2);
+        let left = window.scrollX + bubbleRect.left - menuWidth - 10; // 基本は、吹き出しの左に10pxの隙間
+
+        // ★★★ もし、メニューが画面の左端からはみ出そうなら、位置を調整する ★★★
+        if (left < 10) { // 画面の左端から10pxの隙間を確保
+            left = 10;
+        }
+        // ★★★ もし、自分のメッセージ（右側）なら、メニューを吹き出しの右側に表示する ★★★
+        if (targetBubble.closest('li.me')) {
+            left = window.scrollX + bubbleRect.right + 10;
+        }
+
+
+        menu.style.top = `${top}px`;
+        menu.style.left = `${left}px`;
 
         // 7. 表示アニメーションを開始
         setTimeout(() => menu.classList.add('is-active'), 10);
