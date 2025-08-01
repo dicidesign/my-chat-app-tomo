@@ -341,7 +341,6 @@ if (canvas) {
     const ctx = canvas.getContext('2d');
     let circles = [];
     
-    // キャンバスのサイズをウィンドウに合わせる
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -349,67 +348,50 @@ if (canvas) {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // 円のプロパティを定義
     const createCircle = () => {
         const colors = [
-            'rgba(61, 118, 144, 0.75)', // スカイブルー
-            'rgba(161, 64, 79, 0.8)', // ライトピンク
-            'rgba(84, 156, 84, 0.77)'  // ライトグリーン
+            'rgba(65, 160, 205, 0.75)',
+            'rgba(186, 68, 86, 0.8)',
+            'rgba(91, 178, 91, 0.77)'
         ];
-
         return {
             x: Math.random() * canvas.width,
-            // ↓↓↓ 最初から、画面の中に表示されるように変更！ ↓↓↓
-            y: Math.random() * canvas.height, 
+            y: Math.random() * canvas.height,
             radius: 40 + Math.random() * 100,
-            speed: 0.2 + Math.random() * 0.2,
+            speed: 0.1 + Math.random() * 0.3, // ★★★ 動きを、もっとゆっくりに ★★★
             color: colors[Math.floor(Math.random() * colors.length)]
         };
     };
 
-    // 最初に円を15個生成
     for (let i = 0; i < 8; i++) {
         circles.push(createCircle());
     }
 
-    // アニメーションのメインループ
     const animate = () => {
-        // 前のフレームを消去
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // 各円を動かして描画
         circles.forEach(circle => {
-            // 円を下に動かす
             circle.y += circle.speed;
-
-            // もし円が画面の下端を越えたら、上に戻す
             if (circle.y > canvas.height + circle.radius) {
                 circle.y = -circle.radius;
-                circle.x = Math.random() * canvas.width; // 水平位置はランダムに
+                circle.x = Math.random() * canvas.width;
             }
-
-            // 円を描画
             ctx.beginPath();
             ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
             ctx.fillStyle = circle.color;
             ctx.fill();
         });
-
-        // 次のフレームを要求
         requestAnimationFrame(animate);
     };
-
-    // アニメーションを開始
     animate();
 }
 
-// --- 16. 背景アニメーションの開始 ---
+// --- 16. 背景とUIのフェードインアニメーション ---
 window.addEventListener('load', () => {
     const chatContainer = document.querySelector('.chat-container');
     if (chatContainer) {
-        // ページが完全に読み込まれてから、1秒後にアニメーションを開始
+        // ★★★ 4秒後にアニメーションを開始 ★★★
         setTimeout(() => {
             chatContainer.classList.add('is-dreamy');
-        }, 1000); // 1秒のディレイ
+        }, 4000);
     }
 });

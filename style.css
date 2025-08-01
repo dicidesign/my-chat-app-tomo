@@ -82,6 +82,17 @@ html, body {
     /* ★margin-bottom は不要 */
 }
 
+/* --- ヘッダー と フォーム に、フェードインを追加 --- */
+.chat-header, #form {
+    opacity: 0;
+    transition: opacity 3s ease-in-out; /* ★★★ 3秒かけてフェードイン ★★★ */
+}
+.chat-container.is-dreamy .chat-header,
+.chat-container.is-dreamy #form {
+    opacity: 1;
+}
+
+
 
 
 
@@ -622,20 +633,12 @@ html, body {
 /* 磨りガラスのレイヤー */
 .glass-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* キャンバス(0)とメッセージ(2以上)の間 */
-
-    /* 磨りガラスの画像を指定 */
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
     background-image: url('images/glass.png');
-    background-size: cover; /* 常に画面いっぱいに表示 */
-    
-    /* ★★★ 最初は透明（非表示）にしておく ★★★ */
+    background-size: cover;
     opacity: 0;
-    /* じんわり変化するためのアニメーション設定 */
-    transition: opacity 2s ease-in-out;
+    transition: opacity 3s ease-in-out; /* ★★★ 3秒に変更 ★★★ */
 }
 
 /* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
@@ -646,7 +649,7 @@ html, body {
 /* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
 .chat-container.is-dreamy #background-canvas {
     /* フィルターを使って、キャンバス全体にぼかしをかける */
-    filter: blur(15px);
+    filter: blur(25px);
     /* じんわり変化するためのアニメーション設定 */
-    transition: filter 2s ease-in-out;
+    transition: filter 3s ease-in-out;
 }
