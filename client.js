@@ -386,13 +386,21 @@ if (canvas) {
     animate();
 }
 
-// --- 16. 背景とUIのフェードインアニメーション ---
+// --- 16. UIと背景のフェードインアニメーション ---
 window.addEventListener('load', () => {
     const chatContainer = document.querySelector('.chat-container');
     if (chatContainer) {
-        // ★★★ 4秒後にアニメーションを開始 ★★★
+        // 4秒後に、全てのアニメーションを一斉に開始する
         setTimeout(() => {
+            // 背景のぼかしと、磨りガラスのフェードインを開始
             chatContainer.classList.add('is-dreamy');
-        }, 4000);
+
+            // ★★★ メッセージリストにも、同じタイミングでクラスを追加 ★★★
+            const messagesList = document.getElementById('messages');
+            if (messagesList) {
+                messagesList.classList.add('is-visible');
+            }
+
+        }, 4000); // 4秒のディレイ
     }
 });
