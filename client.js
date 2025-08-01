@@ -356,12 +356,14 @@ if (canvas) {
             'rgba(255, 182, 193, 0.6)', // ライトピンク
             'rgba(144, 238, 144, 0.6)'  // ライトグリーン
         ];
+
         return {
             x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height - canvas.height, // 最初は画面の上からスタート
-            radius: 40 + Math.random() * 100, // 半径を少し大きく
+            // ↓↓↓ 最初から、画面の中に表示されるように変更！ ↓↓↓
+            y: Math.random() * canvas.height, 
+            radius: 40 + Math.random() * 100,
             speed: 0.2 + Math.random() * 0.5,
-            color: colors[Math.floor(Math.random() * colors.length)] // パレットからランダムに色を選ぶ
+            color: colors[Math.floor(Math.random() * colors.length)]
         };
     };
 

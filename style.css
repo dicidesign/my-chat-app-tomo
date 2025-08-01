@@ -95,6 +95,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    z-index: 2;
 }
 
 
@@ -177,6 +178,8 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
+    z-index: 2;
+    position: relative;
 }
 .textarea-wrapper {
     flex: 1; /* 残りの幅をすべて使う */
@@ -637,7 +640,7 @@ html, body {
 
 /* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
 .chat-container.is-dreamy .glass-overlay {
-    opacity: 0.4; /* 透明度40%で表示 */
+    opacity: 0.5; /* 透明度40%で表示 */
 }
 
 /* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
