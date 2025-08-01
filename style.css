@@ -318,7 +318,7 @@ html, body {
     
     font-size: 30px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 1);
+    color: rgba(255, 255, 255, .7);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
     
     text-align: center;
@@ -640,7 +640,7 @@ html, body {
 
 /* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
 .chat-container.is-dreamy .glass-overlay {
-    opacity: 0.4; /* 透明度40%で表示 */
+    opacity: 0.3; /* 透明度40%で表示 */
 }
 
 /* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */

@@ -352,9 +352,9 @@ if (canvas) {
     // 円のプロパティを定義
     const createCircle = () => {
         const colors = [
-            'rgb(61, 118, 144)', // スカイブルー
-            'rgb(161, 64, 79)', // ライトピンク
-            'rgb(84, 156, 84)'  // ライトグリーン
+            'rgba(61, 118, 144, 0.75)', // スカイブルー
+            'rgba(161, 64, 79, 0.8)', // ライトピンク
+            'rgba(84, 156, 84, 0.77)'  // ライトグリーン
         ];
 
         return {
@@ -362,13 +362,13 @@ if (canvas) {
             // ↓↓↓ 最初から、画面の中に表示されるように変更！ ↓↓↓
             y: Math.random() * canvas.height, 
             radius: 40 + Math.random() * 100,
-            speed: 0.2 + Math.random() * 0.5,
+            speed: 0.2 + Math.random() * 0.2,
             color: colors[Math.floor(Math.random() * colors.length)]
         };
     };
 
     // 最初に円を15個生成
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 8; i++) {
         circles.push(createCircle());
     }
 
