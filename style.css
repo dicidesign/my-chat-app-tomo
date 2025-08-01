@@ -517,7 +517,7 @@ html, body {
     /* ↓↓↓ アニメーションの基準を、上下方向に変更！ ↓↓↓ */
     transform: translateY(10px);
     transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
-    margin-left: 40px;
+    margin-left: 80px;
 }
 
 .popup-menu.is-active {
