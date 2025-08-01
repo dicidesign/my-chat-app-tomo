@@ -95,7 +95,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    z-index: 2;
+    z-index: 4;
 }
 
 
@@ -178,7 +178,7 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
-    z-index: 2;
+    z-index: 4;
     position: relative;
 }
 .textarea-wrapper {
@@ -318,8 +318,8 @@ html, body {
     
     font-size: 30px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.6);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
     
     text-align: center;
     pointer-events: none;
