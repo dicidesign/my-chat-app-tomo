@@ -121,7 +121,7 @@ if (!storedUsername) {
         // メニューを、吹き出しの上端から、少しだけ上に表示
         menu.style.top = `${window.scrollY + bubbleRect.top - menu.offsetHeight - 10}px`;
         // メニューを、吹き出しの水平方向の中央に配置
-        menu.style.left = `${window.scrollX + bubbleRect.left + (bubbleRect.width / 2) - (menu.offsetWidth / 2)}px`;
+
 
         // --- ↑↑↑ 位置計算ロジックここまで ---
 
@@ -319,7 +319,7 @@ if (!storedUsername) {
     input.addEventListener('focus', () => { setTimeout(() => { form.scrollIntoView(false); }, 300); });
 }
 
-// --- 11. 日付スタンプのフェードアウト処理 ---
+// ///////////--- 11. 日付スタンプのフェードアウト処理 ---
 const messagesContainer = document.getElementById('messages');
 if (messagesContainer) {
     messagesContainer.addEventListener('scroll', () => {
@@ -333,4 +333,65 @@ if (messagesContainer) {
             if (nextRect.top <= currentRect.top + 5) { currentStamp.classList.add('is-hiding'); } else { currentStamp.classList.remove('is-hiding'); }
         }
     });
+}
+
+/////////// --- 15. 動く背景アニメーション ---
+const canvas = document.getElementById('background-canvas');
+if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let circles = [];
+    
+    // キャンバスのサイズをウィンドウに合わせる
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // 円のプロパティを定義
+    const createCircle = () => {
+        return {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 20 + Math.random() * 80, // 半径は20pxから100px
+            speed: 0.2 + Math.random() * 0.5,
+            color: `rgba(${150 + Math.random() * 105}, ${150 + Math.random() * 105}, 255, 0.2)` // 青みがかった、半透明の色
+        };
+    };
+
+    // 最初に円を15個生成
+    for (let i = 0; i < 15; i++) {
+        circles.push(createCircle());
+    }
+
+    // アニメーションのメインループ
+    const animate = () => {
+        // 前のフレームを消去
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 各円を動かして描画
+        circles.forEach(circle => {
+            // 円を下に動かす
+            circle.y += circle.speed;
+
+            // もし円が画面の下端を越えたら、上に戻す
+            if (circle.y > canvas.height + circle.radius) {
+                circle.y = -circle.radius;
+                circle.x = Math.random() * canvas.width; // 水平位置はランダムに
+            }
+
+            // 円を描画
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.fillStyle = circle.color;
+            ctx.fill();
+        });
+
+        // 次のフレームを要求
+        requestAnimationFrame(animate);
+    };
+
+    // アニメーションを開始
+    animate();
 }
