@@ -351,12 +351,17 @@ if (canvas) {
 
     // 円のプロパティを定義
     const createCircle = () => {
+        const colors = [
+            'rgba(137, 207, 240, 0.6)', // スカイブルー
+            'rgba(255, 182, 193, 0.6)', // ライトピンク
+            'rgba(144, 238, 144, 0.6)'  // ライトグリーン
+        ];
         return {
             x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: 20 + Math.random() * 80, // 半径は20pxから100px
+            y: Math.random() * canvas.height - canvas.height, // 最初は画面の上からスタート
+            radius: 40 + Math.random() * 100, // 半径を少し大きく
             speed: 0.2 + Math.random() * 0.5,
-            color: `rgba(${150 + Math.random() * 105}, ${150 + Math.random() * 105}, 255, 0.2)` // 青みがかった、半透明の色
+            color: colors[Math.floor(Math.random() * colors.length)] // パレットからランダムに色を選ぶ
         };
     };
 
