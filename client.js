@@ -67,38 +67,31 @@ if (!storedUsername) {
         messages.appendChild(li);
     };
     // --- メッセージ削除用のポップアップメニュー ---
-    function showPopupMenu(targetBubble, messageData) {
-        // もし既に他のメニューが開いていたら、それを消す
+    function showPopupMenu(targetBubble, messageData, isVoice = false) {
         const existingMenu = document.querySelector('.popup-menu');
         if (existingMenu) existingMenu.remove();
 
-        // 1. メニューのHTML要素をゼロから作成
         const menu = document.createElement('div');
         menu.className = 'popup-menu';
         
-        // 2. 「コピー」ボタンを作成し、機能を設定
-        const copyButton = document.createElement('button');
-        copyButton.className = 'popup-menu-button';
-        copyButton.textContent = 'コピー';
-        copyButton.onclick = () => {
-            navigator.clipboard.writeText(messageData.text);
-            menu.remove(); // 押したらメニューを消す
-        };
+        if (!isVoice) {
+            const copyButton = document.createElement('button');
+            copyButton.className = 'popup-menu-button';
+            copyButton.innerHTML = `<i class="fas fa-copy"></i> コピー`;
+            copyButton.onclick = () => { navigator.clipboard.writeText(messageData.text); menu.remove(); };
+            menu.appendChild(copyButton);
+        }
 
-        // 3. 「削除」ボタンを作成し、機能を設定
         const deleteButton = document.createElement('button');
         deleteButton.className = 'popup-menu-button';
-        deleteButton.textContent = '削除';
+        deleteButton.innerHTML = `<i class="fas fa-trash-alt"></i> 削除`;
         deleteButton.onclick = () => {
             Swal.fire({
-                // --- ↓↓↓ ここからが新しいデザイン設定 ↓↓↓ ---
-                title: 'メッセージを削除しますか？',
-                
+                title: `この${isVoice ? '音声' : 'メッセージ'}を削除しますか？`,
                 showCancelButton: true,
                 confirmButtonText: '削除',
                 cancelButtonText: 'やめる',
-
-                background: '#333', // 背景をダークグレーに
+                background: '#333',
                 customClass: {
                     popup: 'delete-confirm-popup',
                     title: 'delete-confirm-title',
@@ -106,54 +99,61 @@ if (!storedUsername) {
                     confirmButton: 'delete-confirm-button confirm',
                     cancelButton: 'delete-confirm-button cancel'
                 }
-                // --- ↑↑↑ ここまでが新しいデザイン設定 ---
             }).then((result) => {
                 if (result.isConfirmed) {
                     socket.emit('delete message', messageData.id);
                 }
             });
-            menu.remove(); // 押したらメニューを消す
+            menu.remove();
         };
 
-        // 4. 作成したボタンをメニューに追加
-        menu.appendChild(copyButton);
         menu.appendChild(deleteButton);
-
-        // 5. ページにメニューを追加
+        
+        // --- ↓↓↓ ここからが、新しい、確実な位置計算ロジック ↓↓↓ ---
+        
+        // 1. まず、メニューを目に見えない状態でページに追加する
+        menu.style.visibility = 'hidden';
         document.body.appendChild(menu);
 
-        // 6. メニューの位置を、長押しされたメッセージの横に計算して設定
-        const bubbleRect = targetBubble.getBoundingClientRect();
+        // 2. これで、メニューの「本来の幅と高さ」を取得できる
         const menuWidth = menu.offsetWidth;
         const menuHeight = menu.offsetHeight;
-
+        
+        // 3. メッセージ吹き出しの座標を取得
+        const bubbleRect = targetBubble.getBoundingClientRect();
+        
+        // 4. 最適な位置を計算
         let top = window.scrollY + bubbleRect.top + (bubbleRect.height / 2) - (menuHeight / 2);
-        let left = window.scrollX + bubbleRect.left - menuWidth - 10; // 基本は、吹き出しの左に10pxの隙間
+        let left;
 
-        // ★★★ もし、メニューが画面の左端からはみ出そうなら、位置を調整する ★★★
-        if (left < 10) { // 画面の左端から10pxの隙間を確保
-            left = 10;
-        }
-        // ★★★ もし、自分のメッセージ（右側）なら、メニューを吹き出しの右側に表示する ★★★
         if (targetBubble.closest('li.me')) {
+            // 自分のメッセージ（右側）なら、メニューを吹き出しの左に表示
+            left = window.scrollX + bubbleRect.left - menuWidth - 10;
+        } else {
+            // 相手のメッセージ（左側）なら、メニューを吹き出しの右に表示
             left = window.scrollX + bubbleRect.right + 10;
         }
 
-
+        // 5. 計算した位置を設定し、メニューを見えるようにする
         menu.style.top = `${top}px`;
         menu.style.left = `${left}px`;
+        menu.style.visibility = 'visible';
 
-        // 7. 表示アニメーションを開始
+        // --- ↑↑↑ 位置計算ロジックここまで ---
+
         setTimeout(() => menu.classList.add('is-active'), 10);
 
-        // 8. メニューの外側をクリックしたら、メニューを消す
-        const closeMenuOnClickOutside = (e) => {
-            if (!menu.contains(e.target)) {
+        const closeMenu = (e) => {
+            if (e.type === 'scroll' || !menu.contains(e.target)) {
                 menu.remove();
-                window.removeEventListener('click', closeMenuOnClickOutside, true);
+                window.removeEventListener('click', closeMenu, true);
+                messages.removeEventListener('scroll', closeMenu);
             }
         };
-        setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
+        setTimeout(() => {
+            window.addEventListener('click', closeMenu, true);
+            messages.addEventListener('scroll', closeMenu);
+        }, 10);
     }
 
     
