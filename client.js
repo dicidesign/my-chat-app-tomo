@@ -191,9 +191,6 @@ if (!storedUsername) {
                         setTimeout(() => {
                             Swal.fire({
                                 title: 'この画像を削除しますか？',
-                                text: "この操作は取り消せません",
-                                icon: 'warning',
-                                iconColor: '#f8bb86',
                                 showCancelButton: true,
                                 confirmButtonText: '削除',
                                 cancelButtonText: 'やめる',
