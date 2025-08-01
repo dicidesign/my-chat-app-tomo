@@ -61,7 +61,7 @@ html, body {
     top: 0;
     left: 0;
     right: 0;
-     z-index: 3; /* ★★★ z-index を 3 に ★★★ */
+     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
@@ -107,6 +107,7 @@ html, body {
     flex-direction: column;
     min-height: 0;
     position: relative;
+    z-index: 10;
 }
 
 
@@ -201,7 +202,7 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
-     z-index: 3; /* ★★★ z-index を 3 に ★★★ */
+     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     position: relative;
 }
 .textarea-wrapper {
@@ -337,7 +338,7 @@ html, body {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
     top: 0px; 
-    z-index: 10;
+    z-index: 15;
     
     font-size: 30px;
     font-weight: 900;
@@ -646,7 +647,7 @@ html, body {
 .glass-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1;
+    z-index: 5;
     background-image: url('images/glass.png');
     background-size: cover;
     opacity: 0;
