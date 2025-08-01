@@ -131,6 +131,66 @@ if (!storedUsername) {
         setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
     }
 
+    // --- 6-2. 画像用のポップアップメニュー(削除用)を表示するヘルパー関数 ---
+    function showImagePopupMenu(targetImage, messageData) {
+        const existingMenu = document.querySelector('.popup-menu');
+        if (existingMenu) existingMenu.remove();
+
+        const menu = document.createElement('div');
+        menu.className = 'popup-menu';
+        
+        // 「削除」ボタンを作成
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'popup-menu-button';
+        deleteButton.textContent = '削除';
+        deleteButton.onclick = () => {
+            Swal.fire({
+                title: 'この画像を削除しますか？',
+                text: "この操作は取り消せません",
+                icon: 'warning',
+                iconColor: '#f8bb86',
+                showCancelButton: true,
+                confirmButtonText: '削除',
+                cancelButtonText: 'やめる',
+                background: '#333',
+                customClass: {
+                    popup: 'delete-confirm-popup',
+                    title: 'delete-confirm-title',
+                    htmlContainer: 'delete-confirm-text',
+                    confirmButton: 'delete-confirm-button confirm',
+                    cancelButton: 'delete-confirm-button cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('delete message', messageData.id);
+                }
+            });
+            menu.remove();
+        };
+
+        menu.appendChild(deleteButton);
+        document.body.appendChild(menu);
+
+        // メニューの位置を計算して設定
+        const imageRect = targetImage.getBoundingClientRect();
+        menu.style.top = `${window.scrollY + imageRect.top + (imageRect.height / 2) - (menu.offsetHeight / 2)}px`;
+        menu.style.left = `${window.scrollX + imageRect.left - menu.offsetWidth - 10}px`;
+
+        // 表示アニメーションを開始
+        setTimeout(() => menu.classList.add('is-active'), 10);
+
+        // メニューの外側をクリックしたら、メニューを消す
+        const closeMenuOnClickOutside = (e) => {
+            if (!menu.contains(e.target)) {
+                menu.remove();
+                window.removeEventListener('click', closeMenuOnClickOutside, true);
+            }
+        };
+        setTimeout(() => window.addEventListener('click', closeMenuOnClickOutside, true), 10);
+    }
+
+
+
     // --- 6. 各種メニューを表示するためのヘルパー関数群 ---
     function showImageModal(messageData) { Swal.fire({ html: `<div class="swal-custom-header"><a href="/download-image?url=${encodeURIComponent(messageData.text)}" class="swal-download-button" title="ダウンロード"><i class="fas fa-download"></i><span>Download</span></a><button type="button" class="swal2-close swal-close-button" title="閉じる">×</button></div>`, imageUrl: messageData.text, imageAlt: '拡大画像', padding: 0, background: 'transparent', backdrop: `rgba(0,0,0,0.8)`, showConfirmButton: false, customClass: { popup: 'fullscreen-swal', htmlContainer: 'swal-html-container-custom' }, didOpen: (modal) => { modal.querySelector('.swal-close-button').addEventListener('click', () => Swal.close()); } }); }
     function showImagePreview(file) { const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ background: '#2c2c2e', imageUrl: event.target.result, imageAlt: '画像プレビュー', showCancelButton: true, showConfirmButton: true, confirmButtonText: '<i class="fas fa-paper-plane"></i> SEND', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'image-preview-popup', image: 'image-preview-image', actions: 'image-preview-actions', confirmButton: 'image-preview-button', cancelButton: 'image-preview-button' } }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); }
