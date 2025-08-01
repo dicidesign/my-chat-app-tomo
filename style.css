@@ -231,21 +231,21 @@ html, body {
 /* ★★★ ここからが、新しいヘッダーのデザイン ★★★ */
 .swal-html-container-custom {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    /* ↓↓↓ topとrightを、直接指定する！ ↓↓↓ */
+    top: 20px;
+    right: 20px;
+    left: auto; /* 左は自動に */
+    bottom: auto; /* 下も自動に */
     z-index: 10;
-    /* ↓↓↓ ヘッダーがクリックなどを邪魔しないように */
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 .swal-custom-header {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: 20px; /* 右上の余白を少し広げる */
+    padding: 0; /* ★★★ paddingは不要になる ★★★ */
     gap: 15px;
-    /* ↓↓↓ ボタンだけクリックできるようにする */
     pointer-events: auto;
 }
 
