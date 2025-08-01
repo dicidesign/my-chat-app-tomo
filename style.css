@@ -95,6 +95,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    backdrop-filter: blur(20px);
 }
 
 

@@ -372,28 +372,34 @@ if (canvas) {
 
     // アニメーションのメインループ
     const animate = () => {
-        // 前のフレームを消去
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 各円を動かして描画
         circles.forEach(circle => {
-            // 円を下に動かす
             circle.y += circle.speed;
-
-            // もし円が画面の下端を越えたら、上に戻す
             if (circle.y > canvas.height + circle.radius) {
                 circle.y = -circle.radius;
-                circle.x = Math.random() * canvas.width; // 水平位置はランダムに
+                circle.x = Math.random() * canvas.width;
             }
 
-            // 円を描画
+            // --- ↓↓↓ ここからが、ぼかし効果の追加部分 ↓↓↓ ---
+            
+            // 1. 円自体を描画
             ctx.beginPath();
             ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
             ctx.fillStyle = circle.color;
+            
+            // 2. 影を使って、ぼかし効果を作り出す
+            ctx.shadowBlur = 40; // ぼかしの強さ
+            ctx.shadowColor = circle.color; // ぼかしの色
+            
             ctx.fill();
-        });
 
-        // 次のフレームを要求
+            // 3. 次の円に影響しないように、影の設定をリセット
+            ctx.shadowBlur = 0;
+
+            // --- ↑↑↑ ぼかし効果の追加部分ここまで ---
+        });
+        
         requestAnimationFrame(animate);
     };
 
