@@ -386,13 +386,3 @@ if (canvas) {
     animate();
 }
 
-// --- 16. UIと背景のフェードインアニメーション ---
-window.addEventListener('load', () => {
-    const chatContainer = document.querySelector('.chat-container');
-    if (chatContainer) {
-        // ★★★ 7秒後（わざと遅らせて）に、アニメーションを開始 ★★★
-        setTimeout(() => {
-            chatContainer.classList.add('is-dreamy');
-        }, 7000); // 7秒のディレイ
-    }
-});
