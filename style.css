@@ -189,7 +189,30 @@ html, body {
     box-sizing: border-box;
 }
 #input:focus { outline: none; }
-#form button { background: #4a80e2; border: none; padding: 10px 15px; color: white; border-radius: 8px; cursor: pointer; }
+.send-button {
+    background-color: #4a80e2; /* ボタンの背景色 */
+    border: none;
+    width: 44px; /* ボタンの幅 */
+    height: 44px; /* ボタンの高さ */
+    border-radius: 50%; /* 完全な円形に */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0; /* フォームが縮んでも、ボタンのサイズを維持 */
+}
+
+.send-button:hover {
+    background-color: #3a70d2; /* ホバー時の色 */
+}
+
+.send-button img {
+    width: 24px; /* アイコン画像のサイズ */
+    height: 24px;
+}
 
 .image-upload-label {
     width: 30px;
