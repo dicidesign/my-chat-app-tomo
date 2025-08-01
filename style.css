@@ -207,29 +207,61 @@ html, body {
 
 
 /* --- 5. SweetAlert2 モーダルウィンドウのカスタム --- */
-.fullscreen-swal {
+fullscreen-swal {
     width: 90vw !important;
     height: 90vh !important;
     padding: 0 !important;
+    background: transparent !important; /* 背景も透明に */
 }
+
 .fullscreen-swal .swal2-image {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    margin: 0 !important; /* 余計なマージンをリセット */
 }
-.swal-header-custom {
+
+/* ★★★ ここからが、新しいヘッダーのデザイン ★★★ */
+.swal-html-container-custom {
     position: absolute;
-    top: 0; right: 0;
-    padding: 0.5em;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.swal-custom-header {
+    display: flex;
+    justify-content: flex-end; /* 右寄せ */
+    align-items: center;
+    padding: 15px;
+    gap: 10px; /* アイコン間の隙間 */
+}
+
+/* ★★★ ヘッダー内の全てのボタンに共通のスタイル ★★★ */
+.swal-header-button {
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+
+    /* ↓↓↓ 角ばったデザイン ↓↓↓ */
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px; /* 少しだけ角丸 */
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
-    gap: 0.5em;
-    pointer-events: none;
+    justify-content: center;
+    cursor: pointer;
 }
-.swal-header-custom > * { pointer-events: auto; }
-.swal-confirm-custom { background: transparent !important; color: white !important; font-size: 14px !important; box-shadow: none !important; }
-.swal-confirm-custom:hover { text-decoration: underline !important; }
-.swal-close-custom { color: white !important; font-size: 28px !important; }
+
+.swal-header-button:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
 
 /* style.css の .date-stamp を修正 */
 
