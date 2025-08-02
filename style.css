@@ -345,11 +345,11 @@ html, body {
 }
 
 .date-stamp {
-    position: absolute; 
+    position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
     top: 0; 
     left: 0;
-    z-index: 15;
+    z-index: 30;
     font-size: 30px;
     font-weight: 900;
     color: rgba(255, 255, 255, .7);
@@ -358,6 +358,7 @@ html, body {
     pointer-events: none;
     width: 100%;
     margin-top: 40px; 
+    transition: top 0.1s ease-out;
 }
 
 

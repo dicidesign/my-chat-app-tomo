@@ -331,6 +331,14 @@ if (!storedUsername) {
     socket.on('load old messages', (serverMessages) => {
     messages.innerHTML = '';
     lastMessageDate = null;
+    serverMessages.forEach(msg => {
+        displayMessage(msg);
+    });
+
+    // ★★★ メッセージ描画後に、位置を計算させる ★★★
+    calculateDateStampPositions();
+
+    
     
     // 単純に、受け取ったメッセージを全部表示するだけの処理にする
      serverMessages.forEach(msg => {
@@ -466,18 +474,137 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * 全ての日付スタンプの位置を再計算して、正しい場所に配置する関数
  */
-function repositionDateStamps() {
-    // 全ての日付スタンプを取得
+function calculateDateStampPositions() {
     const dateStamps = document.querySelectorAll('.date-stamp');
-    
     dateStamps.forEach(stamp => {
-        // 対応する「その日の最初のメッセージ」を探す
         const firstMessage = document.querySelector(`.first-message-of-day[data-date-id="${stamp.id}"]`);
-        
         if (firstMessage) {
-            // ★★★ メッセージのY座標を取得して、日付スタンプのtopに設定 ★★★
-            const messageTop = firstMessage.offsetTop;
-            stamp.style.top = `${messageTop}px`;
+            // ★★★ offsetTopを計算して、data-original-top属性に保存する ★★★
+            stamp.dataset.originalTop = firstMessage.offsetTop;
+        }
+    });
+}
+
+// スクロールコンテナを取得
+const scrollContainer = document.getElementById('scroll-container');
+
+if (scrollContainer) {
+    // ヘッダーの高さを取得（なければ0）
+    const headerHeight = document.querySelector('.chat-header')?.offsetHeight || 0;
+
+    scrollContainer.addEventListener('scroll', () => {
+        const dateStamps = scrollContainer.querySelectorAll('.date-stamp');
+        
+        // ★★★ スクロールするたびに、全ての日付スタンプの位置をチェック ★★★
+        dateStamps.forEach(stamp => {
+            const originalTop = parseFloat(stamp.dataset.originalTop || 0);
+            
+            // スクロール量（scrollTop）が、スタンプの本来の位置を超えたか？
+            if (scrollContainer.scrollTop > originalTop - headerHeight) {
+                // 超えた場合：ヘッダーの下に固定する
+                stamp.style.top = `${headerHeight}px`;
+                stamp.classList.add('is-stuck'); // 固定されていることを示すクラス
+            } else {
+                // 超えていない場合：本来の位置に戻す
+                stamp.style.top = `${originalTop}px`;
+                stamp.classList.remove('is-stuck');
+            }
+        });
+
+        // ★★★ 重なり検出のロジックも、この中で一緒にやる ★★★
+        if (dateStamps.length < 2) return;
+        for (let i = 0; i < dateStamps.length - 1; i++) {
+            const currentStamp = dateStamps[i];
+            const nextStamp = dateStamps[i + 1];
+
+            // is-stuckクラスが付いている（＝固定されている）スタンプだけを対象にする
+            if (currentStamp.classList.contains('is-stuck')) {
+                const nextOriginalTop = parseFloat(nextStamp.dataset.originalTop || 0);
+                
+                // 次のスタンプが、ヘッダー下まで上がってきたか？
+                if (nextOriginalTop - scrollContainer.scrollTop <= headerHeight + currentStamp.offsetHeight) {
+                    currentStamp.style.opacity = '0';
+                } else {
+                    currentStamp.style.opacity = '1';
+                }
+            } else {
+                // 固定されていないスタンプは、常に表示
+                currentStamp.style.opacity = '1';
+            }
+        }
+    });
+}
+
+
+// --- 以下の部分は、適切な場所にあることを確認 ---
+
+// ★ 過去ログ読み込み完了時
+socket.on('load old messages', (serverMessages) => {
+    messages.innerHTML = '';
+    lastMessageDate = null;
+    serverMessages.forEach(msg => {
+        displayMessage(msg);
+    });
+    
+    // ★★★ メッセージ描画後に、位置を計算させる ★★★
+    calculateDateStampPositions();
+    
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+});
+
+// ★ 新規メッセージ受信時
+socket.on('chat message', (data) => {
+    displayMessage(data);
+    
+    // ★★★ 少し待ってから位置を再計算 ★★★
+    setTimeout(calculateDateStampPositions, 100);
+    
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+});
+
+if (scrollContainer) {
+    // ヘッダーの高さを取得（なければ0）
+    const headerHeight = document.querySelector('.chat-header')?.offsetHeight || 0;
+
+    scrollContainer.addEventListener('scroll', () => {
+        const dateStamps = scrollContainer.querySelectorAll('.date-stamp');
+        
+        // ★★★ スクロールするたびに、全ての日付スタンプの位置をチェック ★★★
+        dateStamps.forEach(stamp => {
+            const originalTop = parseFloat(stamp.dataset.originalTop || 0);
+            
+            // スクロール量（scrollTop）が、スタンプの本来の位置を超えたか？
+            if (scrollContainer.scrollTop > originalTop - headerHeight) {
+                // 超えた場合：ヘッダーの下に固定する
+                stamp.style.top = `${headerHeight}px`;
+                stamp.classList.add('is-stuck'); // 固定されていることを示すクラス
+            } else {
+                // 超えていない場合：本来の位置に戻す
+                stamp.style.top = `${originalTop}px`;
+                stamp.classList.remove('is-stuck');
+            }
+        });
+
+        // ★★★ 重なり検出のロジックも、この中で一緒にやる ★★★
+        if (dateStamps.length < 2) return;
+        for (let i = 0; i < dateStamps.length - 1; i++) {
+            const currentStamp = dateStamps[i];
+            const nextStamp = dateStamps[i + 1];
+
+            // is-stuckクラスが付いている（＝固定されている）スタンプだけを対象にする
+            if (currentStamp.classList.contains('is-stuck')) {
+                const nextOriginalTop = parseFloat(nextStamp.dataset.originalTop || 0);
+                
+                // 次のスタンプが、ヘッダー下まで上がってきたか？
+                if (nextOriginalTop - scrollContainer.scrollTop <= headerHeight + currentStamp.offsetHeight) {
+                    currentStamp.style.opacity = '0';
+                } else {
+                    currentStamp.style.opacity = '1';
+                }
+            } else {
+                // 固定されていないスタンプは、常に表示
+                currentStamp.style.opacity = '1';
+            }
         }
     });
 }
