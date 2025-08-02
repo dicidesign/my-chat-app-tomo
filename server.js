@@ -1,6 +1,5 @@
 // 【server.js 省略なし・削除機能リセット版】
 require('dotenv').config(); // ←←← この1行を追加！
-const express = require('express');
 // --- 1. 必要なライブラリ ---
 const express = require('express');
 const http = require('http');
