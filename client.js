@@ -418,54 +418,71 @@ if (messagesContainer) {
     });
 }
 
-/////////// --- 15. 動く背景アニメーション ---
+/////////// --- 15. 動く背景アニメーション (ニュース表示機能付き) ---
 const canvas = document.getElementById('background-canvas');
 if (canvas) {
     const ctx = canvas.getContext('2d');
     let circles = [];
-    
-    const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    let summarizedNews = []; // ★ ニュースを保存する配列
+
+    // ★ ニュースを取得して配列にセットする関数
+    const fetchNews = async () => {
+        try {
+            const response = await fetch('/get-summarized-news');
+            const data = await response.json();
+            if (data.success) {
+                // 先頭の不要な文字（例: "・"）などを取り除く
+                summarizedNews = data.summarizedNews.map(news => news.replace(/^[\s・-]/, '').trim()).filter(Boolean);
+            }
+        } catch (error) {
+            console.error("ニュースの取得に失敗", error);
+        }
     };
+
+    const resizeCanvas = () => { /* ... (変更なし) */ };
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    const createCircle = () => {
-        const colors = [
-            'rgba(65, 160, 205, 0.75)',
-            'rgba(186, 68, 86, 0.8)',
-            'rgba(199, 214, 58, 0.77)'
-        ];
-        return {
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            radius: 40 + Math.random() * 100,
-            speed: 0.1 + Math.random() * 0.3, // ★★★ 動きを、もっとゆっくりに ★★★
-            color: colors[Math.floor(Math.random() * colors.length)]
-        };
-    };
-///////////////--------カラーボールの数--------////////////////////
-    for (let i = 0; i < 12; i++) {
-        circles.push(createCircle());
-    }
+    const createCircle = () => { /* ... (変更なし) */ };
+    for (let i = 0; i < 12; i++) { circles.push(createCircle()); }
 
     const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        circles.forEach(circle => {
+        circles.forEach((circle, index) => {
             circle.y += circle.speed;
-            if (circle.y > canvas.height + circle.radius) {
-                circle.y = -circle.radius;
-                circle.x = Math.random() * canvas.width;
-            }
+            if (circle.y > canvas.height + circle.radius) { /* ... (変更なし) */ }
+            
+            // 円を描画
             ctx.beginPath();
             ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
             ctx.fillStyle = circle.color;
             ctx.fill();
+
+            // ★ 円の中にニューステキストを描画
+            if (summarizedNews.length > 0) {
+                const newsIndex = index % summarizedNews.length; // ニュースを循環させる
+                const newsText = summarizedNews[newsIndex];
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px "Helvetica Neue", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // 複数行対応のために、文字を分割して描画
+                const lines = newsText.match(/.{1,10}/g) || []; // 10文字で改行
+                lines.forEach((line, i) => {
+                    ctx.fillText(line, circle.x, circle.y - (lines.length-1)*8 + i*16);
+                });
+            }
         });
         requestAnimationFrame(animate);
     };
-    animate();
+
+    // ★ 最初にニュースを取得してからアニメーションを開始
+    fetchNews().then(() => {
+        animate();
+        // 1時間ごとにニュースを再取得
+        setInterval(fetchNews, 3600000); 
+    });
 }
 
 

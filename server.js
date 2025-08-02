@@ -1,5 +1,6 @@
 // 【server.js 省略なし・削除機能リセット版】
-
+require('dotenv').config(); // ←←← この1行を追加！
+const express = require('express');
 // --- 1. 必要なライブラリ ---
 const express = require('express');
 const http = require('http');
@@ -33,6 +34,34 @@ app.use(express.static(path.join(__dirname)));
 const authorizedUsers = { "トモ": "pass123", "ディシ": "ai456", "ゲスト": "guest789" };
 
 // --- 6. HTTPルーティング ---
+// --- Google GenAI Clientの初期化 ---
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// --- ニュース取得＆要約APIエンドポイント ---
+app.get('/get-summarized-news', async (req, res) => {
+    try {
+        // 1. NewsAPIから日本のトップニュースを取得
+        const newsResponse = await axios.get(`https://newsapi.org/v2/top-headlines?country=jp&apiKey=${process.env.NEWS_API_KEY}`);
+        const articles = newsResponse.data.articles.slice(0, 5); // 上位5件に絞る
+
+        // 2. 取得した記事のタイトルを結合
+        const titles = articles.map(article => article.title).join('\n');
+        
+        // 3. Geminiに要約を依頼
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+        const prompt = `以下のニュースタイトルリストを、それぞれ最大20文字程度の超短文に要約して、箇条書きで5つ返してください。\n\n${titles}`;
+        const result = await model.generateContent(prompt);
+        const summarizedText = await result.response.text();
+        
+        // 4. クライアントに要約結果を返す
+        res.json({ success: true, summarizedNews: summarizedText.split('\n') });
+
+    } catch (error) {
+        console.error('ニュースの取得または要約に失敗しました:', error);
+        res.status(500).json({ success: false, message: 'ニュースの取得に失敗しました。' });
+    }
+});
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 app.post('/login', (req, res) => { const { username, password } = req.body; if (authorizedUsers[username] && authorizedUsers[username] === password) { res.json({ success: true }); } else { res.json({ success: false, message: 'ユーザー名またはパスワードが違います。' }); } });
 app.get('/get-theme', async (req, res) => { try { const themeRef = doc(db, 'settings', 'theme'); const docSnap = await getDoc(themeRef); if (docSnap.exists()) { res.json({ success: true, theme: docSnap.data().text }); } else { res.json({ success: true, theme: 'リスとくるみ' }); } } catch (e) { res.status(500).json({ success: false, message: 'テーマの取得に失敗しました。' }); } });
