@@ -424,14 +424,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.querySelector('.chat-container');
     if (!chatContainer) return;
 
-    // ★★★ ステップ1：UIとグラスモーフィズムの準備 ★★★
-    // ページ読み込みから4秒後に、全ての演出を一斉に開始する
+    // ★★★ 4秒後に、全ての演出の引き金を同時に引く ★★★
     setTimeout(() => {
-        // 背景をぼかし始める
+        // 1. 背景のぼかしとグラスエフェクトを開始させる
         chatContainer.classList.add('is-dreamy');
         
-        // UI（ヘッダー、フォーム、メッセージ）を表示し始める
+        // 2. UI（ヘッダー、フォーム、日付、メッセージ）の表示を開始させる
         chatContainer.classList.add('is-ready');
+
     }, 4000); // 4000ミリ秒 = 4秒後
 });
 
