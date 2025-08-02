@@ -641,6 +641,7 @@ html, body {
     z-index: 5;
     background-image: url('images/glass.png');
     background-size: cover;
+    opacity: 0;
 }
 
 
