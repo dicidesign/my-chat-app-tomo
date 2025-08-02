@@ -319,7 +319,11 @@ if (!storedUsername) {
 
 // --- 11. 日付スタンプの重なり検出とフェードアウト処理 ---
 const messagesContainer = document.getElementById('messages');
+
 if (messagesContainer) {
+    // 【偵察兵1】そもそも、このイベントリスナーは動いているか？
+    console.log('[デバッグ] 日付スタンプのスクロール監視を開始します。');
+
     messagesContainer.addEventListener('scroll', () => {
         const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
         if (dateStamps.length < 2) return;
@@ -331,13 +335,18 @@ if (messagesContainer) {
             const currentRect = currentStamp.getBoundingClientRect();
             const nextRect = nextStamp.getBoundingClientRect();
 
-            // ★★★ ここからが修正ポイント ★★★
-            // 次のスタンプが、現在のスタンプの位置（上端）を越えたら
-            if (nextRect.top <= currentRect.top + 5) { // +5は微調整用の遊び
-                // JSで直接スタイルを書き換えて、強制的に透明にする
+            // 【偵察兵2】座標は正しく取れているか？
+            // コンソールに current と next の top 座標が連続で表示されるはず
+            if (i === 0) { // ログが大量に出過ぎないように、最初のスタンプだけ監視
+                 console.log(`[デバッグ] current.top: ${currentRect.top.toFixed(0)}, next.top: ${nextRect.top.toFixed(0)}`);
+            }
+
+            // 【偵察兵3】if文の条件は true になっているか？
+            if (nextRect.top <= currentRect.top + 5) {
+                // 条件が満たされたら、ログを出す
+                console.log(`[デバッグ] ★★★ 重なり検出！ ${currentStamp.textContent} を隠します ★★★`);
                 currentStamp.style.opacity = '0';
             } else {
-                // 条件から外れたら、元の不透明な状態に戻す
                 currentStamp.style.opacity = '1';
             }
         }
