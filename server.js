@@ -39,13 +39,31 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // --- ニュース取得＆要約APIエンドポイント ---
 app.get('/get-summarized-news', async (req, res) => {
+    console.log("[/get-summarized-news] APIが呼び出されました。"); // ★偵察兵1
     try {
         // 1. NewsAPIから日本のトップニュースを取得
+        const newsApiUrl = `https://newsapi.org/v2/top-headlines?country=jp&apiKey=${process.env.NEWS_API_KEY}`;
+        console.log("NewsAPIにリクエストします:", newsApiUrl); // ★偵察兵2
+        
+
+        
+
+
         const newsResponse = await axios.get(`https://newsapi.org/v2/top-headlines?country=jp&apiKey=${process.env.NEWS_API_KEY}`);
+        console.log("NewsAPIにリクエストします:", newsApiUrl); // ★偵察兵2
+
+        // ★偵察兵3：NewsAPIから何が返ってきたか確認
+        console.log("NewsAPIからのレスポンス:", JSON.stringify(newsResponse.data, null, 2)); 
         const articles = newsResponse.data.articles.slice(0, 5); // 上位5件に絞る
 
         // 2. 取得した記事のタイトルを結合
         const titles = articles.map(article => article.title).join('\n');
+         // ★偵察兵4：Geminiに渡す直前のタイトルリストを確認
+        console.log("Geminiに渡すタイトル群:\n", titles);
+        if (!titles) {
+            // もしタイトルが空なら、ここで処理を止めてエラーを返す
+            return res.status(500).json({ success: false, message: 'NewsAPIから記事タイトルを取得できませんでした。' });
+        }
         
         // 3. Geminiに要約を依頼
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
