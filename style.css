@@ -667,16 +667,7 @@ html, body {
   }
 }
 
-/* ★ ぼかし（グラスモーフィズム）用のアニメーション定義 ★ */
-@keyframes dreamyEffect {
-  from { 
-    filter: blur(0px); 
-    /* glass-overlay の opacity は animation 側で直接制御する */
-  }
-  to   { 
-    filter: blur(25px); 
-  }
-}
+
 
 /* ★ 磨りガラス（glass-overlay）専用のフェードインアニメーション ★ */
 @keyframes glassOverlayFadeIn {
