@@ -329,7 +329,7 @@ html, body {
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
-    top: 20px; 
+    top: 10px; 
     z-index: 15;
     font-size: 22px;
     font-weight: 900;
