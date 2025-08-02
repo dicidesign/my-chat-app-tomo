@@ -70,7 +70,7 @@ html, body {
 
 .date-stamp-background {
     position: absolute; /* ヘッダーと同じく、絶対配置 */
-    top: 66px;
+    top: 64px;
     left: 0;
     right: 0;
     
@@ -78,7 +78,7 @@ html, body {
     background: rgba(0, 0, 0, 0.4); 
 
     /* ↓↓↓ ヘッダーの高さ + 日付スタンプが収まる高さを指定 ↓↓↓ */
-    height: 54px; /* この値は微調整が必要かも */
+    height: 56px; /* この値は微調整が必要かも */
 
     /* ↓↓↓ 重ね順を、ヘッダー(20)と日付(15)の間にする！ ↓↓↓ */
     z-index: 10; 
