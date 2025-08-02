@@ -210,6 +210,52 @@ if (!storedUsername) {
         // --- ↑↑↑ ここまでが、スクロールで消す機能 ---
     }
     function showImagePreview(file) { const reader = new FileReader(); reader.onload = (event) => { Swal.fire({ background: '#2c2c2e', imageUrl: event.target.result, imageAlt: '画像プレビュー', showCancelButton: true, showConfirmButton: true, confirmButtonText: '<i class="fas fa-paper-plane"></i> SEND', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'image-preview-popup', image: 'image-preview-image', actions: 'image-preview-actions', confirmButton: 'image-preview-button', cancelButton: 'image-preview-button' } }).then((result) => { if (result.isConfirmed) { uploadImage(file); } imageInput.value = ''; }); }; reader.readAsDataURL(file); }
+    /**
+ * 画像をクリックした時に、全画面のモーダルウィンドウで表示する関数
+ * @param {object} messageData - クリックされた画像のメッセージデータ
+ */
+function showImageModal(messageData) {
+    Swal.fire({
+        // 全画面表示用のカスタムクラスを適用
+        customClass: {
+            popup: 'fullscreen-swal',
+            htmlContainer: 'swal-html-container-custom' // ヘッダー用のコンテナクラス
+        },
+        // 背景をクリックしても閉じないようにする
+        allowOutsideClick: true, 
+        showConfirmButton: false, // 標準のボタンは非表示
+        showCloseButton: false,   // 標準の閉じるボタンも非表示
+
+        // メインに画像を表示
+        imageUrl: messageData.text,
+        imageAlt: '拡大画像',
+
+        // ★★★ ここからが重要！右上のカスタムヘッダーを作る ★★★
+        html: `
+            <div class="swal-custom-header">
+                <a href="/download-image?url=${encodeURIComponent(messageData.text)}" download class="swal-header-button">
+                    <i class="fas fa-download"></i>
+                </a>
+                <button id="swal-close-button" class="swal-header-button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `,
+        // HTMLが挿入された直後に、閉じるボタンにイベントを設定
+        didOpen: (modal) => {
+            modal.querySelector('#swal-close-button')?.addEventListener('click', () => {
+                Swal.close();
+            });
+            // 背景クリックで閉じるようにする
+            const backdrop = modal.querySelector('.swal2-backdrop');
+            if(backdrop) {
+                backdrop.addEventListener('click', () => {
+                     Swal.close();
+                });
+            }
+        }
+    });
+}
     let mediaRecorder; let audioChunks = []; let timerInterval;
     function handleVoiceButtonClick() { Swal.fire({ html: `<div class="voice-recorder-icon-wrapper"><img src="images/icon-voice.png" alt="音声録音" class="voice-recorder-icon"></div><div class="voice-recorder-timer">00:00</div>`, showConfirmButton: true, showDenyButton: true, showCancelButton: true, confirmButtonText: '<i class="fas fa-circle"></i> REC', denyButtonText: '<i class="fas fa-stop"></i> STOP', cancelButtonText: '<i class="fas fa-times"></i> CLOSE', customClass: { popup: 'voice-recorder-popup', confirmButton: 'rec-button', denyButton: 'stop-button', cancelButton: 'close-button' }, didOpen: (modal) => { const recBtn = modal.querySelector('.rec-button'); const stopBtn = modal.querySelector('.stop-button'); stopBtn.disabled = true; recBtn.addEventListener('click', () => { recBtn.classList.add('is-active'); stopBtn.classList.remove('is-active'); startAudioRecording(modal); }); stopBtn.addEventListener('click', () => { stopBtn.classList.add('is-active'); recBtn.classList.remove('is-active'); stopAudioRecording(); }); }, preConfirm: () => false, preDeny: () => false }).then(() => { if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stream.getTracks().forEach(track => track.stop()); } clearInterval(timerInterval); closeAttachmentMenu(); }); }
     function startAudioRecording(modal) { navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => { mediaRecorder = new MediaRecorder(stream); mediaRecorder.start(); audioChunks = []; mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data)); modal.querySelector('.rec-button').disabled = true; modal.querySelector('.stop-button').disabled = false; modal.querySelector('.voice-recorder-icon').classList.add('is-recording'); let seconds = 0; const timerElement = modal.querySelector('.voice-recorder-timer'); timerInterval = setInterval(() => { seconds++; const min = Math.floor(seconds / 60).toString().padStart(2, '0'); const sec = (seconds % 60).toString().padStart(2, '0'); if(timerElement) timerElement.textContent = `${min}:${sec}`; }, 1000); }).catch(err => Swal.fire('エラー', 'マイクへのアクセスが許可されていません。', 'error')); }
