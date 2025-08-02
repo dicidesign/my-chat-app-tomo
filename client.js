@@ -331,7 +331,7 @@ if (messagesContainer) {
             const nextStamp = dateStamps[i + 1];
             const currentRect = currentStamp.getBoundingClientRect();
             const nextRect = nextStamp.getBoundingClientRect();
-            if (nextRect.top <= currentStamp.top + 5) { currentStamp.classList.add('is-hiding'); } else { currentStamp.classList.remove('is-hiding'); }
+            if (nextRect.top <= currentRect.top + 5) { currentStamp.classList.add('is-hiding'); } else { currentStamp.classList.remove('is-hiding'); }
         }
     });
 }
@@ -359,10 +359,11 @@ if (canvas) {
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             radius: 40 + Math.random() * 100,
-            speed: 0.1 + Math.random() * 0.3,
+            speed: 0.1 + Math.random() * 0.3, // ★★★ 動きを、もっとゆっくりに ★★★
             color: colors[Math.floor(Math.random() * colors.length)]
         };
     };
+///////////////--------カラーボールの数--------////////////////////
     for (let i = 0; i < 12; i++) {
         circles.push(createCircle());
     }

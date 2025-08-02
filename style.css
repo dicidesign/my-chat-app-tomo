@@ -1,7 +1,7 @@
 /* 【style.css 最終版】 */
 :root {
-    --header-height: 85px;
-    --app-height: 100%;
+    --header-height: 85px; /* ヘッダーの実際の高さを変数として定義 */
+     --app-height: 100%; /* ←←← この1行を追加！ */
 }
 
 /* --- 1. 基本設定とログイン画面 --- */
@@ -13,11 +13,30 @@ html, body {
     overflow: hidden;
     background-color: #333;
 }
-.login-container { display: flex; justify-content: center; align-items: center; height: 100%; padding: 20px; box-sizing: border-box; background-color: #f0f2f5; }
-.login-form { width: 100%; max-width: 360px; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; }
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f0f2f5;
+}
+
+.login-form {
+    width: 100%;
+    max-width: 360px;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    text-align: center;
+}
 .login-form h1 { margin-top: 0; color: #333; }
 .login-form input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
 .login-form button { width: 100%; padding: 12px; margin-top: 20px; border: none; background-color: #007bff; color: white; border-radius: 6px; font-size: 16px; cursor: pointer; }
+
 
 /* --- 2. チャット画面の基本レイアウト --- */
 .chat-container {
@@ -26,7 +45,6 @@ html, body {
     height: 100dvh;
     width: 100%;
     background-color: #e5e8e3;
-    position: relative;
 }
 #background-canvas {
     position: absolute;
@@ -34,8 +52,8 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
-    pointer-events: none;
+    z-index: 0; /* ★★★ 一番奥に配置する！ ★★★ */
+    pointer-events: none; /* キャンバスがクリックやタッチを邪魔しないようにする */
 }
 /* --- ヘッダー --- */
 .chat-header {
@@ -43,23 +61,44 @@ html, body {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 20;
+     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
-    padding: 12px 20px 55px 20px;
-    opacity: 0;
-    transition: opacity 3s ease-in-out;
+    padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
 }
-.chat-container.is-dreamy .chat-header {
+.chat-theme {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.9);;
+}
+.header-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin-top: 6px;
+    /* ★margin-bottom は不要 */
+}
+
+/* --- ヘッダー と フォーム に、フェードインを追加 --- */
+.chat-header, #form {
+    opacity: 0;
+    transition: opacity 3s ease-in-out; /* ★★★ 3秒かけてフェードイン ★★★ */
+}
+.chat-container.is-dreamy .chat-header,
+.chat-container.is-dreamy #form {
     opacity: 1;
 }
-.chat-theme { margin: 0; font-size: 28px; font-weight: 900; text-shadow: 0 1px 3px rgba(0,0,0,0.5); cursor: pointer; color: rgba(255, 255, 255, 0.9); }
-.header-divider { height: 1px; background: rgba(255, 255, 255, 0.3); margin-top: 6px; }
+
+
+
+
 
 #messages {
-    flex-grow: 1;
-    overflow-y: auto;
+    flex-grow: 1; /* 残りの高さを全て埋める */
+    overflow-y: auto; /* ★★★ ここだけがスクロールを許可される ★★★ */
     list-style-type: none;
     margin: 0;
     padding: 72px 20px 20px 20px;
@@ -71,37 +110,86 @@ html, body {
     z-index: 10;
 }
 
+
+
 /* --- 3. メッセージ要素（吹き出し、時刻など） --- */
 #messages li {
     display: flex;
     align-items: flex-end;
     gap: 8px;
     max-width: 80%;
+    /* ↓↓↓ 上下のマージンを調整して、日付との被りを避ける ↓↓↓ */
     margin-top: 5px;
     margin-bottom: 5px;
     opacity: 0;
-    transform: translateY(20px);
+     transform: translateY(20px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
-.chat-container.is-dreamy #messages li {
+#messages li.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
-.chat-container.is-dreamy #messages li:nth-child(1) { transition-delay: 0s; }
-.chat-container.is-dreamy #messages li:nth-child(2) { transition-delay: 0.05s; }
-.chat-container.is-dreamy #messages li:nth-child(3) { transition-delay: 0.1s; }
-.chat-container.is-dreamy #messages li:nth-child(4) { transition-delay: 0.15s; }
-.chat-container.is-dreamy #messages li:nth-child(5) { transition-delay: 0.2s; }
-#messages li.me { align-self: flex-end; }
-#messages li.opponent { align-self: flex-start; margin-top: 2px; }
-#messages li.me .message-time { order: -1; }
-.name-label { font-size: 12px; color: #f0f0f0; margin-left: 5px; margin-bottom: 2px; }
-.bubble { padding: 10px 15px; border-radius: 12px; word-wrap: break-word; position: relative; word-break: break-all; }
-.bubble:has(img) { padding: 6px; background-color: white !important; border-radius: 5px; }
+#messages li:nth-child(2) { transition-delay: 0.05s; }
+#messages li:nth-child(3) { transition-delay: 0.1s; }
+#messages li:nth-child(4) { transition-delay: 0.15s; }
+#messages li:nth-child(5) { transition-delay: 0.2s; }
+/* ... (以下、好きなだけ続けられる) */
+#messages li.me {
+    /* margin-left: auto; を削除して、以下に変更 */
+    align-self: flex-end;
+}
+#messages li.opponent {
+    align-self: flex-start;
+    /* ↓↓↓ この1行を追加 ↓↓↓ */
+    margin-top: 2px;
+}
+
+#messages li.me .message-time {
+    order: -1;
+}
+
+.name-label {
+    font-size: 12px;
+    color: #f0f0f0;
+    margin-left: 5px;
+    margin-bottom: 2px;
+}
+
+.bubble {
+    padding: 10px 15px;
+    border-radius: 12px;
+    word-wrap: break-word;
+    position: relative;
+    word-break: break-all;
+}
+.bubble:has(img) {
+    /* ↓↓↓ この2行を変更 ↓↓↓ */
+    padding: 6px;
+    background-color: white !important; /* transparent から white に変更 */
+    
+    /* ↓↓↓ 枠の角丸も、さっきのメッセージに合わせておく ↓↓↓ */
+    border-radius: 5px; /* 10px から 12px に変更 */
+}
 #messages li.me .bubble { background: #8de041; }
 #messages li.opponent .bubble { background: #ffffff; }
-.message-time { font-size: 12px; color: #f0f0f0; white-space: nowrap; margin-bottom: 2px; }
-#messages li img { display: block; height: auto; width: 100%; max-width: 250px; border-radius: 10px; cursor: pointer; object-fit: cover; }
+
+.message-time {
+    font-size: 12px;
+    color: #f0f0f0;
+    white-space: nowrap;
+    margin-bottom: 2px;
+}
+
+#messages li img {
+    display: block;
+    height: auto;
+    width: 100%;
+    max-width: 250px;
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
+}
+
 
 /* --- 4. 入力フォーム --- */
 #form {
@@ -114,62 +202,237 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
-    z-index: 20;
+     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     position: relative;
-    opacity: 0;
-    transition: opacity 3s ease-in-out;
 }
-.chat-container.is-dreamy #form {
-    opacity: 1;
+.textarea-wrapper {
+    flex: 1; /* 残りの幅をすべて使う */
+    display: flex; /* これもflexにしておく */
+    margin: 0 10px; /* 左右の余白 */
 }
-.textarea-wrapper { flex: 1; display: flex; margin: 0 10px; }
-#input { width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px; font-family: inherit; font-size: 16px; line-height: 1.4; resize: none; overflow-y: hidden; box-sizing: border-box; }
+#input {
+    width: 100%; /* 親(wrapper)の幅いっぱいに広がる */
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.4;
+    resize: none;
+    overflow-y: hidden; /* JSで制御するまでは、スクロールバーを隠す */
+    
+    box-sizing: border-box;
+}
 #input:focus { outline: none; }
-.send-button { background-color: #4a80e2; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s; flex-shrink: 0; }
-.send-button:hover { background-color: #3a70d2; }
-.send-button img { width: 24px; height: 24px; }
-.image-upload-label { width: 30px; height: auto; padding: 0 10px 8px; font-size: 24px; cursor: pointer; display: flex; align-items: center; }
-.image-upload-label img { width: 100%; height: auto; }
+.send-button {
+    background-color: #4a80e2; /* ボタンの背景色 */
+    border: none;
+    width: 44px; /* ボタンの幅 */
+    height: 44px; /* ボタンの高さ */
+    border-radius: 50%; /* 完全な円形に */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0; /* フォームが縮んでも、ボタンのサイズを維持 */
+}
+
+.send-button:hover {
+    background-color: #3a70d2; /* ホバー時の色 */
+}
+
+.send-button img {
+    width: 24px; /* アイコン画像のサイズ */
+    height: 24px;
+}
+
+.image-upload-label {
+    width: 30px;
+    height: auto;
+    padding: 0 10px 8px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.image-upload-label img {
+    width: 100%;
+    height: auto;
+}
+
 
 /* --- 5. SweetAlert2 モーダルウィンドウのカスタム --- */
-.fullscreen-swal { width: 100vw !important; height: 100vh !important; padding: 0 !important; background: transparent !important; position: relative !important; display: flex !important; align-items: center; justify-content: center; }
-.fullscreen-swal .swal2-image { width: auto !important; height: auto !important; max-width: 100%; max-height: 100%; object-fit: contain; margin: 10px 0!important; }
-.swal-html-container-custom { position: absolute; top: -10px; right: -10px; left: auto; bottom: auto; z-index: 10; pointer-events: none; }
-.swal-custom-header { display: flex; justify-content: flex-end; align-items: center; padding: 0; gap: 15px; pointer-events: auto; }
-.swal-header-button { font-size: 20px; color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.2s, transform 0.2s; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.swal-header-button:hover { opacity: 1; transform: scale(1.05); }
+.fullscreen-swal {
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    background: transparent !important;
+    /* ↓↓↓ ヘッダーを配置する基準点にする！ ↓↓↓ */
+    position: relative !important; 
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-swal .swal2-image {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100%; /* 親の幅を超えないように */
+    max-height: 100%; /* 親の高さを超えないように */
+    object-fit: contain;
+    margin: 10px 0!important;
+}
+
+/* ★★★ ここからが、新しいヘッダーのデザイン ★★★ */
+.swal-html-container-custom {
+    position: absolute;
+    /* ↓↓↓ topとrightを、直接指定する！ ↓↓↓ */
+    top: -10px;
+    right: -10px;
+    left: auto; /* 左は自動に */
+    bottom: auto; /* 下も自動に */
+    z-index: 10;
+    pointer-events: none;
+}
+
+.swal-custom-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0; /* ★★★ paddingは不要になる ★★★ */
+    gap: 15px;
+    pointer-events: auto;
+}
+
+/* ★★★ ヘッダー内の全てのボタンに共通のスタイル ★★★ */
+.swal-header-button {
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.swal-header-button:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* style.css の .date-stamp を修正 */
 
 /* --- 日付スタンプ --- */
 .date-stamp {
     position: sticky;
-    top: 0px;
+    /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
+    top: 0px; 
     z-index: 15;
+    
     font-size: 30px;
     font-weight: 900;
     color: rgba(255, 255, 255, .7);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    
     text-align: center;
     pointer-events: none;
     width: 100%;
     margin-bottom: 10px;
+    
     transition: opacity 0.3s ease-out;
 }
-.date-stamp.is-hiding { opacity: 0; }
+.date-stamp.is-hiding {
+    opacity: 0;
+}
+
 
 /* --- 7. オリジナル添付メニュー --- */
-.attachment-menu { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background-color: rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; box-sizing: border-box; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
-.attachment-menu.is-active { opacity: 1; visibility: visible; }
-.attachment-menu-options, .close-menu-button-wrapper { background-color: #333; border-radius: 14px; transform: translateY(100px); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
-.attachment-menu.is-active .attachment-menu-options, .attachment-menu.is-active .close-menu-button-wrapper { transform: translateY(0); }
-.attachment-menu-options { display: flex; justify-content: space-around; padding: 20px 10px; }
-.close-menu-button-wrapper { margin-top: 8px; background-color: #333; }
-.menu-button { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: white; flex: 1; }
-.menu-button:not(:last-child) { border-right: 1px solid rgba(255, 255, 255, 0.1); }
-.menu-button img { width: auto; height: 34px; margin-bottom: 4px; }
-.close-menu-button { width: 100%; background: none; border: none; padding: 15px; font-size: 16px; font-weight: 600; color: white; cursor: pointer; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.attachment-menu {
+    position: fixed; /* fixed に変更して、常に画面下部に */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 下揃えに */
+    padding: 10px;
+    box-sizing: border-box;
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+.attachment-menu.is-active {
+    opacity: 1;
+    visibility: visible;
+}
 
+.attachment-menu-options, .close-menu-button-wrapper {
+    background-color: #333; /* ダークな背景色 */
+    border-radius: 14px;
+    transform: translateY(100px); /* 最初は少し下に隠す */
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.attachment-menu.is-active .attachment-menu-options,
+.attachment-menu.is-active .close-menu-button-wrapper {
+    transform: translateY(0);
+}
 
+.attachment-menu-options {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px 10px;
+}
+.close-menu-button-wrapper {
+    margin-top: 8px;
+    background-color: #333;
+}
 
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: white;
+    flex: 1; /* ボタンが均等に幅を持つように */
+}
+.menu-button:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.menu-button img {
+    width: auto; /* アイコンのサイズ */
+    height: 34px;
+    margin-bottom: 4px;
+}
+
+.close-menu-button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
 
 
 
@@ -382,6 +645,8 @@ html, body {
 }
 
 /* --- 16. グラスモーフィズム背景 --- */
+
+/* 磨りガラスのレイヤー */
 .glass-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -389,12 +654,18 @@ html, body {
     background-image: url('images/glass.png');
     background-size: cover;
     opacity: 0;
-    transition: opacity 3s ease-in-out;
+    transition: opacity 3s ease-in-out; /* ★★★ 3秒に変更 ★★★ */
 }
+
+/* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
 .chat-container.is-dreamy .glass-overlay {
-    opacity: 0.3;
+    opacity: 0.3; /* 透明度40%で表示 */
 }
+
+/* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
 .chat-container.is-dreamy #background-canvas {
+    /* フィルターを使って、キャンバス全体にぼかしをかける */
     filter: blur(25px);
+    /* じんわり変化するためのアニメーション設定 */
     transition: filter 3s ease-in-out;
 }
