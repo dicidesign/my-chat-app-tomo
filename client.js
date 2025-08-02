@@ -292,7 +292,13 @@ if (!storedUsername) {
         serverMessages.forEach((msg, index) => {
             displayMessage(msg);
 
-        
+            // ★★★最後のメッセージを表示し終わったタイミングでis-readyを付与★★★
+            if (index === serverMessages.length - 1) {
+                // 少しだけ待ってからクラスを付与すると、よりアニメーションが滑らかになることがある
+                setTimeout(() => {
+                    document.querySelector('.chat-container')?.classList.add('is-ready');
+                }, 100); 
+            }
         });
     }
 
