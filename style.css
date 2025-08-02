@@ -683,8 +683,7 @@ html, body {
 
 /* 1. is-animatingが付いたら、アニメーションを開始する */
 .chat-container.is-animating .chat-header,
-.chat-container.is-animating #form,
-.chat-container.is-animating .date-stamp{
+.chat-container.is-animating #form{
     animation-name: fadeInUp;            /* どのアニメーションを使うか */
     animation-duration: 1.5s;            /* アニメーションの時間 */
     animation-delay: 4s;               /* ★★★ 4秒待ってから開始 ★★★ */
@@ -711,7 +710,7 @@ html, body {
 /* 4. 磨りガラスのフェードインアニメーション */
 .chat-container.is-animating .glass-overlay {
     animation-name: glassOverlayFadeIn;
-    animation-duration: 1s;
+    animation-duration: 2s;
     animation-delay: 4s;
     animation-fill-mode: forwards;
 }
