@@ -27,94 +27,45 @@ if (!storedUsername) {
 
     // --- 5. メッセージを1件表示するための総合関数 ---
     const displayMessage = (data) => {
-    // 1. データが不正なら、何もせずに処理を終了する
-    if (!data || typeof data.text !== 'string' || !data.createdAt || !data.id) {
-        console.error('不正なメッセージデータ:', data);
-        return;
-    }
-
-    // 2. 日付関連のデータを準備する
-    let messageDate;
-    if (typeof data.createdAt === 'object' && data.createdAt.seconds) {
-        messageDate = new Date(data.createdAt.seconds * 1000);
-    } else {
-        messageDate = new Date(data.createdAt);
-    }
-    if (isNaN(messageDate.getTime())) { return; }
-    const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
-
-    // 3. メッセージ要素（li）を最初に生成する
-    const li = document.createElement('li');
-    li.id = `message-${data.id}`;
-
-    // 4. 新しい日付かどうかをチェックし、必要なら日付スタンプを生成する
-    if (messageDateString !== lastMessageDate) {
-        // --- 日付スタンプの処理 ---
-        const dateStamp = document.createElement('div');
-        dateStamp.className = 'date-stamp';
-        dateStamp.id = `date-${messageDateString}`;
-        dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-        document.getElementById('date-stamp-layer')?.appendChild(dateStamp);
-        lastMessageDate = messageDateString;
-
-        // --- このliが「その日の最初のメッセージ」であることを記録する ---
-        li.classList.add('first-message-of-day');
-        li.dataset.dateId = `date-${messageDateString}`;
-    }
-
-    // 5. 吹き出し（bubble）と時刻（time）の要素を生成する
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    const time = document.createElement('span');
-    time.className = 'message-time';
-    time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
-
-    // 6. メッセージの種類（音声、画像、テキスト）に応じて、吹き出しの中身を作る
-    if (data.isVoice) {
-        const audioPlayer = document.createElement('audio');
-        audioPlayer.src = data.text;
-        audioPlayer.controls = true;
-        bubble.appendChild(audioPlayer);
-    } else if (data.isImage) {
-        const img = document.createElement('img');
-        img.src = data.text;
-        img.addEventListener('click', () => showImageModal(data)); // showImageModalは別途定義されている前提
-        bubble.appendChild(img);
-    } else {
-        bubble.textContent = data.text;
-    }
-
-    // 7. 自分か相手かで、要素の構成を変える
-    const username = data.username || '名無しさん';
-    if (username === currentUsername) {
-        // --- 自分のメッセージの場合 ---
-        li.classList.add('me');
-        li.appendChild(time); // [時刻] [吹き出し] の順
-        li.appendChild(bubble);
-    } else {
-        // --- 相手のメッセージの場合 ---
-        li.classList.add('opponent');
-        // 名前ラベルは、liの外、messagesに直接追加する
-        const nameLabel = document.createElement('div');
-        nameLabel.textContent = username;
-        nameLabel.className = 'name-label';
-        messages.appendChild(nameLabel);
-
-        li.appendChild(bubble); // [吹き出し] [時刻] の順
-        li.appendChild(time);
-    }
-    
-    // 8. 最終的に組み立てた li を messages に追加する
-    messages.appendChild(li);
-
-    // 9. ポップアップメニュー用のイベントリスナーを、自分のメッセージにだけ追加する
-    if (username === currentUsername) {
-        bubble.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showPopupMenu(bubble, data, data.isVoice); // showPopupMenuは別途定義されている前提
-        });
-    }
-};
+        if (!data || typeof data.text !== 'string' || !data.createdAt || !data.id) { return; }
+        let messageDate;
+        if (typeof data.createdAt === 'object' && data.createdAt.seconds) { messageDate = new Date(data.createdAt.seconds * 1000); } else { messageDate = new Date(data.createdAt); }
+        if (isNaN(messageDate.getTime())) { return; }
+        const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
+        if (messageDateString !== lastMessageDate) { const dateStamp = document.createElement('div'); dateStamp.className = 'date-stamp'; dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`; messages.appendChild(dateStamp); lastMessageDate = messageDateString; }
+        const username = data.username || '名無しさん';
+        const li = document.createElement('li');
+        li.id = `message-${data.id}`;
+        const bubble = document.createElement('div');
+        const time = document.createElement('span');
+        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); 
+             if (username === currentUsername) {
+                // 自分の音声メッセージの場合だけ、長押し(contextmenu)イベントを設定
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
+                    
+                    // 第3引数に「true」（音声だよ）を渡して、ポップアップメニューを呼び出す
+                    showPopupMenu(bubble, data, true); 
+                });
+            }
+        } else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
+        else {
+            // --- テキストメッセージの場合 ---
+            bubble.textContent = data.text;
+            if (username === currentUsername) {
+                // 自分のテキストメッセージにだけ、長押し(contextmenu)イベントを設定
+                bubble.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
+                    showPopupMenu(bubble, data);
+                });
+            }
+        }
+        time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
+        bubble.className = 'bubble';
+        time.className = 'message-time';
+        if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
+        messages.appendChild(li);
+    };
     // --- メッセージ削除用のポップアップメニュー ---
     function showPopupMenu(targetBubble, messageData, isVoice = false) {
         const existingMenu = document.querySelector('.popup-menu');
@@ -331,23 +282,13 @@ if (!storedUsername) {
     socket.on('load old messages', (serverMessages) => {
     messages.innerHTML = '';
     lastMessageDate = null;
+    
+    // 単純に、受け取ったメッセージを全部表示するだけの処理にする
     serverMessages.forEach(msg => {
         displayMessage(msg);
     });
 
-    // ★★★ メッセージ描画後に、位置を計算させる ★★★
-    calculateDateStampPositions();
-
-    
-    
-    // 単純に、受け取ったメッセージを全部表示するだけの処理にする
-     serverMessages.forEach(msg => {
-        displayMessage(msg);
-    });
-
     // 読み込み終わったら、一番下までスクロール（これは残しておく）
-    messages.scrollTop = messages.scrollHeight;
-    repositionDateStamps();
     messages.scrollTop = messages.scrollHeight;
 });
     
@@ -470,142 +411,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // ページが読み込まれたら、すぐにアニメーション開始のクラスを付与する
     document.querySelector('.chat-container')?.classList.add('is-animating');
 });
-
-/**
- * 全ての日付スタンプの位置を再計算して、正しい場所に配置する関数
- */
-function calculateDateStampPositions() {
-    const dateStamps = document.querySelectorAll('.date-stamp');
-    dateStamps.forEach(stamp => {
-        const firstMessage = document.querySelector(`.first-message-of-day[data-date-id="${stamp.id}"]`);
-        if (firstMessage) {
-            // ★★★ offsetTopを計算して、data-original-top属性に保存する ★★★
-            stamp.dataset.originalTop = firstMessage.offsetTop;
-        }
-    });
-}
-
-// スクロールコンテナを取得
-const scrollContainer = document.getElementById('scroll-container');
-
-if (scrollContainer) {
-    // ヘッダーの高さを取得（なければ0）
-    const headerHeight = document.querySelector('.chat-header')?.offsetHeight || 0;
-
-    scrollContainer.addEventListener('scroll', () => {
-        const dateStamps = scrollContainer.querySelectorAll('.date-stamp');
-        
-        // ★★★ スクロールするたびに、全ての日付スタンプの位置をチェック ★★★
-        dateStamps.forEach(stamp => {
-            const originalTop = parseFloat(stamp.dataset.originalTop || 0);
-            
-            // スクロール量（scrollTop）が、スタンプの本来の位置を超えたか？
-            if (scrollContainer.scrollTop > originalTop - headerHeight) {
-                // 超えた場合：ヘッダーの下に固定する
-                stamp.style.top = `${headerHeight}px`;
-                stamp.classList.add('is-stuck'); // 固定されていることを示すクラス
-            } else {
-                // 超えていない場合：本来の位置に戻す
-                stamp.style.top = `${originalTop}px`;
-                stamp.classList.remove('is-stuck');
-            }
-        });
-
-        // ★★★ 重なり検出のロジックも、この中で一緒にやる ★★★
-        if (dateStamps.length < 2) return;
-        for (let i = 0; i < dateStamps.length - 1; i++) {
-            const currentStamp = dateStamps[i];
-            const nextStamp = dateStamps[i + 1];
-
-            // is-stuckクラスが付いている（＝固定されている）スタンプだけを対象にする
-            if (currentStamp.classList.contains('is-stuck')) {
-                const nextOriginalTop = parseFloat(nextStamp.dataset.originalTop || 0);
-                
-                // 次のスタンプが、ヘッダー下まで上がってきたか？
-                if (nextOriginalTop - scrollContainer.scrollTop <= headerHeight + currentStamp.offsetHeight) {
-                    currentStamp.style.opacity = '0';
-                } else {
-                    currentStamp.style.opacity = '1';
-                }
-            } else {
-                // 固定されていないスタンプは、常に表示
-                currentStamp.style.opacity = '1';
-            }
-        }
-    });
-}
-
-
-// --- 以下の部分は、適切な場所にあることを確認 ---
-
-// ★ 過去ログ読み込み完了時
-socket.on('load old messages', (serverMessages) => {
-    messages.innerHTML = '';
-    lastMessageDate = null;
-    serverMessages.forEach(msg => {
-        displayMessage(msg);
-    });
-    
-    // ★★★ メッセージ描画後に、位置を計算させる ★★★
-    calculateDateStampPositions();
-    
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
-});
-
-// ★ 新規メッセージ受信時
-socket.on('chat message', (data) => {
-    displayMessage(data);
-    
-    // ★★★ 少し待ってから位置を再計算 ★★★
-    setTimeout(calculateDateStampPositions, 100);
-    
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
-});
-
-if (scrollContainer) {
-    // ヘッダーの高さを取得（なければ0）
-    const headerHeight = document.querySelector('.chat-header')?.offsetHeight || 0;
-
-    scrollContainer.addEventListener('scroll', () => {
-        const dateStamps = scrollContainer.querySelectorAll('.date-stamp');
-        
-        // ★★★ スクロールするたびに、全ての日付スタンプの位置をチェック ★★★
-        dateStamps.forEach(stamp => {
-            const originalTop = parseFloat(stamp.dataset.originalTop || 0);
-            
-            // スクロール量（scrollTop）が、スタンプの本来の位置を超えたか？
-            if (scrollContainer.scrollTop > originalTop - headerHeight) {
-                // 超えた場合：ヘッダーの下に固定する
-                stamp.style.top = `${headerHeight}px`;
-                stamp.classList.add('is-stuck'); // 固定されていることを示すクラス
-            } else {
-                // 超えていない場合：本来の位置に戻す
-                stamp.style.top = `${originalTop}px`;
-                stamp.classList.remove('is-stuck');
-            }
-        });
-
-        // ★★★ 重なり検出のロジックも、この中で一緒にやる ★★★
-        if (dateStamps.length < 2) return;
-        for (let i = 0; i < dateStamps.length - 1; i++) {
-            const currentStamp = dateStamps[i];
-            const nextStamp = dateStamps[i + 1];
-
-            // is-stuckクラスが付いている（＝固定されている）スタンプだけを対象にする
-            if (currentStamp.classList.contains('is-stuck')) {
-                const nextOriginalTop = parseFloat(nextStamp.dataset.originalTop || 0);
-                
-                // 次のスタンプが、ヘッダー下まで上がってきたか？
-                if (nextOriginalTop - scrollContainer.scrollTop <= headerHeight + currentStamp.offsetHeight) {
-                    currentStamp.style.opacity = '0';
-                } else {
-                    currentStamp.style.opacity = '1';
-                }
-            } else {
-                // 固定されていないスタンプは、常に表示
-                currentStamp.style.opacity = '1';
-            }
-        }
-    });
-}
 
