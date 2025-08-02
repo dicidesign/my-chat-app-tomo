@@ -32,7 +32,16 @@ if (!storedUsername) {
         if (typeof data.createdAt === 'object' && data.createdAt.seconds) { messageDate = new Date(data.createdAt.seconds * 1000); } else { messageDate = new Date(data.createdAt); }
         if (isNaN(messageDate.getTime())) { return; }
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
-        if (messageDateString !== lastMessageDate) { const dateStamp = document.createElement('div'); dateStamp.className = 'date-stamp'; dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`; messages.appendChild(dateStamp); lastMessageDate = messageDateString; }
+        if (messageDateString !== lastMessageDate) {
+            const dateStamp = document.createElement('div');
+            dateStamp.className = 'date-stamp';
+            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+            
+            // ★★★ 追加先を #date-stamp-layer に変更！ ★★★
+            document.getElementById('date-stamp-layer').appendChild(dateStamp); 
+            
+            lastMessageDate = messageDateString;
+        }
         const username = data.username || '名無しさん';
         const li = document.createElement('li');
         li.id = `message-${data.id}`;
@@ -65,6 +74,7 @@ if (!storedUsername) {
         time.className = 'message-time';
         if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
         messages.appendChild(li);
+        setTimeout(() => li.classList.add('is-visible'), 10);
     };
     // --- メッセージ削除用のポップアップメニュー ---
     function showPopupMenu(targetBubble, messageData, isVoice = false) {

@@ -46,6 +46,13 @@ html, body {
     width: 100%;
     background-color: #e5e8e3;
 }
+/* 新しく追加したコンテナのスタイル */
+#scroll-container {
+    flex-grow: 1; /* 残りの高さを全て埋める */
+    overflow-y: auto; /* ★★★ スクロールするのは、この要素！ ★★★ */
+    position: relative; /* z-indexの基準点にする */
+    min-height: 0;
+}
 #background-canvas {
     position: absolute;
     top: 0;
@@ -91,7 +98,8 @@ html, body {
     overflow-y: auto; /* ★★★ ここだけがスクロールを許可される ★★★ */
     list-style-type: none;
     margin: 0;
-    padding: 72px 20px 20px 20px;
+    padding-top: 72px; 
+    padding-bottom: 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -326,6 +334,16 @@ html, body {
 /* style.css の .date-stamp を修正 */
 
 /* --- 日付スタンプ --- */
+#date-stamp-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* 下のメッセージをクリックできるように */
+    z-index: 30; /* ★★★ ヘッダー(20)よりも手前に！ ★★★ */
+}
+
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
