@@ -71,7 +71,7 @@ html, body {
 
 .date-stamp-background {
     position: absolute; /* ヘッダーと同じく、絶対配置 */
-    top: 60px;
+    top: 70px;
     left: 0;
     right: 0;
     
