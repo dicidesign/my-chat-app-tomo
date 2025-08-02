@@ -329,7 +329,7 @@ html, body {
 .date-stamp {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
-    top: 30px; 
+    top: calc(var(--header-height) + 30px); 
     z-index: 15;
     font-size: 30px;
     font-weight: 900;
@@ -338,9 +338,8 @@ html, body {
     text-align: center;
     pointer-events: none;
     width: 100%;
+    margin-top: 30px; 
     margin-bottom: 10px;
-    transition: opacity 0.3s ease-out;
-    opacity: 0;
 }
 .date-stamp.is-hiding {
     opacity: 0;
