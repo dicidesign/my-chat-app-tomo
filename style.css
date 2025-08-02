@@ -68,25 +68,6 @@ html, body {
     opacity: 0;
 }
 
-.date-stamp-background {
-    position: absolute; /* ヘッダーと同じく、絶対配置 */
-    top: 60px;
-    left: 0;
-    right: 0;
-    
-    /* ↓↓↓ ヘッダーと同じ透過黒の背景 ↓↓↓ */
-    background: rgba(0, 0, 0, 0.4); 
-
-    /* ↓↓↓ ヘッダーの高さ + 日付スタンプが収まる高さを指定 ↓↓↓ */
-    height: 56px; /* この値は微調整が必要かも */
-
-    /* ↓↓↓ 重ね順を、ヘッダー(20)と日付(15)の間にする！ ↓↓↓ */
-    z-index: 10; 
-
-    /* ↓↓↓ オープニング演出にも参加させる ↓↓↓ */
-    opacity: 0;
-}
-
 .chat-theme {
     margin: 0;
     font-size: 28px;
@@ -349,7 +330,7 @@ html, body {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
     top: 0; 
-    z-index: 19;
+    z-index: 15;
     font-size: 30px;
     font-weight: 900;
     color: rgba(255, 255, 255, .7);
@@ -358,6 +339,8 @@ html, body {
     pointer-events: none;
     width: 100%;
     margin-top: 40px; 
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 
