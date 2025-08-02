@@ -61,7 +61,7 @@ html, body {
     top: 0;
     left: 0;
     right: 0;
-     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
+    z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
@@ -81,18 +81,6 @@ html, body {
     margin-top: 6px;
     /* ★margin-bottom は不要 */
 }
-
-/* --- ヘッダー と フォーム に、フェードインを追加 --- */
-.chat-header, #form {
-    opacity: 0;
-    transition: opacity 3s ease-in-out; /* ★★★ 3秒かけてフェードイン ★★★ */
-}
-.chat-container.is-dreamy .chat-header,
-.chat-container.is-dreamy #form {
-    opacity: 1;
-}
-
-
 
 
 
