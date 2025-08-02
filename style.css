@@ -66,12 +66,6 @@ html, body {
     color: white;
     text-align: center;
     padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
-    opacity: 0;
-    transition: opacity 1s ease-out;
-}
-.chat-container.is-ready .chat-header,
-.chat-container.is-ready #form {
-    opacity: 1;
 }
 
 .chat-theme {
@@ -103,14 +97,6 @@ html, body {
     min-height: 0;
     position: relative;
     z-index: 10;
-    visibility: hidden; 
-}
-.chat-container.is-ready #messages {
-    visibility: visible; /* is-readyが付いたら表示する */
-}
-.chat-container.is-ready #messages li {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 
@@ -353,12 +339,6 @@ html, body {
     width: 100%;
     margin-bottom: 10px;
     transition: opacity 0.3s ease-out;
-    opacity: 0; 
-}
-.chat-container.is-ready .date-stamp {
-    opacity: 1;
-    /* ↓↓↓ フワッと表示されるようにトランジションを追加 ↓↓↓ */
-    transition: opacity 1s ease-out;
 }
 .date-stamp.is-hiding {
     opacity: 0;
@@ -661,20 +641,72 @@ html, body {
     z-index: 5;
     background-image: url('images/glass.png');
     background-size: cover;
-    opacity: 0;
-    transition: opacity 3s ease-in-out; /* ★★★ 3秒に変更 ★★★ */
 }
 
-/* ★★★ is-dreamy クラスが付いた時の、磨りガラスのスタイル ★★★ */
-.chat-container.is-dreamy .glass-overlay {
-    opacity: 0.3; /* 透明度40%で表示 */
-    transition: opacity 1s ease-in-out; 
+
+
+
+
+
+/* --- 17. CSSキーフレームアニメーションによるオープニング演出 --- */
+
+/* ★ フェードイン用のアニメーション定義 ★ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-/* ★★★ is-dreamy クラスが付いた時の、キャンバスのスタイル ★★★ */
-.chat-container.is-dreamy #background-canvas {
-    /* フィルターを使って、キャンバス全体にぼかしをかける */
-    filter: blur(25px);
-    /* じんわり変化するためのアニメーション設定 */
-    transition: filter 1s ease-in-out;
+/* ★ ぼかし（グラスモーフィズム）用のアニメーション定義 ★ */
+@keyframes dreamyEffect {
+  from { 
+    filter: blur(0px); 
+    /* glass-overlay の opacity は animation 側で直接制御する */
+  }
+  to   { 
+    filter: blur(25px); 
+  }
+}
+
+/* ★ 磨りガラス（glass-overlay）専用のフェードインアニメーション ★ */
+@keyframes glassOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 0.3; } /* 最終的な透明度を 0.3 にする */
+}
+
+
+/* --- 各要素に、定義したアニメーションを適用する --- */
+
+/* 1. is-animatingが付いたら、アニメーションを開始する */
+.chat-container.is-animating .chat-header,
+.chat-container.is-animating #form,
+.chat-container.is-animating .date-stamp {
+    animation-name: fadeIn;            /* どのアニメーションを使うか */
+    animation-duration: 1s;            /* アニメーションの時間 */
+    animation-delay: 4s;               /* ★★★ 4秒待ってから開始 ★★★ */
+    animation-fill-mode: forwards;     /* アニメーション終了後、最後の状態を維持 */
+    animation-timing-function: ease-out; /* 動きの緩急 */
+}
+
+/* 2. メッセージリストも同様に設定 */
+.chat-container.is-animating #messages {
+    animation-name: fadeIn;
+    animation-duration: 1s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
+}
+
+/* 3. 背景キャンバスのぼかしアニメーション */
+.chat-container.is-animating #background-canvas {
+    animation-name: dreamyEffect;
+    animation-duration: 1s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
+}
+
+/* 4. 磨りガラスのフェードインアニメーション */
+.chat-container.is-animating .glass-overlay {
+    animation-name: glassOverlayFadeIn;
+    animation-duration: 1s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
 }

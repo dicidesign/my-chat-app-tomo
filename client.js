@@ -279,42 +279,17 @@ if (!storedUsername) {
     input.addEventListener('input', adjustTextareaHeight);
     
     // --- 8. Socket.IOのイベントリスナー群 ---
-    socket.on('connect', async () => { try { const response = await fetch('/get-theme'); const result = await response.json(); if (result.success && result.theme) { if (chatThemeElement) { chatThemeElement.textContent = result.theme; } } } catch (e) { console.error("テーマの読み込みに失敗しました:", e); } });
     socket.on('load old messages', (serverMessages) => {
     messages.innerHTML = '';
     lastMessageDate = null;
-    // serverMessagesが空でも、最低1回はループが回るようにする
-    if (serverMessages.length === 0) {
-        // メッセージが一件もない場合でも、UIを表示する
-        document.querySelector('.chat-container')?.classList.add('is-ready');
-    } else {
-        // メッセージがある場合は、一つずつ表示
-        serverMessages.forEach((msg, index) => {
-            displayMessage(msg);
+    
+    // 単純に、受け取ったメッセージを全部表示するだけの処理にする
+    serverMessages.forEach(msg => {
+        displayMessage(msg);
+    });
 
-            // ★★★最後のメッセージを表示し終わったタイミングでis-readyを付与★★★
-            if (index === serverMessages.length - 1) {
-                // 少しだけ待ってからクラスを付与すると、よりアニメーションが滑らかになることがある
-                setTimeout(() => {
-                    document.querySelector('.chat-container')?.classList.add('is-ready');
-                }, 100); 
-            }
-        });
-    }
-
+    // 読み込み終わったら、一番下までスクロール（これは残しておく）
     messages.scrollTop = messages.scrollHeight;
-});
-    socket.on('chat message', (data) => { displayMessage(data); messages.scrollTop = messages.scrollHeight; });
-    socket.on('theme updated', (newTheme) => { if (chatThemeElement) { chatThemeElement.textContent = newTheme; } });
-    socket.on('message deleted', (messageId) => {
-        const messageElement = document.getElementById(`message-${messageId}`);
-        if (messageElement) {
-            const nameLabel = messageElement.previousElementSibling;
-            if (nameLabel && nameLabel.classList.contains('name-label')) {
-                nameLabel.remove();
-            }
-            messageElement.remove();
-        }
     });
     
     // --- 9. ヘッダーのテーマ変更機能 ---
@@ -410,19 +385,10 @@ if (canvas) {
 
 
 
-// --- 16. オープニング演出の管理 ---
+
+// --- 16. CSSアニメーションによるオープニング演出 ---
 document.addEventListener('DOMContentLoaded', () => {
-    const chatContainer = document.querySelector('.chat-container');
-    if (!chatContainer) return;
-
-    // ★★★ 4秒後に、全ての演出の引き金を同時に引く ★★★
-    setTimeout(() => {
-        // 1. 背景のぼかしとグラスエフェクトを開始させる
-        chatContainer.classList.add('is-dreamy');
-        
-        // 2. UI（ヘッダー、フォーム、日付、メッセージ）の表示を開始させる
-        chatContainer.classList.add('is-ready');
-
-    }, 4000); // 4000ミリ秒 = 4秒後
+    // ページが読み込まれたら、すぐにアニメーション開始のクラスを付与する
+    document.querySelector('.chat-container')?.classList.add('is-animating');
 });
 
