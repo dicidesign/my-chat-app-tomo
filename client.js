@@ -65,7 +65,6 @@ if (!storedUsername) {
         time.className = 'message-time';
         if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
         messages.appendChild(li);
-        setTimeout(() => li.classList.add('is-visible'), 10);
     };
     // --- メッセージ削除用のポップアップメニュー ---
     function showPopupMenu(targetBubble, messageData, isVoice = false) {
@@ -281,7 +280,30 @@ if (!storedUsername) {
     
     // --- 8. Socket.IOのイベントリスナー群 ---
     socket.on('connect', async () => { try { const response = await fetch('/get-theme'); const result = await response.json(); if (result.success && result.theme) { if (chatThemeElement) { chatThemeElement.textContent = result.theme; } } } catch (e) { console.error("テーマの読み込みに失敗しました:", e); } });
-    socket.on('load old messages', (serverMessages) => { messages.innerHTML = ''; lastMessageDate = null; serverMessages.forEach(msg => displayMessage(msg)); messages.scrollTop = messages.scrollHeight; });
+    socket.on('load old messages', (serverMessages) => {
+    messages.innerHTML = '';
+    lastMessageDate = null;
+    // serverMessagesが空でも、最低1回はループが回るようにする
+    if (serverMessages.length === 0) {
+        // メッセージが一件もない場合でも、UIを表示する
+        document.querySelector('.chat-container')?.classList.add('is-ready');
+    } else {
+        // メッセージがある場合は、一つずつ表示
+        serverMessages.forEach((msg, index) => {
+            displayMessage(msg);
+
+            // ★★★最後のメッセージを表示し終わったタイミングでis-readyを付与★★★
+            if (index === serverMessages.length - 1) {
+                // 少しだけ待ってからクラスを付与すると、よりアニメーションが滑らかになることがある
+                setTimeout(() => {
+                    document.querySelector('.chat-container')?.classList.add('is-ready');
+                }, 100); 
+            }
+        });
+    }
+
+    messages.scrollTop = messages.scrollHeight;
+});
     socket.on('chat message', (data) => { displayMessage(data); messages.scrollTop = messages.scrollHeight; });
     socket.on('theme updated', (newTheme) => { if (chatThemeElement) { chatThemeElement.textContent = newTheme; } });
     socket.on('message deleted', (messageId) => {
@@ -395,5 +417,21 @@ document.addEventListener('DOMContentLoaded', () => {
             chatContainer.classList.add('is-dreamy');
         }, 2000); // 2000ミリ秒 = 2秒後
     }
+});
+
+// --- 16. オープニング演出の管理 ---
+document.addEventListener('DOMContentLoaded', () => {
+    const chatContainer = document.querySelector('.chat-container');
+    if (!chatContainer) return;
+
+    // ★★★ ステップ1：UIとグラスモーフィズムの準備 ★★★
+    // ページ読み込みから4秒後に、全ての演出を一斉に開始する
+    setTimeout(() => {
+        // 背景をぼかし始める
+        chatContainer.classList.add('is-dreamy');
+        
+        // UI（ヘッダー、フォーム、メッセージ）を表示し始める
+        chatContainer.classList.add('is-ready');
+    }, 4000); // 4000ミリ秒 = 4秒後
 });
 
