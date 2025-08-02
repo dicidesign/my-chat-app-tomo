@@ -190,7 +190,7 @@ html, body {
     align-items: flex-end;
     box-sizing: border-box;
     flex-shrink: 0;
-     z-index: 20; /* ★★★ z-index を 3 に ★★★ */
+    z-index: 20; /* ★★★ z-index を 3 に ★★★ */
     position: relative;
 }
 .textarea-wrapper {
