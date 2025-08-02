@@ -65,7 +65,26 @@ html, body {
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
-    padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
+    padding: 12px 20px 12px 20px; 
+    opacity: 0;
+}
+
+.date-stamp-background {
+    position: absolute; /* ヘッダーと同じく、絶対配置 */
+    top: 0;
+    left: 0;
+    right: 0;
+    
+    /* ↓↓↓ ヘッダーと同じ透過黒の背景 ↓↓↓ */
+    background: rgba(0, 0, 0, 0.4); 
+
+    /* ↓↓↓ ヘッダーの高さ + 日付スタンプが収まる高さを指定 ↓↓↓ */
+    height: 125px; /* この値は微調整が必要かも */
+
+    /* ↓↓↓ 重ね順を、ヘッダー(20)と日付(15)の間にする！ ↓↓↓ */
+    z-index: 18; 
+
+    /* ↓↓↓ オープニング演出にも参加させる ↓↓↓ */
     opacity: 0;
 }
 
@@ -330,7 +349,7 @@ html, body {
     position: sticky;
     /* ↓↓↓ ヘッダーの高さ(約85px)の、すぐ下に貼り付くように調整 ↓↓↓ */
     top: 0; 
-    z-index: 15;
+    z-index: 19;
     font-size: 30px;
     font-weight: 900;
     color: rgba(255, 255, 255, .7);
@@ -683,7 +702,8 @@ html, body {
 
 /* 1. is-animatingが付いたら、アニメーションを開始する */
 .chat-container.is-animating .chat-header,
-.chat-container.is-animating #form{
+.chat-container.is-animating #form,
+.chat-container.is-animating .date-stamp-background {
     animation-name: fadeInUp;            /* どのアニメーションを使うか */
     animation-duration: 1.5s;            /* アニメーションの時間 */
     animation-delay: 4s;               /* ★★★ 4秒待ってから開始 ★★★ */
