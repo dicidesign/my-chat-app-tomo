@@ -31,17 +31,15 @@ if (!storedUsername) {
         let messageDate;
         if (typeof data.createdAt === 'object' && data.createdAt.seconds) { messageDate = new Date(data.createdAt.seconds * 1000); } else { messageDate = new Date(data.createdAt); }
         if (isNaN(messageDate.getTime())) { return; }
+        
         const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
         if (messageDateString !== lastMessageDate) {
-            const dateStamp = document.createElement('div');
-            dateStamp.className = 'date-stamp';
-            
-            // ★★★ 日付スタンプに、日付文字列を元にしたIDを付与 ★★★
-            dateStamp.id = `date-${messageDateString}`; 
-            
-            dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-            document.getElementById('date-stamp-layer').appendChild(dateStamp);
-            lastMessageDate = messageDateString;
+        const dateStamp = document.createElement('div');
+        dateStamp.className = 'date-stamp';
+        dateStamp.id = `date-${messageDateString}`;
+        dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
+        document.getElementById('date-stamp-layer').appendChild(dateStamp);
+        lastMessageDate = messageDateString;
 
             // ★★★ この日付の「最初のメッセージ」であることを示すクラスを付与 ★★★
             li.classList.add('first-message-of-day');
@@ -75,10 +73,24 @@ if (!storedUsername) {
             }
         }
         time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
-        bubble.className = 'bubble';
-        time.className = 'message-time';
-        if (username === currentUsername) { li.classList.add('me'); li.appendChild(time); li.appendChild(bubble); } else { const nameLabel = document.createElement('div'); nameLabel.textContent = username; nameLabel.className = 'name-label'; messages.appendChild(nameLabel); li.classList.add('opponent'); li.appendChild(bubble); li.appendChild(time); }
-        messages.appendChild(li);
+            bubble.className = 'bubble';
+            time.className = 'message-time';
+
+            if (username === currentUsername) {
+                li.classList.add('me');
+                li.appendChild(time);
+                li.appendChild(bubble);
+            } else {
+                const nameLabel = document.createElement('div');
+                nameLabel.textContent = username;
+                nameLabel.className = 'name-label';
+                messages.appendChild(nameLabel);
+                li.classList.add('opponent');
+                li.appendChild(bubble);
+                li.appendChild(time);
+            }
+            
+            messages.appendChild(li);
         setTimeout(() => li.classList.add('is-visible'), 10);
     };
     // --- メッセージ削除用のポップアップメニュー ---
