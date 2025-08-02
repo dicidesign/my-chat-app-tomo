@@ -684,7 +684,7 @@ html, body {
 /* 1. is-animatingが付いたら、アニメーションを開始する */
 .chat-container.is-animating .chat-header,
 .chat-container.is-animating #form,
-.chat-container.is-animating {
+.chat-container.is-animating .date-stamp{
     animation-name: fadeInUp;            /* どのアニメーションを使うか */
     animation-duration: 1.5s;            /* アニメーションの時間 */
     animation-delay: 4s;               /* ★★★ 4秒待ってから開始 ★★★ */
