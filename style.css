@@ -45,7 +45,6 @@ html, body {
     height: 100dvh;
     width: 100%;
     background-color: #e5e8e3;
-    opacity: 0;
 }
 #background-canvas {
     position: absolute;
@@ -67,6 +66,7 @@ html, body {
     color: white;
     text-align: center;
     padding: 12px 20px 55px 20px; /* ★上下のpaddingを均等にする */
+    opacity: 0;
 }
 
 .chat-theme {
