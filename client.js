@@ -27,72 +27,94 @@ if (!storedUsername) {
 
     // --- 5. メッセージを1件表示するための総合関数 ---
     const displayMessage = (data) => {
-        if (!data || typeof data.text !== 'string' || !data.createdAt || !data.id) { return; }
-        let messageDate;
-        if (typeof data.createdAt === 'object' && data.createdAt.seconds) { messageDate = new Date(data.createdAt.seconds * 1000); } else { messageDate = new Date(data.createdAt); }
-        if (isNaN(messageDate.getTime())) { return; }
-        
-        const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
-        if (messageDateString !== lastMessageDate) {
+    // 1. データが不正なら、何もせずに処理を終了する
+    if (!data || typeof data.text !== 'string' || !data.createdAt || !data.id) {
+        console.error('不正なメッセージデータ:', data);
+        return;
+    }
+
+    // 2. 日付関連のデータを準備する
+    let messageDate;
+    if (typeof data.createdAt === 'object' && data.createdAt.seconds) {
+        messageDate = new Date(data.createdAt.seconds * 1000);
+    } else {
+        messageDate = new Date(data.createdAt);
+    }
+    if (isNaN(messageDate.getTime())) { return; }
+    const messageDateString = `${messageDate.getFullYear()}-${messageDate.getMonth()}-${messageDate.getDate()}`;
+
+    // 3. メッセージ要素（li）を最初に生成する
+    const li = document.createElement('li');
+    li.id = `message-${data.id}`;
+
+    // 4. 新しい日付かどうかをチェックし、必要なら日付スタンプを生成する
+    if (messageDateString !== lastMessageDate) {
+        // --- 日付スタンプの処理 ---
         const dateStamp = document.createElement('div');
         dateStamp.className = 'date-stamp';
         dateStamp.id = `date-${messageDateString}`;
         dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-        document.getElementById('date-stamp-layer').appendChild(dateStamp);
+        document.getElementById('date-stamp-layer')?.appendChild(dateStamp);
         lastMessageDate = messageDateString;
 
-            // ★★★ この日付の「最初のメッセージ」であることを示すクラスを付与 ★★★
-            li.classList.add('first-message-of-day');
-            li.dataset.dateId = `date-${messageDateString}`; // 対応する日付スタンプのIDを保存
-        }
-        const username = data.username || '名無しさん';
-        const li = document.createElement('li');
-        li.id = `message-${data.id}`;
-        const bubble = document.createElement('div');
-        const time = document.createElement('span');
-        if (data.isVoice === true) { const audioPlayer = document.createElement('audio'); audioPlayer.src = data.text; audioPlayer.controls = true; bubble.appendChild(audioPlayer); 
-             if (username === currentUsername) {
-                // 自分の音声メッセージの場合だけ、長押し(contextmenu)イベントを設定
-                bubble.addEventListener('contextmenu', (e) => {
-                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
-                    
-                    // 第3引数に「true」（音声だよ）を渡して、ポップアップメニューを呼び出す
-                    showPopupMenu(bubble, data, true); 
-                });
-            }
-        } else if (data.isImage === true) { const img = document.createElement('img'); img.src = data.text; img.addEventListener('click', () => showImageModal(data)); bubble.appendChild(img); }
-        else {
-            // --- テキストメッセージの場合 ---
-            bubble.textContent = data.text;
-            if (username === currentUsername) {
-                // 自分のテキストメッセージにだけ、長押し(contextmenu)イベントを設定
-                bubble.addEventListener('contextmenu', (e) => {
-                    e.preventDefault(); // デフォルトの右クリックメニューをキャンセル
-                    showPopupMenu(bubble, data);
-                });
-            }
-        }
-        time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
-            bubble.className = 'bubble';
-            time.className = 'message-time';
+        // --- このliが「その日の最初のメッセージ」であることを記録する ---
+        li.classList.add('first-message-of-day');
+        li.dataset.dateId = `date-${messageDateString}`;
+    }
 
-            if (username === currentUsername) {
-                li.classList.add('me');
-                li.appendChild(time);
-                li.appendChild(bubble);
-            } else {
-                const nameLabel = document.createElement('div');
-                nameLabel.textContent = username;
-                nameLabel.className = 'name-label';
-                messages.appendChild(nameLabel);
-                li.classList.add('opponent');
-                li.appendChild(bubble);
-                li.appendChild(time);
-            }
-            
-            messages.appendChild(li);
-        setTimeout(() => li.classList.add('is-visible'), 10);
-    };
+    // 5. 吹き出し（bubble）と時刻（time）の要素を生成する
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    const time = document.createElement('span');
+    time.className = 'message-time';
+    time.textContent = `${String(messageDate.getHours()).padStart(2, '0')}:${String(messageDate.getMinutes()).padStart(2, '0')}`;
+
+    // 6. メッセージの種類（音声、画像、テキスト）に応じて、吹き出しの中身を作る
+    if (data.isVoice) {
+        const audioPlayer = document.createElement('audio');
+        audioPlayer.src = data.text;
+        audioPlayer.controls = true;
+        bubble.appendChild(audioPlayer);
+    } else if (data.isImage) {
+        const img = document.createElement('img');
+        img.src = data.text;
+        img.addEventListener('click', () => showImageModal(data)); // showImageModalは別途定義されている前提
+        bubble.appendChild(img);
+    } else {
+        bubble.textContent = data.text;
+    }
+
+    // 7. 自分か相手かで、要素の構成を変える
+    const username = data.username || '名無しさん';
+    if (username === currentUsername) {
+        // --- 自分のメッセージの場合 ---
+        li.classList.add('me');
+        li.appendChild(time); // [時刻] [吹き出し] の順
+        li.appendChild(bubble);
+    } else {
+        // --- 相手のメッセージの場合 ---
+        li.classList.add('opponent');
+        // 名前ラベルは、liの外、messagesに直接追加する
+        const nameLabel = document.createElement('div');
+        nameLabel.textContent = username;
+        nameLabel.className = 'name-label';
+        messages.appendChild(nameLabel);
+
+        li.appendChild(bubble); // [吹き出し] [時刻] の順
+        li.appendChild(time);
+    }
+    
+    // 8. 最終的に組み立てた li を messages に追加する
+    messages.appendChild(li);
+
+    // 9. ポップアップメニュー用のイベントリスナーを、自分のメッセージにだけ追加する
+    if (username === currentUsername) {
+        bubble.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showPopupMenu(bubble, data, data.isVoice); // showPopupMenuは別途定義されている前提
+        });
+    }
+};
     // --- メッセージ削除用のポップアップメニュー ---
     function showPopupMenu(targetBubble, messageData, isVoice = false) {
         const existingMenu = document.querySelector('.popup-menu');
