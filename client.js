@@ -317,18 +317,29 @@ if (!storedUsername) {
     input.addEventListener('focus', () => { setTimeout(() => { form.scrollIntoView(false); }, 300); });
 }
 
-// ///////////--- 11. 日付スタンプのフェードアウト処理 ---
+// --- 11. 日付スタンプの重なり検出とフェードアウト処理 ---
 const messagesContainer = document.getElementById('messages');
 if (messagesContainer) {
     messagesContainer.addEventListener('scroll', () => {
         const dateStamps = messagesContainer.querySelectorAll('.date-stamp');
         if (dateStamps.length < 2) return;
+
         for (let i = 0; i < dateStamps.length - 1; i++) {
             const currentStamp = dateStamps[i];
             const nextStamp = dateStamps[i + 1];
+
             const currentRect = currentStamp.getBoundingClientRect();
             const nextRect = nextStamp.getBoundingClientRect();
-            if (nextRect.top <= currentRect.top + 5) { currentStamp.classList.add('is-hiding'); } else { currentStamp.classList.remove('is-hiding'); }
+
+            // ★★★ ここからが修正ポイント ★★★
+            // 次のスタンプが、現在のスタンプの位置（上端）を越えたら
+            if (nextRect.top <= currentRect.top + 5) { // +5は微調整用の遊び
+                // JSで直接スタイルを書き換えて、強制的に透明にする
+                currentStamp.style.opacity = '0';
+            } else {
+                // 条件から外れたら、元の不透明な状態に戻す
+                currentStamp.style.opacity = '1';
+            }
         }
     });
 }
