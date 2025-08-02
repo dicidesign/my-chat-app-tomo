@@ -721,3 +721,46 @@ html, body {
     animation-delay: 4s;
     animation-fill-mode: forwards;
 }
+
+/* style.css の一番下に追加 */
+
+/* --- 18. SweetAlert2のアニメーション上書き --- */
+
+/* ★ 新しいフェードイン用のアニメーションを定義 ★ */
+@keyframes swal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ★ 新しいフェードアウト用のアニメーションを定義 ★ */
+@keyframes swal-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+
+/* --- SweetAlert2のデフォルトアニメーションを無効化＆上書き --- */
+
+/* 1. ポップアップが表示される時 (.swal2-show) */
+.swal2-popup.swal2-show {
+    /* デフォルトの 'swal2-show' アニメーションを上書き */
+    animation: swal-fade-in 0.3s ease-out forwards;
+}
+
+/* 2. ポップアップが非表示になる時 (.swal2-hide) */
+.swal2-popup.swal2-hide {
+    /* デフォルトの 'swal2-hide' アニメーションを上書き */
+    animation: swal-fade-out 0.3s ease-in forwards;
+}
+
+/* 3. 背景（バックドロップ）のフェードイン */
+.swal2-backdrop.swal2-shown {
+    /* デフォルトの 'swal2-backdrop-show' を上書き */
+    animation: swal-fade-in 0.3s ease-out forwards;
+}
+
+/* 4. 背景（バックドロップ）のフェードアウト */
+.swal2-backdrop.swal2-hiding {
+    /* デフォルトの 'swal2-backdrop-hide' を上書き */
+    animation: swal-fade-out 0.3s ease-in forwards;
+}
