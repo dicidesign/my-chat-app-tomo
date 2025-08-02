@@ -643,7 +643,8 @@ html, body {
     z-index: 5;
     background-image: url('images/glass.png');
     background-size: cover;
-    opacity: 0;
+    opacity: 0;table-layout: fixed;
+    transition: all ease-in-out 2s;
 }
 
 
@@ -654,9 +655,15 @@ html, body {
 /* --- 17. CSSキーフレームアニメーションによるオープニング演出 --- */
 
 /* ★ フェードイン用のアニメーション定義 ★ */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px); /* 開始時は20px下にいる */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);    /* 終了時は定位置（Y座標0）に戻る */
+  }
 }
 
 /* ★ ぼかし（グラスモーフィズム）用のアニメーション定義 ★ */
@@ -683,8 +690,8 @@ html, body {
 .chat-container.is-animating .chat-header,
 .chat-container.is-animating #form,
 .chat-container.is-animating .date-stamp {
-    animation-name: fadeIn;            /* どのアニメーションを使うか */
-    animation-duration: 1s;            /* アニメーションの時間 */
+    animation-name: fadeInUp;            /* どのアニメーションを使うか */
+    animation-duration: 1.5s;            /* アニメーションの時間 */
     animation-delay: 4s;               /* ★★★ 4秒待ってから開始 ★★★ */
     animation-fill-mode: forwards;     /* アニメーション終了後、最後の状態を維持 */
     animation-timing-function: ease-out; /* 動きの緩急 */
@@ -692,8 +699,8 @@ html, body {
 
 /* 2. メッセージリストも同様に設定 */
 .chat-container.is-animating #messages {
-    animation-name: fadeIn;
-    animation-duration: 1s;
+    animation-name: fadeInUp;
+    animation-duration: 1.5s;
     animation-delay: 4s;
     animation-fill-mode: forwards;
 }
