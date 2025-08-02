@@ -764,3 +764,52 @@ html, body {
     /* デフォルトの 'swal2-backdrop-hide' を上書き */
     animation: swal-fade-out 0.3s ease-in forwards;
 }
+
+
+/* --- 19. テーマ変更モーダルのカスタムスタイル --- */
+
+/* ★ ポップアップ全体のスタイル ★ */
+.theme-edit-popup {
+    background: #333 !important; /* 濃いグレーの背景 */
+    border-radius: 14px !important;
+}
+
+/* ★ タイトル（「お好きなテーマを〜」）のスタイル ★ */
+.theme-edit-title {
+    color: white !important;
+    font-size: 18px !important;   /* フォントサイズを一回り小さく */
+    font-weight: 300 !important;  /* フォントを細く (100〜900で調整可) */
+}
+
+/* ★ 入力欄のスタイル ★ */
+.theme-edit-input {
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    color: white !important;
+    border-radius: 6px !important;
+    margin-top: 20px !important;
+}
+/* 入力欄のプレースホルダー文字の色 */
+.theme-edit-input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ★ ボタンのスタイル（削除確認ボタンと共通化しても良い） ★ */
+.theme-edit-button {
+    border-radius: 6px !important;
+    font-weight: 500 !important; /* ボタンの文字は少し太めに */
+    padding: 10px 20px !important;
+    margin: 0 8px !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.2s, transform 0.2s !important;
+}
+.theme-edit-button.confirm {
+    background-color: #007bff !important; /* 「変更する」ボタンの色 */
+}
+.theme-edit-button.cancel {
+    background-color: #555 !important; /* 「やめる」ボタンの色 */
+}
+.theme-edit-button:hover {
+    transform: scale(1.03);
+}

@@ -340,24 +340,43 @@ function showImageModal(messageData) {
     
     // --- 9. ヘッダーのテーマ変更機能 ---
     if (chatThemeElement) {
-        chatThemeElement.addEventListener('click', () => {
-            Swal.fire({
-                title: '新しいテーマを入力してください', input: 'text', inputValue: chatThemeElement.textContent, showCancelButton: true,
-                confirmButtonText: '変更する', cancelButtonText: 'やめる', inputAttributes: { maxlength: 10 },
-                preConfirm: (value) => {
-                    if (!value) { Swal.showValidationMessage('テーマを入力してください！'); return false; }
-                    if (value.length > 8) { Swal.showValidationMessage('テーマは8文字以内で入力してください。'); return false; }
-                    return value;
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    const newTheme = result.value;
-                    socket.emit('theme change', newTheme);
-                }
+            chatThemeElement.addEventListener('click', () => {
+                Swal.fire({
+                    // ↓↓↓ ここからが修正・追加箇所 ↓↓↓
+
+                    title: 'お好きなテーマを入力', // ★ タイトルを変更
+                    input: 'text',
+                    inputValue: chatThemeElement.textContent,
+                    showCancelButton: true,
+                    confirmButtonText: '変更する',
+                    cancelButtonText: 'やめる',
+
+                    // ★ 新しく定義したカスタムクラスを、ここで適用！ ★
+                    customClass: {
+                        popup: 'theme-edit-popup',
+                        title: 'theme-edit-title',
+                        input: 'theme-edit-input',
+                        confirmButton: 'theme-edit-button confirm',
+                        cancelButton: 'theme-edit-button cancel'
+                    },
+
+                    // ↑↑↑ ここまでが修正・追加箇所 ↑↑↑
+
+                    inputAttributes: { maxlength: 10 },
+                    preConfirm: (value) => {
+                        if (!value) { Swal.showValidationMessage('テーマを入力してください！'); return false; }
+                        if (value.length > 8) { Swal.showValidationMessage('テーマは8文字以内で入力してください。'); return false; }
+                        return value;
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed && result.value) {
+                        const newTheme = result.value;
+                        socket.emit('theme change', newTheme);
+                    }
+                });
             });
-        });
-    }
+        }
 
     // --- 10. 【シンプル版】キーボード表示時にスクロールする ---
     input.addEventListener('focus', () => { setTimeout(() => { form.scrollIntoView(false); }, 300); });
