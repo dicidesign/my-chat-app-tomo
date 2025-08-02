@@ -416,14 +416,12 @@ if (messagesContainer) {
             }
         }
     });
-}
-
-/////////// --- 15. 動く背景アニメーション (ニュース表示機能付き) ---
+}////////// --- 15. 動く背景アニメーション (ニュース表示機能付き・完全版) ---
 const canvas = document.getElementById('background-canvas');
 if (canvas) {
     const ctx = canvas.getContext('2d');
     let circles = [];
-    let summarizedNews = []; // ★ ニュースを保存する配列
+    let summarizedNews = []; // ニュースを保存する配列
 
     // ★ ニュースを取得して配列にセットする関数
     const fetchNews = async () => {
@@ -431,26 +429,55 @@ if (canvas) {
             const response = await fetch('/get-summarized-news');
             const data = await response.json();
             if (data.success) {
-                // 先頭の不要な文字（例: "・"）などを取り除く
                 summarizedNews = data.summarizedNews.map(news => news.replace(/^[\s・-]/, '').trim()).filter(Boolean);
+                console.log("取得したニュース:", summarizedNews); // デバッグ用
+            } else {
+                console.error("ニュースAPIからエラー:", data.message);
             }
         } catch (error) {
-            console.error("ニュースの取得に失敗", error);
+            console.error("ニュースの取得に失敗 (fetch error):", error);
         }
     };
 
-    const resizeCanvas = () => { /* ... (変更なし) */ };
+    // ★★★ ここからが省略されていた部分！ ★★★
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    const createCircle = () => { /* ... (変更なし) */ };
-    for (let i = 0; i < 12; i++) { circles.push(createCircle()); }
+    const createCircle = () => {
+        const colors = [
+            'rgba(65, 160, 205, 0.75)',
+            'rgba(186, 68, 86, 0.8)',
+            'rgba(199, 214, 58, 0.77)'
+        ];
+        return {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: 40 + Math.random() * 100,
+            speed: 0.1 + Math.random() * 0.3,
+            color: colors[Math.floor(Math.random() * colors.length)]
+        };
+    };
+
+    for (let i = 0; i < 12; i++) {
+        circles.push(createCircle());
+    }
+    // ★★★ ここまでが省略されていた部分！ ★★★
+
 
     const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         circles.forEach((circle, index) => {
             circle.y += circle.speed;
-            if (circle.y > canvas.height + circle.radius) { /* ... (変更なし) */ }
+            
+            // ★★★ ここも省略されていた部分！ ★★★
+            if (circle.y > canvas.height + circle.radius) {
+                circle.y = -circle.radius;
+                circle.x = Math.random() * canvas.width;
+            }
             
             // 円を描画
             ctx.beginPath();
@@ -458,30 +485,29 @@ if (canvas) {
             ctx.fillStyle = circle.color;
             ctx.fill();
 
-            // ★ 円の中にニューステキストを描画
+            // 円の中にニューステキストを描画
             if (summarizedNews.length > 0) {
-                const newsIndex = index % summarizedNews.length; // ニュースを循環させる
+                const newsIndex = index % summarizedNews.length;
                 const newsText = summarizedNews[newsIndex];
                 
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 14px "Helvetica Neue", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                // 複数行対応のために、文字を分割して描画
-                const lines = newsText.match(/.{1,10}/g) || []; // 10文字で改行
+                const lines = newsText.match(/.{1,10}/g) || [];
                 lines.forEach((line, i) => {
-                    ctx.fillText(line, circle.x, circle.y - (lines.length-1)*8 + i*16);
+                    ctx.fillText(line, circle.x, circle.y - (lines.length - 1) * 8 + i * 16);
                 });
             }
         });
         requestAnimationFrame(animate);
     };
 
-    // ★ 最初にニュースを取得してからアニメーションを開始
+    // 最初にニュースを取得してからアニメーションを開始
     fetchNews().then(() => {
         animate();
         // 1時間ごとにニュースを再取得
-        setInterval(fetchNews, 3600000); 
+        setInterval(fetchNews, 3600000);
     });
 }
 
