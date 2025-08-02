@@ -340,6 +340,7 @@ html, body {
     width: 100%;
     margin-bottom: 10px;
     transition: opacity 0.3s ease-out;
+    opacity: 0;
 }
 .date-stamp.is-hiding {
     opacity: 0;
