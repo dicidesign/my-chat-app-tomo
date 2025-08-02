@@ -386,3 +386,14 @@ if (canvas) {
     animate();
 }
 
+// --- 16. グラスモーフィズム演出 ---
+// ページが読み込まれてから2秒後に、'is-dreamy'クラスを追加する
+document.addEventListener('DOMContentLoaded', () => {
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+        setTimeout(() => {
+            chatContainer.classList.add('is-dreamy');
+        }, 2000); // 2000ミリ秒 = 2秒後
+    }
+});
+

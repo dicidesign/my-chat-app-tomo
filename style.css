@@ -340,9 +340,6 @@ html, body {
     
     transition: opacity 0.3s ease-out;
 }
-.date-stamp.is-hiding {
-    opacity: 0;
-}
 
 
 /* --- 7. オリジナル添付メニュー --- */
