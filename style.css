@@ -714,13 +714,7 @@ html, body {
     animation-fill-mode: forwards;
 }
 
-/* 4. 磨りガラスのフェードインアニメーション */
-.chat-container.is-animating .glass-overlay {
-    animation-name: glassOverlayFadeIn;
-    animation-duration: 2s;
-    animation-delay: 4s;
-    animation-fill-mode: forwards;
-}
+
 
 /* style.css の一番下に追加 */
 
