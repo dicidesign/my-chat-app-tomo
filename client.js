@@ -35,12 +35,17 @@ if (!storedUsername) {
         if (messageDateString !== lastMessageDate) {
             const dateStamp = document.createElement('div');
             dateStamp.className = 'date-stamp';
+            
+            // ★★★ 日付スタンプに、日付文字列を元にしたIDを付与 ★★★
+            dateStamp.id = `date-${messageDateString}`; 
+            
             dateStamp.textContent = `${messageDate.getFullYear()}/${String(messageDate.getMonth() + 1).padStart(2, '0')}/${String(messageDate.getDate()).padStart(2, '0')}`;
-            
-            // ★★★ 追加先を #date-stamp-layer に変更！ ★★★
-            document.getElementById('date-stamp-layer').appendChild(dateStamp); 
-            
+            document.getElementById('date-stamp-layer').appendChild(dateStamp);
             lastMessageDate = messageDateString;
+
+            // ★★★ この日付の「最初のメッセージ」であることを示すクラスを付与 ★★★
+            li.classList.add('first-message-of-day');
+            li.dataset.dateId = `date-${messageDateString}`; // 対応する日付スタンプのIDを保存
         }
         const username = data.username || '名無しさん';
         const li = document.createElement('li');
@@ -294,11 +299,13 @@ if (!storedUsername) {
     lastMessageDate = null;
     
     // 単純に、受け取ったメッセージを全部表示するだけの処理にする
-    serverMessages.forEach(msg => {
+     serverMessages.forEach(msg => {
         displayMessage(msg);
     });
 
     // 読み込み終わったら、一番下までスクロール（これは残しておく）
+    messages.scrollTop = messages.scrollHeight;
+    repositionDateStamps();
     messages.scrollTop = messages.scrollHeight;
 });
     
@@ -421,4 +428,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // ページが読み込まれたら、すぐにアニメーション開始のクラスを付与する
     document.querySelector('.chat-container')?.classList.add('is-animating');
 });
+
+/**
+ * 全ての日付スタンプの位置を再計算して、正しい場所に配置する関数
+ */
+function repositionDateStamps() {
+    // 全ての日付スタンプを取得
+    const dateStamps = document.querySelectorAll('.date-stamp');
+    
+    dateStamps.forEach(stamp => {
+        // 対応する「その日の最初のメッセージ」を探す
+        const firstMessage = document.querySelector(`.first-message-of-day[data-date-id="${stamp.id}"]`);
+        
+        if (firstMessage) {
+            // ★★★ メッセージのY座標を取得して、日付スタンプのtopに設定 ★★★
+            const messageTop = firstMessage.offsetTop;
+            stamp.style.top = `${messageTop}px`;
+        }
+    });
+}
 
