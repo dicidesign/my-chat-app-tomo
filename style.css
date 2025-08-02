@@ -65,7 +65,7 @@ html, body {
     background: rgba(0, 0, 0, 0.4);
     color: white;
     text-align: center;
-    padding: 8px 20px 10px 8px; 
+    padding: 8px 20px 0px 8px; 
     opacity: 0;
 }
 
